@@ -1,0 +1,32 @@
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# FreeCAD temporary files
+*.FCStd1
+*.FCStd-shm
+*.FCStd-wal
+
+# Generated models and outputs
+generated_models/
+stepfiles/*.step
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
