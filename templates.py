@@ -22,7 +22,7 @@ def cube(doc, size=50):
     obj = doc.addObject("Part::Feature", "Cube")
     obj.Shape = box
     doc.recompute()
-    print(f"✓ Cube created: {size}mm")
+    print(f"[OK] Cube created: {size}mm")
     return box
 
 
@@ -32,7 +32,7 @@ def cuboid(doc, length=100, width=50, height=30):
     obj = doc.addObject("Part::Feature", "Cuboid")
     obj.Shape = box
     doc.recompute()
-    print(f"✓ Cuboid created: {length}×{width}×{height}mm")
+    print(f"[OK] Cuboid created: {length}×{width}×{height}mm")
     return box
 
 
@@ -42,7 +42,7 @@ def cylinder(doc, radius=25, height=100):
     obj = doc.addObject("Part::Feature", "Cylinder")
     obj.Shape = cyl
     doc.recompute()
-    print(f"✓ Cylinder created: r={radius}mm, h={height}mm")
+    print(f"[OK] Cylinder created: r={radius}mm, h={height}mm")
     return cyl
 
 
@@ -52,7 +52,7 @@ def sphere(doc, radius=50):
     obj = doc.addObject("Part::Feature", "Sphere")
     obj.Shape = sph
     doc.recompute()
-    print(f"✓ Sphere created: r={radius}mm")
+    print(f"[OK] Sphere created: r={radius}mm")
     return sph
 
 
@@ -62,7 +62,7 @@ def cone(doc, radius1=50, radius2=20, height=100):
     obj = doc.addObject("Part::Feature", "Cone")
     obj.Shape = con
     doc.recompute()
-    print(f"✓ Cone created: r1={radius1}mm, r2={radius2}mm, h={height}mm")
+    print(f"[OK] Cone created: r1={radius1}mm, r2={radius2}mm, h={height}mm")
     return con
 
 
@@ -72,7 +72,7 @@ def torus(doc, radius1=50, radius2=10):
     obj = doc.addObject("Part::Feature", "Torus")
     obj.Shape = tor
     doc.recompute()
-    print(f"✓ Torus created: R={radius1}mm, r={radius2}mm")
+    print(f"[OK] Torus created: R={radius1}mm, r={radius2}mm")
     return tor
 
 
@@ -84,7 +84,7 @@ def wedge(doc, xmin=0, ymin=0, zmin=0, z2min=0, x2min=0,
     obj = doc.addObject("Part::Feature", "Wedge")
     obj.Shape = wed
     doc.recompute()
-    print(f"✓ Wedge created")
+    print(f"[OK] Wedge created")
     return wed
 
 
@@ -96,7 +96,7 @@ def tube(doc, outer_radius=30, inner_radius=20, height=100):
     obj = doc.addObject("Part::Feature", "Tube")
     obj.Shape = tube
     doc.recompute()
-    print(f"✓ Tube created: OD={outer_radius*2}mm, ID={inner_radius*2}mm, h={height}mm")
+    print(f"[OK] Tube created: OD={outer_radius*2}mm, ID={inner_radius*2}mm, h={height}mm")
     return tube
 
 
@@ -111,7 +111,7 @@ def rectangular_tube(doc, outer_length=100, outer_width=80,
     obj = doc.addObject("Part::Feature", "RectangularTube")
     obj.Shape = tube
     doc.recompute()
-    print(f"✓ Rectangular tube created")
+    print(f"[OK] Rectangular tube created")
     return tube
 
 
@@ -121,7 +121,7 @@ def plate(doc, length=100, width=80, thickness=5):
     obj = doc.addObject("Part::Feature", "Plate")
     obj.Shape = plate
     doc.recompute()
-    print(f"✓ Plate created: {length}×{width}×{thickness}mm")
+    print(f"[OK] Plate created: {length}×{width}×{thickness}mm")
     return plate
 
 
@@ -131,7 +131,7 @@ def rod(doc, diameter=20, length=200):
     obj = doc.addObject("Part::Feature", "Rod")
     obj.Shape = rod
     doc.recompute()
-    print(f"✓ Rod created: ø{diameter}mm, L={length}mm")
+    print(f"[OK] Rod created: ø{diameter}mm, L={length}mm")
     return rod
 
 
@@ -143,7 +143,7 @@ def ring(doc, outer_radius=40, inner_radius=30, thickness=5):
     obj = doc.addObject("Part::Feature", "Ring")
     obj.Shape = ring
     doc.recompute()
-    print(f"✓ Ring created: OD={outer_radius*2}mm, ID={inner_radius*2}mm")
+    print(f"[OK] Ring created: OD={outer_radius*2}mm, ID={inner_radius*2}mm")
     return ring
 
 
@@ -159,7 +159,7 @@ def line(doc, start=(0,0,0), end=(100,0,0)):
     obj = doc.addObject("Part::Feature", "Line")
     obj.Shape = line
     doc.recompute()
-    print(f"✓ Line created")
+    print(f"[OK] Line created")
     return line
 
 
@@ -169,7 +169,7 @@ def circle(doc, radius=50, center=(0,0,0)):
     obj = doc.addObject("Part::Feature", "Circle")
     obj.Shape = circ
     doc.recompute()
-    print(f"✓ Circle created: r={radius}mm")
+    print(f"[OK] Circle created: r={radius}mm")
     return circ
 
 
@@ -189,7 +189,7 @@ def rectangle_2d(doc, length=100, width=50):
     obj = doc.addObject("Part::Feature", "Rectangle")
     obj.Shape = wire
     doc.recompute()
-    print(f"✓ Rectangle created: {length}×{width}mm")
+    print(f"[OK] Rectangle created: {length}×{width}mm")
     return wire
 
 
@@ -209,7 +209,7 @@ def polygon(doc, radius=50, sides=6):
     obj = doc.addObject("Part::Feature", "Polygon")
     obj.Shape = wire
     doc.recompute()
-    print(f"✓ Polygon created: {sides} sides, r={radius}mm")
+    print(f"[OK] Polygon created: {sides} sides, r={radius}mm")
     return wire
 
 
@@ -221,7 +221,7 @@ def arc(doc, radius=50, start_angle=0, end_angle=90):
     obj = doc.addObject("Part::Feature", "Arc")
     obj.Shape = arc
     doc.recompute()
-    print(f"✓ Arc created: r={radius}mm, {start_angle}° to {end_angle}°")
+    print(f"[OK] Arc created: r={radius}mm, {start_angle}° to {end_angle}°")
     return arc
 
 
@@ -231,7 +231,7 @@ def ellipse(doc, major_radius=60, minor_radius=30):
     obj = doc.addObject("Part::Feature", "Ellipse")
     obj.Shape = ell.toShape()
     doc.recompute()
-    print(f"✓ Ellipse created: major={major_radius}mm, minor={minor_radius}mm")
+    print(f"[OK] Ellipse created: major={major_radius}mm, minor={minor_radius}mm")
     return ell.toShape()
 
 
@@ -267,7 +267,7 @@ def pyramid(doc, base_length=80, base_width=80, height=100):
     obj = doc.addObject("Part::Feature", "Pyramid")
     obj.Shape = solid
     doc.recompute()
-    print(f"✓ Pyramid created: base={base_length}×{base_width}mm, h={height}mm")
+    print(f"[OK] Pyramid created: base={base_length}×{base_width}mm, h={height}mm")
     return solid
 
 
@@ -292,7 +292,7 @@ def prism(doc, sides=6, radius=40, height=80):
     obj = doc.addObject("Part::Feature", "Prism")
     obj.Shape = prism
     doc.recompute()
-    print(f"✓ Prism created: {sides} sides, r={radius}mm, h={height}mm")
+    print(f"[OK] Prism created: {sides} sides, r={radius}mm, h={height}mm")
     return prism
 
 
@@ -302,7 +302,7 @@ def helix(doc, pitch=10, height=100, radius=30):
     obj = doc.addObject("Part::Feature", "Helix")
     obj.Shape = helix
     doc.recompute()
-    print(f"✓ Helix created: pitch={pitch}mm, h={height}mm, r={radius}mm")
+    print(f"[OK] Helix created: pitch={pitch}mm, h={height}mm, r={radius}mm")
     return helix
 
 
@@ -323,7 +323,7 @@ def box_with_hole(doc, box_length=100, box_width=80, box_height=50,
     obj = doc.addObject("Part::Feature", "BoxWithHole")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ Box with hole: {box_length}×{box_width}×{box_height}mm, ø{hole_diameter}mm hole")
+    print(f"[OK] Box with hole: {box_length}×{box_width}×{box_height}mm, ø{hole_diameter}mm hole")
     return result
 
 
@@ -348,7 +348,7 @@ def plate_with_holes(doc, length=150, width=100, thickness=10,
     obj = doc.addObject("Part::Feature", "PlateWithHoles")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ Plate with {hole_count_x*hole_count_y} holes created")
+    print(f"[OK] Plate with {hole_count_x*hole_count_y} holes created")
     return result
 
 
@@ -364,7 +364,7 @@ def l_bracket(doc, length=100, width=80, height=60, thickness=10):
     obj = doc.addObject("Part::Feature", "LBracket")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ L-bracket created: {length}×{width}×{height}mm, t={thickness}mm")
+    print(f"[OK] L-bracket created: {length}×{width}×{height}mm, t={thickness}mm")
     return result
 
 
@@ -376,7 +376,7 @@ def through_hole(base_shape, diameter=10, position=(0,0,0), direction=(0,0,1), d
     """Create a through hole in a shape"""
     hole = Part.makeCylinder(diameter/2, depth, App.Vector(*position), App.Vector(*direction))
     result = base_shape.cut(hole)
-    print(f"✓ Through hole: ø{diameter}mm")
+    print(f"[OK] Through hole: ø{diameter}mm")
     return result
 
 
@@ -384,7 +384,7 @@ def blind_hole(base_shape, diameter=10, depth=50, position=(0,0,0), direction=(0
     """Create a blind hole (not through)"""
     hole = Part.makeCylinder(diameter/2, depth, App.Vector(*position), App.Vector(*direction))
     result = base_shape.cut(hole)
-    print(f"✓ Blind hole: ø{diameter}mm, depth={depth}mm")
+    print(f"[OK] Blind hole: ø{diameter}mm, depth={depth}mm")
     return result
 
 
@@ -404,7 +404,7 @@ def countersink_hole(base_shape, hole_diameter=10, sink_diameter=20, sink_angle=
     
     cutout = hole.fuse(sink)
     result = base_shape.cut(cutout)
-    print(f"✓ Countersink hole: ø{hole_diameter}mm, sink ø{sink_diameter}mm")
+    print(f"[OK] Countersink hole: ø{hole_diameter}mm, sink ø{sink_diameter}mm")
     return result
 
 
@@ -422,7 +422,7 @@ def counterbore_hole(base_shape, hole_diameter=10, bore_diameter=20, bore_depth=
     
     cutout = hole.fuse(bore)
     result = base_shape.cut(cutout)
-    print(f"✓ Counterbore hole: ø{hole_diameter}mm, bore ø{bore_diameter}mm×{bore_depth}mm")
+    print(f"[OK] Counterbore hole: ø{hole_diameter}mm, bore ø{bore_diameter}mm×{bore_depth}mm")
     return result
 
 
@@ -432,7 +432,7 @@ def rectangular_slot(base_shape, length=50, width=10, depth=20, position=(0,0,0)
     slot = Part.makeBox(length, width, depth, pos)
     slot.translate(App.Vector(-length/2, -width/2, 0))
     result = base_shape.cut(slot)
-    print(f"✓ Rectangular slot: {length}×{width}×{depth}mm")
+    print(f"[OK] Rectangular slot: {length}×{width}×{depth}mm")
     return result
 
 
@@ -441,7 +441,7 @@ def circular_pocket(base_shape, diameter=40, depth=20, position=(0,0,0)):
     pos = App.Vector(*position)
     pocket = Part.makeCylinder(diameter/2, depth, pos)
     result = base_shape.cut(pocket)
-    print(f"✓ Circular pocket: ø{diameter}mm, depth={depth}mm")
+    print(f"[OK] Circular pocket: ø{diameter}mm, depth={depth}mm")
     return result
 
 
@@ -455,7 +455,7 @@ def rectangular_pocket(base_shape, length=60, width=40, depth=20, fillet_radius=
         pocket = pocket.makeFillet(fillet_radius, pocket.Edges)
     
     result = base_shape.cut(pocket)
-    print(f"✓ Rectangular pocket: {length}×{width}×{depth}mm")
+    print(f"[OK] Rectangular pocket: {length}×{width}×{depth}mm")
     return result
 
 
@@ -465,7 +465,7 @@ def keyway(base_shape, width=8, depth=4, length=50, position=(0,0,0)):
     key = Part.makeBox(width, length, depth, pos)
     key.translate(App.Vector(-width/2, -length/2, -depth))
     result = base_shape.cut(key)
-    print(f"✓ Keyway: {width}×{depth}mm, length={length}mm")
+    print(f"[OK] Keyway: {width}×{depth}mm, length={length}mm")
     return result
 
 
@@ -491,7 +491,7 @@ def u_bracket(doc, length=100, width=80, height=60, thickness=10):
     obj = doc.addObject("Part::Feature", "UBracket")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ U-bracket created: {length}×{width}×{height}mm, t={thickness}mm")
+    print(f"[OK] U-bracket created: {length}×{width}×{height}mm, t={thickness}mm")
     return result
 
 
@@ -512,7 +512,7 @@ def z_bracket(doc, length1=80, length2=80, height=100, thickness=10, offset=40):
     obj = doc.addObject("Part::Feature", "ZBracket")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ Z-bracket created: h={height}mm, t={thickness}mm")
+    print(f"[OK] Z-bracket created: h={height}mm, t={thickness}mm")
     return result
 
 
@@ -548,7 +548,7 @@ def corner_bracket(doc, size=60, thickness=10, hole_diameter=8):
     obj = doc.addObject("Part::Feature", "CornerBracket")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ Corner bracket: {size}×{size}mm, t={thickness}mm, 4 holes")
+    print(f"[OK] Corner bracket: {size}×{size}mm, t={thickness}mm, 4 holes")
     return result
 
 
@@ -570,7 +570,7 @@ def angle_bracket(doc, length=100, width=80, angle=45, thickness=10):
     obj = doc.addObject("Part::Feature", "AngleBracket")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ Angle bracket: {length}×{width}mm, {angle}°")
+    print(f"[OK] Angle bracket: {length}×{width}mm, {angle}°")
     return result
 
 
@@ -598,7 +598,7 @@ def mounting_plate(doc, length=150, width=100, thickness=10, hole_diameter=8, ho
     obj = doc.addObject("Part::Feature", "MountingPlate")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ Mounting plate: {length}×{width}×{thickness}mm, pattern={hole_pattern}")
+    print(f"[OK] Mounting plate: {length}×{width}×{thickness}mm, pattern={hole_pattern}")
     return result
 
 
@@ -639,7 +639,7 @@ def motor_mount_plate(doc, motor_size='NEMA17', mounting_thickness=10, base_size
     obj = doc.addObject("Part::Feature", "MotorMount")
     obj.Shape = plate
     doc.recompute()
-    print(f"✓ Motor mount: {motor_size}, {base_size}×{base_size}mm")
+    print(f"[OK] Motor mount: {motor_size}, {base_size}×{base_size}mm")
     return plate
 
 
@@ -665,7 +665,7 @@ def i_beam(doc, height=200, flange_width=100, web_thickness=10, flange_thickness
     obj = doc.addObject("Part::Feature", "IBeam")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ I-beam: H={height}mm, W={flange_width}mm, L={length}mm")
+    print(f"[OK] I-beam: H={height}mm, W={flange_width}mm, L={length}mm")
     return result
 
 
@@ -685,7 +685,7 @@ def c_channel(doc, height=100, width=50, web_thickness=8, flange_thickness=10, l
     obj = doc.addObject("Part::Feature", "CChannel")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ C-channel: {height}×{width}mm, L={length}mm")
+    print(f"[OK] C-channel: {height}×{width}mm, L={length}mm")
     return result
 
 
@@ -701,7 +701,7 @@ def angle_iron(doc, leg1=50, leg2=50, thickness=8, length=500):
     obj = doc.addObject("Part::Feature", "AngleIron")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ Angle iron: {leg1}×{leg2}mm, t={thickness}mm, L={length}mm")
+    print(f"[OK] Angle iron: {leg1}×{leg2}mm, t={thickness}mm, L={length}mm")
     return result
 
 
@@ -732,7 +732,7 @@ def stepped_shaft(doc, diameters=[20, 30, 20], lengths=[50, 100, 50]):
     obj = doc.addObject("Part::Feature", "SteppedShaft")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ Stepped shaft: {len(diameters)} segments, total length={sum(lengths)}mm")
+    print(f"[OK] Stepped shaft: {len(diameters)} segments, total length={sum(lengths)}mm")
     return result
 
 
@@ -749,7 +749,7 @@ def shaft_with_keyway(doc, diameter=30, length=200, keyway_width=8, keyway_depth
     obj = doc.addObject("Part::Feature", "ShaftWithKeyway")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ Shaft with keyway: ø{diameter}mm, L={length}mm, keyway {keyway_width}×{keyway_depth}mm")
+    print(f"[OK] Shaft with keyway: ø{diameter}mm, L={length}mm, keyway {keyway_width}×{keyway_depth}mm")
     return result
 
 
@@ -773,7 +773,7 @@ def threaded_shaft(doc, major_diameter=10, pitch=1.5, length=100, thread_depth=0
     obj = doc.addObject("Part::Feature", "ThreadedShaft")
     obj.Shape = shaft
     doc.recompute()
-    print(f"✓ Threaded shaft: M{major_diameter}, pitch={pitch}mm, L={length}mm")
+    print(f"[OK] Threaded shaft: M{major_diameter}, pitch={pitch}mm, L={length}mm")
     return shaft
 
 
@@ -796,7 +796,7 @@ def knurled_shaft(doc, diameter=20, length=100, knurl_type='diamond', knurl_dept
     obj = doc.addObject("Part::Feature", "KnurledShaft")
     obj.Shape = shaft
     doc.recompute()
-    print(f"✓ Knurled shaft: ø{diameter}mm, L={length}mm, {knurl_type} knurl")
+    print(f"[OK] Knurled shaft: ø{diameter}mm, L={length}mm, {knurl_type} knurl")
     return shaft
 
 
@@ -820,7 +820,7 @@ def shaft_collar(doc, inner_diameter=20, outer_diameter=40, thickness=10, set_sc
     obj = doc.addObject("Part::Feature", "ShaftCollar")
     obj.Shape = collar
     doc.recompute()
-    print(f"✓ Shaft collar: ID={inner_diameter}mm, OD={outer_diameter}mm")
+    print(f"[OK] Shaft collar: ID={inner_diameter}mm, OD={outer_diameter}mm")
     return collar
 
 
@@ -860,7 +860,7 @@ def spur_gear(doc, num_teeth=20, module=2, thickness=10, bore_diameter=10):
     obj = doc.addObject("Part::Feature", "SpurGear")
     obj.Shape = gear
     doc.recompute()
-    print(f"✓ Spur gear: {num_teeth} teeth, module={module}, t={thickness}mm")
+    print(f"[OK] Spur gear: {num_teeth} teeth, module={module}, t={thickness}mm")
     return gear
 
 
@@ -889,7 +889,7 @@ def pulley(doc, outer_diameter=60, bore_diameter=10, thickness=20, groove_type='
     obj = doc.addObject("Part::Feature", "Pulley")
     obj.Shape = pulley
     doc.recompute()
-    print(f"✓ Pulley: OD={outer_diameter}mm, bore={bore_diameter}mm, {groove_type}-groove")
+    print(f"[OK] Pulley: OD={outer_diameter}mm, bore={bore_diameter}mm, {groove_type}-groove")
     return pulley
 
 
@@ -923,7 +923,7 @@ def sprocket(doc, num_teeth=16, pitch=12.7, bore_diameter=10, thickness=8):
     obj = doc.addObject("Part::Feature", "Sprocket")
     obj.Shape = sprocket
     doc.recompute()
-    print(f"✓ Sprocket: {num_teeth} teeth, pitch={pitch}mm")
+    print(f"[OK] Sprocket: {num_teeth} teeth, pitch={pitch}mm")
     return sprocket
 
 def rack_gear(doc, length=100, width=10, height=10, module=1):
@@ -966,7 +966,7 @@ def rack_gear(doc, length=100, width=10, height=10, module=1):
     obj = doc.addObject("Part::Feature", "RackGear")
     obj.Shape = final_rack
     doc.recompute()
-    print(f"✓ Rack Gear: L={length}mm, Module={module}")
+    print(f"[OK] Rack Gear: L={length}mm, Module={module}")
     return final_rack
 
 # ============================================================================
@@ -999,7 +999,7 @@ def support_rib(doc, height=50, length=80, thickness=5, angle=45):
     obj = doc.addObject("Part::Feature", "SupportRib")
     obj.Shape = rib
     doc.recompute()
-    print(f"✓ Support rib: h={height}mm, L={length}mm, angle={angle}°")
+    print(f"[OK] Support rib: h={height}mm, L={length}mm, angle={angle}°")
     return rib
 
 
@@ -1031,7 +1031,7 @@ def honeycomb_panel(doc, length=200, width=150, thickness=20, cell_size=10, wall
     obj = doc.addObject("Part::Feature", "HoneycombPanel")
     obj.Shape = outer
     doc.recompute()
-    print(f"✓ Honeycomb panel: {length}×{width}×{thickness}mm, cell={cell_size}mm")
+    print(f"[OK] Honeycomb panel: {length}×{width}×{thickness}mm, cell={cell_size}mm")
     return outer
 
 
@@ -1052,7 +1052,7 @@ def threaded_hole_pocket(doc, major_diameter=8, depth=30, head_diameter=14, head
     
     result = head.fuse(thread_hole)
     
-    print(f"✓ Threaded hole pocket: M{major_diameter}, depth={depth}mm")
+    print(f"[OK] Threaded hole pocket: M{major_diameter}, depth={depth}mm")
     return result
 
 
@@ -1089,7 +1089,7 @@ def captive_nut_pocket(base_shape, nut_size=10, nut_thickness=8, access_slot_wid
     pocket = hex_pocket.fuse(slot)
     
     result = base_shape.cut(pocket)
-    print(f"✓ Captive nut pocket: M{nut_size}")
+    print(f"[OK] Captive nut pocket: M{nut_size}")
     return result
 
 
@@ -1111,7 +1111,7 @@ def snap_fit_hook(doc, length=20, thickness=2, hook_height=3, hook_depth=2):
     obj = doc.addObject("Part::Feature", "SnapFitHook")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ Snap-fit hook: L={length}mm, hook={hook_depth}mm")
+    print(f"[OK] Snap-fit hook: L={length}mm, hook={hook_depth}mm")
     return result
 
 
@@ -1130,7 +1130,7 @@ def cable_grommet(base_shape, cable_diameter=8, wall_thickness=3, position=(0,0,
     cutout = cable_hole.fuse(relief_cone)
     result = base_shape.cut(cutout)
     
-    print(f"✓ Cable grommet: ø{cable_diameter}mm")
+    print(f"[OK] Cable grommet: ø{cable_diameter}mm")
     return result
 
 
@@ -1165,7 +1165,7 @@ def t_slot_extrusion(doc, size=20, length=500, slot_width=6):
     obj = doc.addObject("Part::Feature", "TSlotExtrusion")
     obj.Shape = outer
     doc.recompute()
-    print(f"✓ T-slot extrusion: {size}×{size}mm, L={length}mm")
+    print(f"[OK] T-slot extrusion: {size}×{size}mm, L={length}mm")
     return outer
 
 
@@ -1194,7 +1194,7 @@ def v_slot_extrusion(doc, size=20, length=500):
     obj = doc.addObject("Part::Feature", "VSlotExtrusion")
     obj.Shape = outer
     doc.recompute()
-    print(f"✓ V-slot extrusion: {size}×{size}mm, L={length}mm")
+    print(f"[OK] V-slot extrusion: {size}×{size}mm, L={length}mm")
     return outer
 
 
@@ -1224,7 +1224,7 @@ def washer(doc, inner_diameter=10, outer_diameter=20, thickness=2, washer_type='
     obj = doc.addObject("Part::Feature", "Washer")
     obj.Shape = washer_shape
     doc.recompute()
-    print(f"✓ Washer: ID={inner_diameter}mm, OD={outer_diameter}mm, {washer_type}")
+    print(f"[OK] Washer: ID={inner_diameter}mm, OD={outer_diameter}mm, {washer_type}")
     return washer_shape
 
 def hex_bolt(doc, size=5, length=20, thread_length=None, head_height=None):
@@ -1257,7 +1257,7 @@ def hex_bolt(doc, size=5, length=20, thread_length=None, head_height=None):
     obj = doc.addObject("Part::Feature", "HexBolt")
     obj.Shape = bolt
     doc.recompute()
-    print(f"✓ Hex Bolt: M{size} x {length}mm")
+    print(f"[OK] Hex Bolt: M{size} x {length}mm")
     return bolt
 
 def bushing(doc, outer_diameter=30, inner_diameter=20, length=40, flange=False, flange_diameter=40, flange_thickness=5):
@@ -1281,7 +1281,7 @@ def bushing(doc, outer_diameter=30, inner_diameter=20, length=40, flange=False, 
     obj = doc.addObject("Part::Feature", "Bushing")
     obj.Shape = bushing_shape
     doc.recompute()
-    print(f"✓ Bushing: OD={outer_diameter}mm, ID={inner_diameter}mm, L={length}mm")
+    print(f"[OK] Bushing: OD={outer_diameter}mm, ID={inner_diameter}mm, L={length}mm")
     return bushing_shape
 
 def bearing_radial(doc, inner_dia=8, outer_dia=22, width=7):
@@ -1302,7 +1302,7 @@ def bearing_radial(doc, inner_dia=8, outer_dia=22, width=7):
     obj = doc.addObject("Part::Feature", "Bearing")
     obj.Shape = bearing
     doc.recompute()
-    print(f"✓ Bearing: ID={inner_dia} OD={outer_dia} W={width}")
+    print(f"[OK] Bearing: ID={inner_dia} OD={outer_dia} W={width}")
     return bearing
 
 
@@ -1317,7 +1317,7 @@ def spacer(doc, outer_diameter=20, inner_diameter=10, thickness=5):
     obj = doc.addObject("Part::Feature", "Spacer")
     obj.Shape = spacer_shape
     doc.recompute()
-    print(f"✓ Spacer: OD={outer_diameter}mm, ID={inner_diameter}mm, t={thickness}mm")
+    print(f"[OK] Spacer: OD={outer_diameter}mm, ID={inner_diameter}mm, t={thickness}mm")
     return spacer_shape
 
 
@@ -1336,7 +1336,7 @@ def filleted_box(doc, length=100, width=80, height=50, fillet_radius=5):
     obj = doc.addObject("Part::Feature", "FilletedBox")
     obj.Shape = box
     doc.recompute()
-    print(f"✓ Filleted box: {length}×{width}×{height}mm, fillet={fillet_radius}mm")
+    print(f"[OK] Filleted box: {length}×{width}×{height}mm, fillet={fillet_radius}mm")
     return box
 
 
@@ -1350,7 +1350,7 @@ def chamfered_cylinder(doc, diameter=50, height=100, chamfer_size=3):
     obj = doc.addObject("Part::Feature", "ChamferedCylinder")
     obj.Shape = cyl
     doc.recompute()
-    print(f"✓ Chamfered cylinder: ø{diameter}mm, h={height}mm, chamfer={chamfer_size}mm")
+    print(f"[OK] Chamfered cylinder: ø{diameter}mm, h={height}mm, chamfer={chamfer_size}mm")
     return cyl
 
 
@@ -1371,7 +1371,7 @@ def handle_grip(doc, diameter=30, length=100, grip_type='cylindrical'):
     obj = doc.addObject("Part::Feature", "HandleGrip")
     obj.Shape = handle
     doc.recompute()
-    print(f"✓ Handle grip: ø{diameter}mm, L={length}mm, type={grip_type}")
+    print(f"[OK] Handle grip: ø{diameter}mm, L={length}mm, type={grip_type}")
     return handle
 
 
@@ -1395,7 +1395,7 @@ def dome_cap(doc, diameter=60, height=30, thickness=3):
     obj = doc.addObject("Part::Feature", "DomeCap")
     obj.Shape = dome
     doc.recompute()
-    print(f"✓ Dome cap: ø{diameter}mm, h={height}mm")
+    print(f"[OK] Dome cap: ø{diameter}mm, h={height}mm")
     return dome
 
 
@@ -1413,7 +1413,7 @@ def battery_holder(doc, battery_diameter=18, battery_length=65, wall_thickness=3
     obj = doc.addObject("Part::Feature", "BatteryHolder")
     obj.Shape = holder
     doc.recompute()
-    print(f"✓ Battery holder: ø{battery_diameter}mm × {battery_length}mm")
+    print(f"[OK] Battery holder: ø{battery_diameter}mm × {battery_length}mm")
     return holder
 
 
@@ -1437,7 +1437,7 @@ def bolt_circle_pattern(base_shape, bolt_diameter=8, bolt_circle_diameter=60,
         hole.translate(App.Vector(x, y, -1))
         result = result.cut(hole)
     
-    print(f"✓ Bolt circle: {num_bolts} holes, ø{bolt_diameter}mm, BCD={bolt_circle_diameter}mm")
+    print(f"[OK] Bolt circle: {num_bolts} holes, ø{bolt_diameter}mm, BCD={bolt_circle_diameter}mm")
     return result
 
 
@@ -1455,7 +1455,7 @@ def rectangular_hole_array(base_shape, hole_diameter=6, rows=3, cols=4,
             hole.translate(App.Vector(x, y, -1))
             result = result.cut(hole)
     
-    print(f"✓ Hole array: {rows}×{cols}, ø{hole_diameter}mm, spacing {row_spacing}×{col_spacing}mm")
+    print(f"[OK] Hole array: {rows}×{cols}, ø{hole_diameter}mm, spacing {row_spacing}×{col_spacing}mm")
     return result
 
 
@@ -1473,7 +1473,7 @@ def rectangular_enclosure(doc, length=120, width=80, height=60, wall_thickness=3
     obj = doc.addObject("Part::Feature", "Enclosure")
     obj.Shape = result
     doc.recompute()
-    print(f"✓ Enclosure: {length}×{width}×{height}mm, wall={wall_thickness}mm")
+    print(f"[OK] Enclosure: {length}×{width}×{height}mm, wall={wall_thickness}mm")
     return result
 
 
@@ -1505,7 +1505,7 @@ def electronics_box(doc, length=100, width=80, height=50, wall_thickness=3,
     obj = doc.addObject("Part::Feature", "ElectronicsBox")
     obj.Shape = box
     doc.recompute()
-    print(f"✓ Electronics box: {length}×{width}×{height}mm, with mounting posts")
+    print(f"[OK] Electronics box: {length}×{width}×{height}mm, with mounting posts")
     return box
 
 
@@ -1538,7 +1538,7 @@ def circular_flange(doc, outer_diameter=100, inner_diameter=50, thickness=10,
     obj = doc.addObject("Part::Feature", "CircularFlange")
     obj.Shape = flange
     doc.recompute()
-    print(f"✓ Circular flange: OD={outer_diameter}mm, ID={inner_diameter}mm, {num_bolts} bolts")
+    print(f"[OK] Circular flange: OD={outer_diameter}mm, ID={inner_diameter}mm, {num_bolts} bolts")
     return flange
 
 # ============================================================================
@@ -1579,7 +1579,7 @@ def pipe_elbow(doc, inner_dia=20, wall_thickness=3, bend_radius=30, angle=90):
     obj = doc.addObject("Part::Feature", "PipeElbow")
     obj.Shape = elbow
     doc.recompute()
-    print(f"✓ Pipe Elbow: ID={inner_dia}mm, Angle={angle}°")
+    print(f"[OK] Pipe Elbow: ID={inner_dia}mm, Angle={angle}°")
     return elbow
 
 # ============================================================================

@@ -4,8 +4,8 @@ Tools for combining, positioning, and transforming template parts
 """
 
 import sys
-sys.path.append(r"C:\Program Files\FreeCAD 1.0\bin")
-sys.path.append(r"C:\Program Files\FreeCAD 1.0\lib")
+sys.path.append(r"C:\Users\Ashfaq Ahamed A\AppData\Local\Programs\FreeCAD 1.0\bin")
+sys.path.append(r"C:\Users\Ashfaq Ahamed A\AppData\Local\Programs\FreeCAD 1.0\lib")
 
 import FreeCAD as App
 import Part
@@ -73,15 +73,15 @@ def combine(shape1, shape2, operation='union'):
     """
     if operation.lower() == 'union' or operation.lower() == 'fuse':
         result = shape1.fuse(shape2)
-        print(f"✓ Union operation completed")
+        print(f"[OK] Union operation completed")
     elif operation.lower() == 'difference' or operation.lower() == 'cut':
         result = shape1.cut(shape2)
-        print(f"✓ Difference operation completed")
+        print(f"[OK] Difference operation completed")
     elif operation.lower() == 'intersection' or operation.lower() == 'common':
         result = shape1.common(shape2)
-        print(f"✓ Intersection operation completed")
+        print(f"[OK] Intersection operation completed")
     else:
-        print(f"❌ Unknown operation: {operation}")
+        print(f"[ERROR] Unknown operation: {operation}")
         return shape1
     
     return result
@@ -96,7 +96,7 @@ def fuse_multiple(shapes):
     for shape in shapes[1:]:
         result = result.fuse(shape)
     
-    print(f"✓ Fused {len(shapes)} shapes together")
+    print(f"[OK] Fused {len(shapes)} shapes together")
     return result
 
 
@@ -117,7 +117,7 @@ def linear_pattern(shape, direction=(1,0,0), count=5, spacing=20):
         new_shape.translate(offset)
         patterns.append(new_shape)
     
-    print(f"✓ Linear pattern: {count} instances, spacing={spacing}mm")
+    print(f"[OK] Linear pattern: {count} instances, spacing={spacing}mm")
     return patterns
 
 
@@ -136,7 +136,7 @@ def circular_pattern(shape, center=(0,0,0), axis=(0,0,1), count=8, angle=360):
         new_shape.rotate(center_vec, axis_vec, angle_step * i)
         patterns.append(new_shape)
     
-    print(f"✓ Circular pattern: {count} instances around {angle}°")
+    print(f"[OK] Circular pattern: {count} instances around {angle}°")
     return patterns
 
 
@@ -154,7 +154,7 @@ def grid_pattern(shape, rows=3, cols=4, row_spacing=30, col_spacing=40):
             new_shape.translate(App.Vector(x_offset, y_offset, 0))
             patterns.append(new_shape)
     
-    print(f"✓ Grid pattern: {rows}×{cols}, spacing {row_spacing}×{col_spacing}mm")
+    print(f"[OK] Grid pattern: {rows}×{cols}, spacing {row_spacing}×{col_spacing}mm")
     return patterns
 
 
@@ -185,7 +185,7 @@ def align_to_face(shape, target_shape, face='top'):
         y_offset = bbox.YMax
         shape.translate(App.Vector(0, y_offset, 0))
     
-    print(f"✓ Aligned to {face} face")
+    print(f"[OK] Aligned to {face} face")
     return shape
 
 
@@ -198,7 +198,7 @@ def center_on_shape(shape, target_shape):
     y_offset = target_bbox.Center.y - shape_bbox.Center.y
     
     shape.translate(App.Vector(x_offset, y_offset, 0))
-    print(f"✓ Centered on target shape")
+    print(f"[OK] Centered on target shape")
     return shape
 
 
@@ -212,7 +212,7 @@ class Assembly:
     def __init__(self, name="Assembly"):
         self.name = name
         self.parts = []
-        print(f"✓ Assembly '{name}' initialized")
+        print(f"[OK] Assembly '{name}' initialized")
     
     def add_part(self, shape, name=None):
         """Add a part to the assembly"""
@@ -226,7 +226,7 @@ class Assembly:
     def combine_all(self, operation='union'):
         """Combine all parts in the assembly"""
         if not self.parts:
-            print("❌ No parts in assembly")
+            print("[ERROR] No parts in assembly")
             return None
         
         result = self.parts[0]['shape']
@@ -239,7 +239,7 @@ class Assembly:
             elif operation.lower() == 'intersection':
                 result = result.common(part['shape'])
         
-        print(f"✓ Combined {len(self.parts)} parts using {operation}")
+        print(f"[OK] Combined {len(self.parts)} parts using {operation}")
         return result
     
     def get_part_shapes(self):
@@ -276,18 +276,18 @@ def simplify_shape(shape):
     """Attempt to simplify a shape (remove redundant faces)"""
     try:
         simplified = shape.removeSplitter()
-        print("✓ Shape simplified")
+        print("[OK] Shape simplified")
         return simplified
     except:
-        print("⚠ Could not simplify shape")
+        print("[WARN] Could not simplify shape")
         return shape
 
 
 def check_valid(shape):
     """Check if a shape is valid"""
     if shape.isValid():
-        print("✓ Shape is valid")
+        print("[OK] Shape is valid")
         return True
     else:
-        print("❌ Shape is invalid!")
+        print("[ERROR] Shape is invalid!")
         return False

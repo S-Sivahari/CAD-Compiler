@@ -32,11 +32,11 @@ load_env()
 
 # Configuration
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
-GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent"
 
 # Debug check
 if GEMINI_API_KEY:
-    print(f"✓ Gemini API Key loaded: {GEMINI_API_KEY[:10]}...{GEMINI_API_KEY[-4:]}")
+    print(f"[OK] Gemini API Key loaded:")
 
 # Template definitions with parameters
 TEMPLATE_CATALOG = {
@@ -104,7 +104,7 @@ TEMPLATE_CATALOG = {
 def call_llm(messages: List[Dict], model: str = "gemini-1.5-flash"):
     """Call Google Gemini API - FREE with generous limits"""
     if not GEMINI_API_KEY:
-        print("\n⚠️  No Gemini API key found!")
+        print("\n[WARN] No Gemini API key found!")
         print("Please set GEMINI_API_KEY in .env file")
         print("Get your key from: https://makersuite.google.com/app/apikey")
         sys.exit(1)
@@ -137,7 +137,7 @@ def call_llm(messages: List[Dict], model: str = "gemini-1.5-flash"):
         result = response.json()
         return result["candidates"][0]["content"]["parts"][0]["text"]
     except requests.exceptions.HTTPError as e:
-        print(f"❌ Gemini Error: {e}")
+        print(f"[ERROR] Gemini Error: {e}")
         try:
             error_data = response.json()
             print(f"Error details: {json.dumps(error_data, indent=2)}")
@@ -145,7 +145,7 @@ def call_llm(messages: List[Dict], model: str = "gemini-1.5-flash"):
             print(f"Response text: {response.text if response else 'No response'}")
         return None
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"[ERROR] Error: {e}")
         return None
 
 
@@ -225,7 +225,7 @@ def parse_llm_response(response: str) -> Dict:
     return {"ready": False, "message": response}
 
 
-def generate_model_script(template: str, params: Dict) -> str:
+def generate_model_script(template: str, params: Dict, headless: bool = False) -> str:
     """Generate Python script to create the model"""
     script = f'''"""
 Generated CAD Model: {template}
@@ -234,7 +234,10 @@ Generated CAD Model: {template}
 import sys
 import os
 
-freecad_path = r"C:\\Program Files\\FreeCAD 1.0\\bin"
+# Add parent directory to path to import launcher and templates
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')))
+
+freecad_path = r"C:\\Users\\Ashfaq Ahamed A\\AppData\\Local\\Programs\\FreeCAD 1.0\\bin"
 if os.path.exists(freecad_path):
     sys.path.insert(0, freecad_path)
     sys.path.insert(0, os.path.join(os.path.dirname(freecad_path), "lib"))
@@ -245,7 +248,7 @@ except ImportError:
     print("Error: FreeCAD could not be imported.")
     sys.exit(1)
 
-from launcher import create_document, open_gui, export_step
+from launcher import create_document, open_gui, export_step, export_stl
 from templates import {template}
 
 if __name__ == "__main__":
@@ -254,13 +257,81 @@ if __name__ == "__main__":
     # Create model
     shape = {template}(doc, {', '.join([f'{k}={repr(v)}' for k, v in params.items()])})
     
-    # Export to STEP
+    # Export to STEP (Engineering Data)
     export_step(shape, "{template}_model.step")
+
+    # Export to STL (Web Viewer Data)
+    export_stl(shape, "{template}_model.stl")
     
-    # Open in FreeCAD
-    open_gui(doc)
+    # Open in FreeCAD (Only if not headless)
+    if not {headless}:
+        open_gui(doc)
 '''
     return script
+
+
+def process_request(description: str, headless: bool = True):
+    """Process a request programmatically and return result dict"""
+    system_prompt = build_template_prompt()
+    conversation = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": description}
+    ]
+    
+    print(f"Processing: {description}")
+    llm_response = call_llm(conversation)
+    
+    if not llm_response:
+        return {"success": False, "error": "LLM failed to respond"}
+    
+    parsed = parse_llm_response(llm_response)
+    
+    if not parsed.get("ready"):
+        return {
+            "success": False, 
+            "ready": False, 
+            "message": parsed.get("message", llm_response),
+            "raw_response": parsed
+        }
+        
+    # Ready to generate
+    template = parsed["template"]
+    params = parsed["params"]
+    
+    # Generate script
+    script_content = generate_model_script(template, params, headless=headless)
+    
+    # Create generated_models folder
+    gen_models_dir = os.path.join(os.path.dirname(__file__), "generated_models")
+    if not os.path.exists(gen_models_dir):
+        os.makedirs(gen_models_dir)
+    
+    from datetime import datetime
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    script_filename = f"{template}_{timestamp}.py"
+    script_file = os.path.join(gen_models_dir, script_filename)
+    
+    with open(script_file, "w") as f:
+        f.write(script_content)
+        
+    # Execute script
+    import launcher
+    exit_code = launcher.run_with_freecad_python(script_file, headless=headless)
+    
+    if exit_code != 0:
+        return {"success": False, "error": "FreeCAD script execution failed"}
+        
+    return {
+        "success": True,
+        "ready": True,
+        "template": template,
+        "params": params,
+        "files": {
+            "script": script_filename,
+            "step": f"{template}_model.step",
+            "stl": f"{template}_model.stl"
+        }
+    }
 
 
 def interactive_mode():
@@ -288,11 +359,11 @@ def interactive_mode():
         conversation.append({"role": "user", "content": user_input})
         
         # Get LLM response
-        print("\n🤖 Thinking...")
+        print("[AI] Thinking...")
         llm_response = call_llm(conversation)
         
         if not llm_response:
-            print("❌ Failed to get response from LLM")
+            print("[ERROR] Failed to get response from LLM")
             conversation.pop()  # Remove failed message
             continue
         
@@ -307,7 +378,7 @@ def interactive_mode():
             template = parsed["template"]
             params = parsed["params"]
             
-            print(f"\n✓ Generating {template} with parameters:")
+            print(f"\n[OK] Generating {template} with parameters:")
             for k, v in params.items():
                 print(f"  - {k}: {v}")
             
@@ -327,8 +398,8 @@ def interactive_mode():
             with open(script_file, "w") as f:
                 f.write(script_content)
             
-            print(f"\n✓ Script saved: {script_file}")
-            print("✓ Launching FreeCAD...")
+            print(f"\n[OK] Script saved: {script_file}")
+            print("[OK] Launching FreeCAD...")
             
             # Run the generated script
             freecad_python = r"C:\Program Files\FreeCAD 1.0\bin\python.exe"
@@ -343,7 +414,7 @@ def interactive_mode():
         else:
             # LLM needs more info
             message = parsed.get("message", llm_response)
-            print(f"\n🤖: {message}\n")
+            print(f"\n[AI]: {message}\n")
 
 
 def command_mode(description: str):
@@ -355,12 +426,12 @@ def command_mode(description: str):
     ]
     
     print(f"Processing: {description}")
-    print("🤖 Analyzing...")
+    print("[AI] Analyzing...")
     
     llm_response = call_llm(conversation)
     
     if not llm_response:
-        print("❌ Failed to get response from LLM")
+        print("[ERROR] Failed to get response from LLM")
         return
     
     parsed = parse_llm_response(llm_response)
@@ -369,7 +440,7 @@ def command_mode(description: str):
         template = parsed["template"]
         params = parsed["params"]
         
-        print(f"\n✓ Generating {template}")
+        print(f"\n[OK] Generating {template}")
         
         # Create generated_models folder
         gen_models_dir = os.path.join(os.path.dirname(__file__), "generated_models")
@@ -385,13 +456,13 @@ def command_mode(description: str):
         with open(script_file, "w") as f:
             f.write(script_content)
         
-        print(f"✓ Script saved: {script_file}")
-        print("✓ Launching FreeCAD...")
+        print(f"[OK] Script saved: {script_file}")
+        print("[OK] Launching FreeCAD...")
         
         freecad_python = r"C:\Program Files\FreeCAD 1.0\bin\python.exe"
         os.system(f'"{freecad_python}" "{script_file}"')
     else:
-        print(f"⚠️  Missing information: {parsed.get('message', llm_response)}")
+        print(f"[WARN] Missing information: {parsed.get('message', llm_response)}")
         print("Please provide complete description or use interactive mode")
 
 

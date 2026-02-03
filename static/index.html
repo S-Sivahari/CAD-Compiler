@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAD Compiler | AI to 3D</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Three.js for 3D Viewer -->
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.150.1/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.150.1/examples/jsm/"
+        }
+      }
+    </script>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar / Chat Section -->
+        <div class="chat-section">
+            <div class="chat-header">
+                <h1>CAD Compiler</h1>
+                <p>Natural Language to 3D Assets</p>
+            </div>
+            
+            <div class="chat-history" id="chat-history">
+                <div class="message system">
+                    <div class="bubble">
+                        Hello! Describe a 3D part you want to create (e.g., "create a 20mm bolt").
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-input-area">
+                <input type="text" id="user-input" placeholder="Type your description..." autocomplete="off">
+                <button id="send-btn">Generate</button>
+            </div>
+        </div>
+
+        <!-- Main Content / Viewer Section -->
+        <div class="viewer-section">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="viewer">3D Viewer</button>
+                <button class="tab-btn" data-tab="internals">Internals (JSON)</button>
+            </div>
+            
+            <div class="tab-content active" id="viewer-tab">
+                <div id="3d-container"></div>
+                <div id="loading-overlay" class="hidden">
+                    <div class="spinner"></div>
+                    <p>Compiling CAD Script...</p>
+                </div>
+                
+                <div class="controls-overlay" id="download-controls" style="display: none;">
+                    <a href="#" id="download-step" class="btn primary">Download STEP</a>
+                    <a href="#" id="download-stl" class="btn secondary">Download STL</a>
+                    <a href="#" id="download-script" class="btn secondary">Download Script</a>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="internals-tab">
+                <pre id="json-viewer">// No model generated yet...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

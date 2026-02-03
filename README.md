@@ -32,8 +32,8 @@ solidworks_v2/
 
 ### 1. Prerequisites
 
-- **FreeCAD 1.0** installed at `C:\Program Files\FreeCAD 1.0\`
-- **Python 3.x** (for running the generator)
+- **FreeCAD 1.0** installed. (Ensure the path in `launcher.py` matches your installation)
+- **Python 3.x**
 - **Google Gemini API Key** (free from [Google AI Studio](https://makersuite.google.com/app/apikey))
 
 ### 2. Setup
@@ -41,7 +41,7 @@ solidworks_v2/
 1. Clone the repository:
 ```bash
 git clone https://github.com/S-Sivahari/CAD-Compiler.git
-cd solidworks_v2
+cd CAD-Compiler
 ```
 
 2. Create `.env` file with your Gemini API key:
@@ -51,11 +51,20 @@ GEMINI_API_KEY=your_api_key_here
 
 3. Install Python dependencies:
 ```bash
-pip install requests
+pip install -r requirements.txt
 ```
 
-### 3. Run the Generator
+### 3. Run the Application
 
+**Option A: Web Interface (Recommended)**
+Start the server and web UI:
+```bash
+python server.py
+```
+Then open your browser to `http://localhost:8000/static/index.html`.
+
+**Option B: Command Line**
+Generate models directly from the terminal:
 ```bash
 python main.py
 ```
