@@ -1,0 +1,1321 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://text2cad.schema/parametric-cad/v3.0",
+  "title": "Text2CAD Feature-Based Parametric Schema",
+  "description": "Professional-grade parametric CAD schema for industry-standard STEP file generation. Supports feature-based modeling, manufacturing constraints, patterns, post-processing, and engineering intent preservation. Compatible with CadQuery, FreeCAD, and standard CAD kernels.",
+  "type": "object",
+  "required": ["final_name", "final_shape", "parts"],
+  "properties": {
+    "final_name": {
+      "type": "string",
+      "description": "Human-readable object name. LLM MUST fill this from NL prompt (e.g., 'Flanged Shaft Housing', 'Mounting Bracket', 'Gear Assembly')"
+    },
+    "final_shape": {
+      "type": "string",
+      "description": "High-level shape category. LLM MUST fill this from NL prompt (e.g., 'Housing', 'Bracket', 'Shaft', 'Gear', 'Connector')"
+    },
+    "units": {
+      "type": "string",
+      "enum": ["mm", "inch", "cm", "m"],
+      "default": "mm",
+      "description": "Global units for all dimensions in this file. Default: millimeters. Critical for manufacturing accuracy."
+    },
+    "material_metadata": {
+      "type": "object",
+      "description": "Optional material and appearance properties for visualization and manufacturing planning",
+      "properties": {
+        "material_name": {
+          "type": "string",
+          "description": "Material specification (e.g., 'Aluminum 6061-T6', 'Steel 1018', 'ABS Plastic', 'Stainless Steel 316')"
+        },
+        "density": {
+          "type": "number",
+          "description": "Material density in g/cm³ for mass calculations"
+        },
+        "appearance_color": {
+          "type": "string",
+          "description": "RGB hex color for visualization (e.g., '#C0C0C0' for aluminum, '#708090' for steel)"
+        }
+      }
+    },
+    "parts": {
+      "type": "object",
+      "description": "Dictionary of parametric parts (part_1 to part_N). Each part represents a feature operation (base body, join, cut, revolve, pattern, etc.). Execution order follows numerical sequence.",
+      "patternProperties": {
+        "^part_[0-9]+$": {
+          "$ref": "#/definitions/Part"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "Part": {
+      "type": "object",
+      "description": "A parametric CAD feature with positioning, sketch/revolve geometry, 3D operation, optional patterns, and post-processing. Each part represents either a base body (NewBodyFeatureOperation), boolean operation (Join/Cut/Intersect), or feature pattern.",
+      "required": ["coordinate_system", "description"],
+      "properties": {
+        "coordinate_system": {
+          "$ref": "#/definitions/CoordinateSystem"
+        },
+        "sketch": {
+          "$ref": "#/definitions/Sketch",
+          "description": "2D sketch profile. Required for extrusion operations. Mutually exclusive with revolve_profile."
+        },
+        "revolve_profile": {
+          "$ref": "#/definitions/RevolveProfile",
+          "description": "2D profile for revolve operation. Mutually exclusive with sketch+extrusion."
+        },
+        "extrusion": {
+          "$ref": "#/definitions/Extrusion",
+          "description": "Linear extrusion parameters. Used when sketch is defined."
+        },
+        "revolve": {
+          "$ref": "#/definitions/Revolve",
+          "description": "Rotational sweep parameters. Used when revolve_profile is defined."
+        },
+        "hole_feature": {
+          "$ref": "#/definitions/HoleFeature",
+          "description": "Standardized parametric hole (simple, counterbore, countersink) with optional threading. Alternative to manual circle+cut."
+        },
+        "pattern": {
+          "$ref": "#/definitions/Pattern",
+          "description": "Repeating pattern of this feature (linear or polar). Applied after the base feature is created."
+        },
+        "mirror": {
+          "$ref": "#/definitions/Mirror",
+          "description": "Mirror this feature across a plane. Applied after base feature and pattern."
+        },
+        "post_processing": {
+          "type": "array",
+          "description": "3D edge/face modifications applied after base solid creation (fillets, chamfers). Order matters: applied sequentially.",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/definitions/Fillet" },
+              { "$ref": "#/definitions/Chamfer" }
+            ]
+          }
+        },
+        "description": {
+          "$ref": "#/definitions/Description"
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["sketch", "extrusion"] },
+        { "required": ["revolve_profile", "revolve"] },
+        { "required": ["hole_feature"] }
+      ]
+    },
+    "CoordinateSystem": {
+      "type": "object",
+      "description": "3D coordinate transformation applied to the part. Defines rotation (Euler angles) and position offset (translation vector) in normalized space.",
+      "required": ["Euler Angles", "Translation Vector"],
+      "properties": {
+        "Euler Angles": {
+          "type": "array",
+          "description": "Rotation angles [X, Y, Z] in degrees. Typically multiples of 90° (e.g., [0,0,0], [0,0,-90], [-90,0,-90]). Applied in XYZ order.",
+          "items": { "type": "number" },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "Translation Vector": {
+          "type": "array",
+          "description": "Position offset [X, Y, Z] in normalized coordinates (0.0-1.0 range). Defines where the part's origin is placed in 3D space.",
+          "items": { "type": "number" },
+          "minItems": 3,
+          "maxItems": 3
+        }
+      },
+      "additionalProperties": false
+    },
+    "Sketch": {
+      "type": "object",
+      "description": "Collection of sketch faces (face_1 to face_N). Simple shapes have 1 face, complex multi-region sketches can have up to 8+ faces. Each face defines a separate 2D profile.",
+      "patternProperties": {
+        "^face_[0-9]+$": {
+          "$ref": "#/definitions/Face"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "Face": {
+      "type": "object",
+      "description": "A sketch face containing one or more loops (loop_1 to loop_N). loop_1 is the outer boundary. Additional loops (loop_2+) typically represent inner holes or cutouts. Can have up to 6+ loops.",
+      "patternProperties": {
+        "^loop_[0-9]+$": {
+          "$ref": "#/definitions/Loop"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "Loop": {
+      "type": "object",
+      "description": "A sequence of connected sketch primitives forming a closed or open profile. Contains lines (line_1 to line_N), arcs (arc_1 to arc_N), and circles (circle_1 to circle_N). Can have 12+ lines or 11+ arcs in complex geometry.",
+      "patternProperties": {
+        "^line_[0-9]+$": {
+          "$ref": "#/definitions/Line"
+        },
+        "^arc_[0-9]+$": {
+          "$ref": "#/definitions/Arc"
+        },
+        "^circle_[0-9]+$": {
+          "$ref": "#/definitions/Circle"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "Line": {
+      "type": "object",
+      "description": "Straight line segment connecting two points",
+      "required": ["Start Point", "End Point"],
+      "properties": {
+        "Start Point": {
+          "type": "array",
+          "description": "Line start [X, Y] in normalized 2D sketch space (typically 0.0-1.0, but can be smaller for fine details)",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "End Point": {
+          "type": "array",
+          "description": "Line end [X, Y]. For closed loops, the last entity's End Point should match the first entity's Start Point.",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "additionalProperties": false
+    },
+    "Arc": {
+      "type": "object",
+      "description": "Circular arc segment defined by three points (start, mid, end). The mid point controls curvature direction and radius.",
+      "required": ["Start Point", "Mid Point", "End Point"],
+      "properties": {
+        "Start Point": {
+          "type": "array",
+          "description": "Arc start [X, Y]",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "Mid Point": {
+          "type": "array",
+          "description": "Arc control point [X, Y] defining curvature. Must not be collinear with Start and End points.",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "End Point": {
+          "type": "array",
+          "description": "Arc end [X, Y]. For closed loops, connects to the next entity's Start Point.",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "additionalProperties": false
+    },
+    "Circle": {
+      "type": "object",
+      "description": "Complete circle, typically used for holes, cylindrical profiles, or standalone circular features",
+      "required": ["Center", "Radius"],
+      "properties": {
+        "Center": {
+          "type": "array",
+          "description": "Circle center [X, Y] in normalized 2D sketch space",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "Radius": {
+          "type": "number",
+          "description": "Circle radius in normalized coordinates. Must be positive.",
+          "exclusiveMinimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Extrusion": {
+      "type": "object",
+      "description": "3D linear extrusion parameters defining how 2D sketch becomes 3D solid. Includes bidirectional extrusion, scaling, boolean operation, and optional draft angle for manufacturing.",
+      "required": ["extrude_depth_towards_normal", "extrude_depth_opposite_normal", "sketch_scale", "operation"],
+      "properties": {
+        "extrude_depth_towards_normal": {
+          "type": "number",
+          "description": "Forward extrusion depth (positive direction along sketch normal). Range: 0.0-0.75 typical. Can be 0.0 for backward-only extrusions.",
+          "minimum": 0
+        },
+        "extrude_depth_opposite_normal": {
+          "type": "number",
+          "description": "Backward extrusion depth (negative direction). Range: 0.0-1.28 found. Often 0.0 for forward-only extrusions. Both directions can be non-zero for symmetric features.",
+          "minimum": 0
+        },
+        "sketch_scale": {
+          "type": "number",
+          "description": "Uniform scaling factor applied to sketch before extrusion. Typically matches the largest sketch dimension (0.01-0.75 range).",
+          "exclusiveMinimum": 0
+        },
+        "operation": {
+          "type": "string",
+          "description": "Boolean operation type defining how this part interacts with previous geometry",
+          "enum": [
+            "NewBodyFeatureOperation",
+            "JoinFeatureOperation",
+            "CutFeatureOperation",
+            "IntersectFeatureOperation"
+          ]
+        },
+        "draft_angle": {
+          "type": "number",
+          "description": "Draft/taper angle in degrees for molding/casting. Positive = outward taper, negative = inward taper. Typical: 1-5°. Mandatory for injection molding.",
+          "minimum": -45,
+          "maximum": 45,
+          "default": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Revolve": {
+      "type": "object",
+      "description": "Rotational sweep operation to create axially symmetric geometry (shafts, pulleys, flanges, spheres). Profile rotates around specified axis.",
+      "required": ["axis", "angle", "origin", "operation"],
+      "properties": {
+        "axis": {
+          "type": "array",
+          "description": "Rotation axis direction vector [X, Y, Z]. Common: [0,0,1] (Z-axis), [1,0,0] (X-axis), [0,1,0] (Y-axis). Must be unit vector or will be normalized.",
+          "items": { "type": "number" },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "angle": {
+          "type": "number",
+          "description": "Rotation angle in degrees. 360 = full revolution (cylinder/sphere), 180 = half revolution, custom angles for partial geometry.",
+          "minimum": 0,
+          "maximum": 360
+        },
+        "origin": {
+          "type": "array",
+          "description": "Point on rotation axis [X, Y, Z] in normalized coordinates. Defines where axis passes through.",
+          "items": { "type": "number" },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "operation": {
+          "type": "string",
+          "enum": [
+            "NewBodyFeatureOperation",
+            "JoinFeatureOperation",
+            "CutFeatureOperation",
+            "IntersectFeatureOperation"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "RevolveProfile": {
+      "type": "object",
+      "description": "2D profile for revolve operation. Similar to Sketch but specifically for rotational features.",
+      "patternProperties": {
+        "^face_[0-9]+$": {
+          "$ref": "#/definitions/Face"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "HoleFeature": {
+      "type": "object",
+      "description": "Standardized parametric hole feature with engineering metadata. Replaces manual circle+cut for common hole types.",
+      "required": ["hole_type", "diameter", "depth", "position"],
+      "properties": {
+        "hole_type": {
+          "type": "string",
+          "enum": ["Simple", "Counterbore", "Countersink"],
+          "description": "Simple = straight hole, Counterbore = flat-bottom recess for bolt heads, Countersink = conical recess for flathead screws"
+        },
+        "diameter": {
+          "type": "number",
+          "description": "Main hole diameter in normalized units (or actual units if global units specified)",
+          "exclusiveMinimum": 0
+        },
+        "depth": {
+          "type": "number",
+          "description": "Hole depth. Use 'through_all' for through holes, or specific depth for blind holes.",
+          "minimum": 0
+        },
+        "position": {
+          "type": "array",
+          "description": "Hole center position [X, Y] on the selected face",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "thread_spec": {
+          "type": "string",
+          "description": "Thread specification for tapped holes (e.g., 'M5', 'M6x1.0', '1/4-20', '#10-32'). Optional cosmetic metadata."
+        },
+        "counterbore_diameter": {
+          "type": "number",
+          "description": "Counterbore diameter (only for Counterbore type). Must be > diameter.",
+          "exclusiveMinimum": 0
+        },
+        "counterbore_depth": {
+          "type": "number",
+          "description": "Counterbore depth (only for Counterbore type).",
+          "exclusiveMinimum": 0
+        },
+        "countersink_angle": {
+          "type": "number",
+          "description": "Countersink angle in degrees (only for Countersink type). Common: 82° (ANSI), 90° (ISO).",
+          "minimum": 60,
+          "maximum": 120,
+          "default": 82
+        },
+        "operation": {
+          "type": "string",
+          "enum": ["CutFeatureOperation"],
+          "default": "CutFeatureOperation",
+          "description": "Holes always cut material"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Pattern": {
+      "type": "object",
+      "description": "Repeating pattern of the parent feature. Only one pattern type per feature.",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["linear", "polar"],
+          "description": "linear = rectangular/line array, polar = circular/radial array"
+        },
+        "count": {
+          "type": "integer",
+          "description": "Number of instances (including original). Minimum 2.",
+          "minimum": 2
+        },
+        "spacing": {
+          "type": "number",
+          "description": "Spacing between instances (for linear pattern). In normalized units.",
+          "exclusiveMinimum": 0
+        },
+        "direction": {
+          "type": "array",
+          "description": "Direction vector [X, Y, Z] for linear pattern. Will be normalized.",
+          "items": { "type": "number" },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "center": {
+          "type": "array",
+          "description": "Center point [X, Y, Z] for polar pattern rotation.",
+          "items": { "type": "number" },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "total_angle": {
+          "type": "number",
+          "description": "Total sweep angle for polar pattern. 360 = full circle, 180 = semicircle.",
+          "minimum": 0,
+          "maximum": 360
+        },
+        "axis": {
+          "type": "array",
+          "description": "Rotation axis [X, Y, Z] for polar pattern. Default [0, 0, 1] (Z-axis).",
+          "items": { "type": "number" },
+          "minItems": 3,
+          "maxItems": 3,
+          "default": [0, 0, 1]
+        }
+      },
+      "additionalProperties": false,
+      "oneOf": [
+        { "required": ["type", "count", "spacing", "direction"], "properties": { "type": { "const": "linear" } } },
+        { "required": ["type", "count", "center", "total_angle"], "properties": { "type": { "const": "polar" } } }
+      ]
+    },
+    "Mirror": {
+      "type": "object",
+      "description": "Mirror the parent feature across a plane. Creates a symmetric copy.",
+      "required": ["plane"],
+      "properties": {
+        "plane": {
+          "type": "string",
+          "enum": ["XY", "XZ", "YZ"],
+          "description": "Mirror plane. XY = horizontal, XZ = front-back, YZ = left-right"
+        },
+        "keep_original": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, keeps original feature and adds mirrored copy. If false, replaces original with mirrored version."
+        }
+      },
+      "additionalProperties": false
+    },
+    "Fillet": {
+      "type": "object",
+      "description": "Rounds sharp 3D edges with specified radius. Applied after base solid creation.",
+      "required": ["radius", "edge_selector"],
+      "properties": {
+        "radius": {
+          "type": "number",
+          "description": "Fillet radius in normalized units",
+          "exclusiveMinimum": 0
+        },
+        "edge_selector": {
+          "type": "string",
+          "description": "CadQuery edge selector or 'all' for all edges. Examples: '>Z', '|Z' (parallel to Z), '#Z' (perpendicular to Z), 'all'"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Chamfer": {
+      "type": "object",
+      "description": "Bevels sharp 3D edges with specified distance. Applied after base solid creation.",
+      "required": ["distance", "edge_selector"],
+      "properties": {
+        "distance": {
+          "type": "number",
+          "description": "Chamfer distance/length in normalized units",
+          "exclusiveMinimum": 0
+        },
+        "edge_selector": {
+          "type": "string",
+          "description": "CadQuery edge selector or 'all' for all edges. Examples: '>Z', '|Z', '#Z', 'all'"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Description": {
+      "type": "object",
+      "description": "Bounding box dimensions and metadata. name and shape should be filled by LLM from NL prompt. Length/width/height are computed from the extruded geometry.",
+      "required": ["name", "shape", "length", "width", "height"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Part-specific name. LLM fills this from NL prompt context (e.g., 'Base Cylinder', 'Mounting Hole', 'Top Flange')"
+        },
+        "shape": {
+          "type": "string",
+          "description": "Part-specific shape category. LLM fills this (e.g., 'Cylinder', 'Box', 'Ring', 'Arc Profile')"
+        },
+        "length": {
+          "type": "number",
+          "description": "3D bounding box length (X-dimension) in normalized space after extrusion and scaling"
+        },
+        "width": {
+          "type": "number",
+          "description": "3D bounding box width (Y-dimension) in normalized space"
+        },
+        "height": {
+          "type": "number",
+          "description": "3D bounding box height (Z-dimension) = extrude_depth_towards_normal + extrude_depth_opposite_normal (accounting for transformations)"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "_comment": "Example 1: Simple cylinder - single part, single face, circle profile",
+      "final_name": "Cylindrical Rod",
+      "final_shape": "Cylinder",
+      "parts": {
+        "part_1": {
+          "coordinate_system": {
+            "Euler Angles": [0.0, 0.0, 0.0],
+            "Translation Vector": [0.0, 0.0, 0.0]
+          },
+          "sketch": {
+            "face_1": {
+              "loop_1": {
+                "circle_1": {
+                  "Center": [0.375, 0.375],
+                  "Radius": 0.375
+                }
+              }
+            }
+          },
+          "extrusion": {
+            "extrude_depth_towards_normal": 0.1046,
+            "extrude_depth_opposite_normal": 0.0,
+            "sketch_scale": 0.75,
+            "operation": "NewBodyFeatureOperation"
+          },
+          "description": {
+            "name": "Cylindrical Rod",
+            "shape": "Cylinder",
+            "length": 0.75,
+            "width": 0.75,
+            "height": 0.1046
+          }
+        }
+      }
+    },
+    {
+      "_comment": "Example 2: Rectangular plate with holes - multi-loop face (outer + inner holes)",
+      "final_name": "Mounting Plate",
+      "final_shape": "Plate",
+      "parts": {
+        "part_1": {
+          "coordinate_system": {
+            "Euler Angles": [0.0, 0.0, 0.0],
+            "Translation Vector": [0.0, 0.0, 0.0]
+          },
+          "sketch": {
+            "face_1": {
+              "loop_1": {
+                "line_1": {"Start Point": [0.0, 0.0], "End Point": [0.75, 0.0]},
+                "line_2": {"Start Point": [0.75, 0.0], "End Point": [0.75, 0.1563]},
+                "line_3": {"Start Point": [0.75, 0.1563], "End Point": [0.0, 0.1563]},
+                "line_4": {"Start Point": [0.0, 0.1563], "End Point": [0.0, 0.0]}
+              },
+              "loop_2": {
+                "circle_1": {"Center": [0.0375, 0.0781], "Radius": 0.0134}
+              },
+              "loop_3": {
+                "line_1": {"Start Point": [0.25, 0.0313], "End Point": [0.5, 0.0313]},
+                "arc_1": {"Start Point": [0.5, 0.0313], "Mid Point": [0.5469, 0.0781], "End Point": [0.5, 0.125]},
+                "line_2": {"Start Point": [0.5, 0.125], "End Point": [0.25, 0.125]},
+                "arc_2": {"Start Point": [0.25, 0.125], "Mid Point": [0.2031, 0.0781], "End Point": [0.25, 0.0313]}
+              },
+              "loop_4": {
+                "circle_1": {"Center": [0.7125, 0.0785], "Radius": 0.0134}
+              }
+            }
+          },
+          "extrusion": {
+            "extrude_depth_towards_normal": 0.0156,
+            "extrude_depth_opposite_normal": 0.0,
+            "sketch_scale": 0.75,
+            "operation": "NewBodyFeatureOperation"
+          },
+          "description": {
+            "name": "Mounting Plate",
+            "shape": "Plate",
+            "length": 0.75,
+            "width": 0.1563,
+            "height": 0.0156
+          }
+        }
+      }
+    },
+    {
+      "_comment": "Example 3: Multi-part with boolean operations - base + additive + subtractive",
+      "final_name": "Bracket Assembly",
+      "final_shape": "Bracket",
+      "parts": {
+        "part_1": {
+          "coordinate_system": {
+            "Euler Angles": [0.0, 0.0, 0.0],
+            "Translation Vector": [0.0, 0.0, 0.0]
+          },
+          "sketch": {
+            "face_1": {
+              "loop_1": {
+                "line_1": {"Start Point": [0.0, 0.0], "End Point": [0.75, 0.0]},
+                "line_2": {"Start Point": [0.75, 0.0], "End Point": [0.75, 0.75]},
+                "line_3": {"Start Point": [0.75, 0.75], "End Point": [0.0, 0.75]},
+                "line_4": {"Start Point": [0.0, 0.75], "End Point": [0.0, 0.0]}
+              }
+            }
+          },
+          "extrusion": {
+            "extrude_depth_towards_normal": 0.15,
+            "extrude_depth_opposite_normal": 0.0,
+            "sketch_scale": 0.75,
+            "operation": "NewBodyFeatureOperation"
+          },
+          "description": {
+            "name": "Base Plate",
+            "shape": "Box",
+            "length": 0.75,
+            "width": 0.75,
+            "height": 0.15
+          }
+        },
+        "part_2": {
+          "coordinate_system": {
+            "Euler Angles": [0.0, 0.0, -90.0],
+            "Translation Vector": [0.0, 0.75, 0.0]
+          },
+          "sketch": {
+            "face_1": {
+              "loop_1": {
+                "line_1": {"Start Point": [0.0, 0.0], "End Point": [0.3, 0.0]},
+                "line_2": {"Start Point": [0.3, 0.0], "End Point": [0.3, 0.3]},
+                "line_3": {"Start Point": [0.3, 0.3], "End Point": [0.0, 0.3]},
+                "line_4": {"Start Point": [0.0, 0.3], "End Point": [0.0, 0.0]}
+              }
+            }
+          },
+          "extrusion": {
+            "extrude_depth_towards_normal": 0.75,
+            "extrude_depth_opposite_normal": 0.0,
+            "sketch_scale": 0.3,
+            "operation": "JoinFeatureOperation"
+          },
+          "description": {
+            "name": "Mounting Flange",
+            "shape": "Box",
+            "length": 0.3,
+            "width": 0.3,
+            "height": 0.75
+          }
+        },
+        "part_3": {
+          "coordinate_system": {
+            "Euler Angles": [0.0, 0.0, 0.0],
+            "Translation Vector": [0.375, 0.375, 0.0]
+          },
+          "sketch": {
+            "face_1": {
+              "loop_1": {
+                "circle_1": {"Center": [0.0, 0.0], "Radius": 0.05}
+              }
+            }
+          },
+          "extrusion": {
+            "extrude_depth_towards_normal": 0.15,
+            "extrude_depth_opposite_normal": 0.0,
+            "sketch_scale": 0.1,
+            "operation": "CutFeatureOperation"
+          },
+          "description": {
+            "name": "Central Hole",
+            "shape": "Cylinder",
+            "length": 0.1,
+            "width": 0.1,
+            "height": 0.15
+          }
+        }
+      }
+    },
+    {
+      "_comment": "Example 4: Hollow cylinder (annular ring) - single face, two loops",
+      "final_name": "Pipe Section",
+      "final_shape": "Cylinder",
+      "parts": {
+        "part_1": {
+          "coordinate_system": {
+            "Euler Angles": [-90.0, 0.0, -90.0],
+            "Translation Vector": [0.0, 0.0, 0.0]
+          },
+          "sketch": {
+            "face_1": {
+              "loop_1": {
+                "circle_1": {"Center": [0.375, 0.375], "Radius": 0.375}
+              },
+              "loop_2": {
+                "circle_1": {"Center": [0.375, 0.375], "Radius": 0.1969}
+              }
+            }
+          },
+          "extrusion": {
+            "extrude_depth_towards_normal": 0.123,
+            "extrude_depth_opposite_normal": 0.0,
+            "sketch_scale": 0.75,
+            "operation": "NewBodyFeatureOperation"
+          },
+          "description": {
+            "name": "Pipe Section",
+            "shape": "Cylinder",
+            "length": 0.75,
+            "width": 0.75,
+            "height": 0.123
+          }
+        }
+      }
+    },
+    {
+      "_comment": "Example 5: Bidirectional extrusion - symmetric feature",
+      "final_name": "Connector Pin",
+      "final_shape": "Cylinder",
+      "parts": {
+        "part_1": {
+          "coordinate_system": {
+            "Euler Angles": [0.0, 0.0, -90.0],
+            "Translation Vector": [0.0, 0.375, 0.0]
+          },
+          "sketch": {
+            "face_1": {
+              "loop_1": {
+                "circle_1": {"Center": [0.0904, 0.0904], "Radius": 0.0904}
+              }
+            }
+          },
+          "extrusion": {
+            "extrude_depth_towards_normal": 0.1875,
+            "extrude_depth_opposite_normal": 0.1875,
+            "sketch_scale": 0.1807,
+            "operation": "NewBodyFeatureOperation"
+          },
+          "description": {
+            "name": "Connector Pin",
+            "shape": "Cylinder",
+            "length": 0.1807,
+            "width": 0.1807,
+            "height": 0.375
+          }
+        }
+      }
+    },
+    {
+      "_comment": "Example 6: INDUSTRY-LEVEL Feature-Based Model - Demonstrates NEW parametric capabilities",
+      "final_name": "Motor Mounting Flange with Bolt Circle",
+      "final_shape": "Flange",
+      "units": "mm",
+      "material_metadata": {
+        "material_name": "Aluminum 6061-T6",
+        "density": 2.7,
+        "appearance_color": "#C0C0C0"
+      },
+      "parts": {
+        "part_1": {
+          "_comment": "Base flange disk created by revolve operation",
+          "coordinate_system": {
+            "Euler Angles": [0.0, 0.0, 0.0],
+            "Translation Vector": [0.0, 0.0, 0.0]
+          },
+          "revolve_profile": {
+            "face_1": {
+              "loop_1": {
+                "line_1": {"Start Point": [0.0, 0.0], "End Point": [60.0, 0.0]},
+                "line_2": {"Start Point": [60.0, 0.0], "End Point": [60.0, 15.0]},
+                "line_3": {"Start Point": [60.0, 15.0], "End Point": [0.0, 15.0]},
+                "line_4": {"Start Point": [0.0, 15.0], "End Point": [0.0, 0.0]}
+              }
+            }
+          },
+          "revolve": {
+            "axis": [0.0, 0.0, 1.0],
+            "angle": 360,
+            "origin": [0.0, 0.0, 0.0],
+            "operation": "NewBodyFeatureOperation"
+          },
+          "post_processing": [
+            {
+              "_comment": "Round top edge for safety and aesthetics",
+              "radius": 2.0,
+              "edge_selector": ">Z"
+            }
+          ],
+          "description": {
+            "name": "Main Flange Body",
+            "shape": "Disk",
+            "length": 120.0,
+            "width": 120.0,
+            "height": 15.0
+          }
+        },
+        "part_2": {
+          "_comment": "Central shaft hole (through all)",
+          "coordinate_system": {
+            "Euler Angles": [0.0, 0.0, 0.0],
+            "Translation Vector": [0.0, 0.0, 0.0],
+            "_constraint": "centered_on_axis"
+          },
+          "hole_feature": {
+            "hole_type": "Simple",
+            "diameter": 25.0,
+            "depth": 15.0,
+            "position": [0.0, 0.0],
+            "_constraint": "centered",
+            "operation": "CutFeatureOperation"
+          },
+          "description": {
+            "name": "Central Shaft Bore",
+            "shape": "Cylinder",
+            "length": 25.0,
+            "width": 25.0,
+            "height": 15.0
+          }
+        },
+        "part_3": {
+          "_comment": "M5 mounting bolt hole with counterbore (one instance, will be patterned)",
+          "coordinate_system": {
+            "Euler Angles": [0.0, 0.0, 0.0],
+            "Translation Vector": [0.0, 0.0, 0.0]
+          },
+          "hole_feature": {
+            "hole_type": "Counterbore",
+            "diameter": 5.5,
+            "depth": 15.0,
+            "position": [45.0, 0.0],
+            "_constraint": "on_bolt_circle_radius_45mm",
+            "thread_spec": "M5",
+            "counterbore_diameter": 10.0,
+            "counterbore_depth": 6.0,
+            "operation": "CutFeatureOperation"
+          },
+          "pattern": {
+            "type": "polar",
+            "count": 6,
+            "center": [0.0, 0.0, 0.0],
+            "total_angle": 360,
+            "axis": [0.0, 0.0, 1.0],
+            "_constraint": "6_holes_evenly_spaced"
+          },
+          "description": {
+            "name": "M5 Bolt Holes (x6)",
+            "shape": "Cylinder",
+            "length": 10.0,
+            "width": 10.0,
+            "height": 15.0
+          }
+        }
+      }
+    }
+  ],
+  "llm_instructions": {
+    "overview": "This schema enables FEATURE-BASED PARAMETRIC CAD generation, not just coordinate meshes. LLMs must understand ENGINEERING INTENT, not just geometry. Every decision should respect manufacturing constraints, assembly requirements, and design intent.",
+    
+    "parametric_modeling_philosophy": {
+      "coordinate_based_vs_feature_based": {
+        "bad_approach": "Hardcode absolute coordinates for every feature. Generate floating geometry. Ignore relationships between features.",
+        "good_approach": "Use parametric constraints (centered, offset by X, at edge). Anchor features to faces. Define relationships (hole pattern radius = outer_diameter * 0.8).",
+        "example": "Instead of Translation=[0.5, 0.5, 0.2], compute Translation=[base_length/2, base_width/2, base_height] and tag as 'centered_on_top_face'"
+      },
+      "engineering_intent_preservation": {
+        "description": "Every geometry decision must have mechanical purpose",
+        "examples": {
+          "fillet_r3mm": "NOT decoration - reduces stress concentration at corners per DIN 250",
+          "6_bolt_holes_on_120mm_circle": "Standard bolt circle for flange connection, allows ±5° misalignment",
+          "draft_angle_2deg": "Mandatory for injection molding tool ejection, prevents part sticking",
+          "counterbore_m6": "Accommodates ISO 4762 M6 socket head cap screw, requires ø10mm × 6mm counterbore"
+        }
+      },
+      "workplane_anchoring_rule": {
+        "critical": "NEVER generate floating features. ALWAYS anchor to a face of existing geometry.",
+        "base_body": "part_1 (NewBodyFeatureOperation) generates on default XY plane at origin",
+        "subsequent_features": "MUST use .faces() selector to anchor to base body face",
+        "algorithm": [
+          "1. Calculate base body bounding box from part_1",
+          "2. For part_2+, compare Translation Vector to bounding box",
+          "3. If Translation[Z] ≈ base_height → anchor to >Z face (top)",
+          "4. If Translation[Z] ≈ 0 → anchor to <Z face (bottom) or >Z with cutThruAll",
+          "5. If Translation[X] ≈ base_length → anchor to >X face (right)",
+          "6. If Translation[X] ≈ 0 → anchor to <X face (left)",
+          "7. Similar for Y axis (>Y front, <Y back)",
+          "8. Generate CadQuery: .faces(selector).workplane().circle().cutThruAll()"
+        ]
+      }
+    },
+    
+    "advanced_inference_rules": {
+      "rule_1_face_selector_inference": {
+        "description": "Analyze coordinate_system to determine CadQuery Face Selector for anchoring",
+        "inputs": ["Translation Vector [Tx, Ty, Tz]", "Euler Angles [Ex, Ey, Ez]", "Base body bounding box", "Operation type"],
+        "outputs": "Face selector string: >Z, <Z, >X, <X, >Y, <Y",
+        "decision_tree": {
+          "step_1": "IF operation == CutFeatureOperation AND Tz ≈ base_height THEN face = >Z (hole from top)",
+          "step_2": "IF operation == JoinFeatureOperation AND Ty ≈ base_max_y AND Ez ≈ -90 THEN face = >Y (flange on edge)",
+          "step_3": "IF operation == CutFeatureOperation AND Tx, Ty centered AND Tz ≈ base_height THEN face = >Z, use cutThruAll()",
+          "step_4": "IF Translation at interior of base AND no face match THEN ERROR: 'Feature appears to be floating, cannot infer anchor face'"
+        }
+      },
+      "rule_2_parametric_constraint_tagging": {
+        "description": "When generating coordinates, compute them parametrically and document the constraint",
+        "examples": {
+          "centered_hole": {
+            "user_prompt": "centered hole",
+            "bad_json": "\"position\": [0.375, 0.375]  # arbitrary numbers",
+            "good_json": "\"position\": [0.375, 0.375], \"_constraint\": \"centered_on_face\", \"_formula\": \"[base_length/2, base_width/2]\"",
+            "note": "_constraint and _formula are metadata for documentation, not executed"
+          },
+          "bolt_circle": {
+            "user_prompt": "6 M5 bolt holes on 100mm bolt circle",
+            "computation": "bolt_circle_radius = 100mm / 2 = 50mm normalized, 6 holes at 60° intervals",
+            "json": "Use polar pattern: count=6, total_angle=360, center=[base_center_x, base_center_y, base_height]"
+          }
+        }
+      },
+      "rule_3_operation_hierarchy_validation": {
+        "description": "Ensure boolean operations make physical sense",
+        "validation_checks": {
+          "check_1": "part_1 MUST be NewBodyFeatureOperation (creates base solid)",
+          "check_2": "CutFeatureOperation MUST intersect existing geometry (cannot cut empty space)",
+          "check_3": "JoinFeatureOperation MUST touch or intersect existing geometry (cannot float)",
+          "check_4": "If pattern is used, base feature MUST successfully create before pattern replicates",
+          "check_5": "If mirror is used, mirrored copy MUST not overlap original (unless intentional boolean)"
+        }
+      },
+      "rule_4_closed_loop_continuity": {
+        "description": "Ensure sketch loops are G0 continuous (connected endpoints)",
+        "validation": "For each loop, verify: loop.primitives[-1].end_point ≈ loop.primitives[0].start_point (within tolerance 0.005)",
+        "auto_fix": "If gap detected and < 0.01, auto-insert line segment to close. If gap > 0.01, ERROR: 'Loop not closed, manual fix required'"
+      },
+      "rule_5_hole_feature_optimization": {
+        "description": "When user asks for holes, use HoleFeature instead of manual circle+cut",
+        "trigger_keywords": ["hole", "drill", "counterbore", "countersink", "tapped", "threaded", "M5", "M6", "#10-32"],
+        "decision": {
+          "simple_hole": "Use HoleFeature with hole_type='Simple'",
+          "bolt_clearance": "Use HoleFeature with hole_type='Counterbore', counterbore_diameter=bolt_head_diameter",
+          "screw_recess": "Use HoleFeature with hole_type='Countersink', countersink_angle=82 (ANSI) or 90 (ISO)",
+          "through_hole": "Use depth='through_all' in HoleFeature"
+        }
+      },
+      "rule_6_pattern_usage": {
+        "description": "Use Pattern instead of manually creating multiple Part entries",
+        "before_pattern": "part_2, part_3, part_4, part_5, part_6, part_7 (all identical holes at different positions)",
+        "after_pattern": "part_2 with hole_feature + pattern: {type: 'polar', count: 6, center: [cx, cy, cz], total_angle: 360}",
+        "efficiency": "Reduces JSON size, ensures perfect symmetry, easier to modify"
+      },
+      "rule_7_manufacturing_constraints": {
+        "draft_angle": "If user mentions 'injection molded', 'cast', 'die cast', ADD draft_angle: 2-5° to extrusion",
+        "minimum_wall_thickness": "If modeling plastic parts, ensure wall thickness >= 1.5mm (0.06 inch)",
+        "hole_clearances": "M5 bolt → 5.5mm clearance hole, M6 → 6.6mm clearance hole (ISO 273)",
+        "fillet_radii": "Minimum internal radius = 1mm to avoid stress concentration. Typical: 2-3mm for general use."
+      }
+    },
+    
+    "cadquery_code_generation": {
+      "purpose": "When converting this minimal JSON to CadQuery Python code, infer Face Selectors to anchor features correctly to the base geometry",
+      "face_selector_inference": {
+        "description": "Analyze coordinate_system and operation type to determine which face of the base body a feature should be anchored to",
+        "selectors": {
+          ">Z": "Top face (positive Z direction) - most common for holes drilled from above",
+          "<Z": "Bottom face (negative Z direction) - features on underside",
+          ">X": "Right face (positive X direction)",
+          "<X": "Left face (negative X direction)",
+          ">Y": "Front face (positive Y direction)",
+          "<Y": "Back face (negative Y direction)"
+        },
+        "inference_rules": {
+          "rule_1_translation_vector": {
+            "description": "Translation Vector indicates feature position relative to base",
+            "examples": {
+              "[0.375, 0.375, 0.0]": "Feature at Z=0 → anchor to >Z (top) or <Z (bottom) based on extrusion direction",
+              "[0.375, 0.375, 0.15]": "Feature at Z=0.15 (top of base plate) → anchor to >Z face",
+              "[0.0, 0.75, 0.0]": "Feature at Y=0.75 (edge) → likely anchor to >Y face for flange",
+              "[0.0, 0.0, base_height]": "Feature at top of base → anchor to >Z face"
+            }
+          },
+          "rule_2_euler_angles": {
+            "description": "Euler angles reveal feature orientation relative to base coordinate system",
+            "examples": {
+              "[0.0, 0.0, 0.0]": "No rotation → feature normal aligned with base coordinate system",
+              "[0.0, 0.0, -90.0]": "90° Z-rotation → feature may attach to side face (>Y or <Y)",
+              "[-90.0, 0.0, 0.0]": "90° X-rotation → feature normal now points in Y direction (>Y/<Y face)",
+              "[0.0, -90.0, 0.0]": "90° Y-rotation → feature normal now points in X direction (>X/<X face)"
+            }
+          },
+          "rule_3_operation_type": {
+            "CutFeatureOperation": {
+              "description": "Holes, pockets, slots - determine which face to select for workplane",
+              "pattern": "If Translation[Z] ≈ base_height → .faces('>Z'), if Translation[Z] ≈ 0 → .faces('<Z')",
+              "example": "Hole through top of plate: Translation[Z]=0.15 (plate height) → .faces('>Z').workplane().circle(r).cutThruAll()"
+            },
+            "JoinFeatureOperation": {
+              "description": "Flanges, ribs, bosses - determine attachment face",
+              "pattern": "Analyze Euler angles and Translation to find which face the feature extends from",
+              "example": "Flange at edge: Translation[Y]=0.75, Euler[Z]=-90 → .faces('>Y').workplane().rect(w,h).extrude(d)"
+            }
+          },
+          "rule_4_extrusion_direction": {
+            "description": "Extrusion direction relative to coordinate system determines face selection",
+            "towards_normal_only": "Feature extrudes outward from face → select face in extrusion direction",
+            "opposite_normal_only": "Feature extrudes inward (rare) → select opposite face",
+            "bidirectional": "Symmetric extrusion → typically centered, select based on Translation position"
+          }
+        },
+        "decision_algorithm": {
+          "step_1": "Identify base part (part_1 with NewBodyFeatureOperation) and its bounding box dimensions",
+          "step_2": "For each subsequent part (part_2+), extract Translation Vector [Tx, Ty, Tz] and Euler Angles [Ex, Ey, Ez]",
+          "step_3": "Determine feature position relative to base bounding box",
+          "step_4": "Apply inference rules",
+          "step_5": "Generate CadQuery code with explicit .faces() selector"
+        },
+        "cadquery_code_patterns": {
+          "hole_on_top_face": {
+            "minimal_json_pattern": "Translation[Z] ≈ base_height, CutFeatureOperation, Euler=[0,0,0]",
+            "cadquery_code": ".faces('>Z').workplane().hole(diameter) or .circle(radius).cutThruAll()"
+          },
+          "hole_on_bottom_face": {
+            "minimal_json_pattern": "Translation[Z] ≈ 0.0, CutFeatureOperation, Euler=[0,0,0]",
+            "cadquery_code": ".faces('<Z').workplane().circle(radius).cutThruAll()"
+          },
+          "hole_on_side_face": {
+            "minimal_json_pattern": "Translation[X/Y] at boundary, CutFeatureOperation, Euler rotated",
+            "cadquery_code": ".faces('>X').workplane().circle(radius).cutThruAll() (or >Y, <X, <Y based on position)"
+          },
+          "flange_on_edge": {
+            "minimal_json_pattern": "Translation[Y]=max, JoinFeatureOperation, Euler[Z]=-90",
+            "cadquery_code": ".faces('>Y').workplane().rect(width, height).extrude(depth)"
+          },
+          "boss_on_top": {
+            "minimal_json_pattern": "Translation[Z] ≈ base_height, JoinFeatureOperation, circular profile",
+            "cadquery_code": ".faces('>Z').workplane().circle(radius).extrude(height)"
+          },
+          "centered_hole_through": {
+            "minimal_json_pattern": "Translation centered, CutFeatureOperation, extrudes through entire height",
+            "cadquery_code": ".faces('>Z').workplane().circle(radius).cutThruAll() or .cut(feature_solid)"
+          }
+        },
+        "practical_examples": {
+          "example_1": {
+            "scenario": "Cylindrical hole in center of top face of rectangular base",
+            "part_1": "Base plate: Translation=[0,0,0], Euler=[0,0,0], NewBody, dimensions 0.75×0.75×0.15",
+            "part_2": "Hole: Translation=[0.375, 0.375, 0.15], Euler=[0,0,0], Cut, circle radius 0.05",
+            "inference": "Translation[Z]=0.15 matches base height → hole starts from top face",
+            "face_selector": ">Z",
+            "cadquery": "base = cq.Workplane('XY').rect(0.75, 0.75).extrude(0.15); result = base.faces('>Z').workplane().circle(0.05).cutThruAll()"
+          },
+          "example_2": {
+            "scenario": "Perpendicular flange on edge of base plate",
+            "part_1": "Base plate: Translation=[0,0,0], Euler=[0,0,0], NewBody, 0.75×0.75×0.15",
+            "part_2": "Flange: Translation=[0, 0.75, 0], Euler=[0,0,-90], Join, 0.3×0.3 rectangle, extrude 0.75",
+            "inference": "Translation[Y]=0.75 (edge) + Euler[Z]=-90 (rotated) → flange on +Y face",
+            "face_selector": ">Y",
+            "cadquery": "base = ...; result = base.faces('>Y').workplane().rect(0.3, 0.3).extrude(0.75)"
+          },
+          "example_3": {
+            "scenario": "Multiple holes at different positions on top face",
+            "part_1": "Base: NewBody",
+            "part_2_3_4": "Holes at various Translation[X,Y] but all Translation[Z]=base_height",
+            "inference": "All holes share Translation[Z]=base_height → all on top face",
+            "face_selector": ">Z for all",
+            "cadquery": "result = base.faces('>Z').workplane().pushPoints([(x1,y1), (x2,y2)]).circle(r).cutThruAll()"
+          }
+        }
+      },
+      "coordinate_system_transformation": {
+        "description": "Apply coordinate transformations when generating CadQuery code",
+        "translation_handling": "Use .translate((Tx, Ty, Tz)) or .workplane(offset=Tz) to position features",
+        "rotation_handling": "Use .rotate((0,0,0), (0,0,1), angle) for Z-axis rotations, adjust for X/Y rotations",
+        "note": "CadQuery uses right-handed coordinate system: +X right, +Y away, +Z up"
+      },
+      "multi_loop_handling": {
+        "description": "When face has multiple loops (loop_1=outer, loop_2+=inner holes)",
+        "single_sketch_approach": "Generate all loops in one sketch, then extrude once",
+        "alternative_approach": "Create outer profile first, then cut inner loops as separate operations",
+        "cadquery_pattern": ".sketch().rect(w,h).circle(r1).circle(r2).finalize().extrude(h) or use .pushPoints()"
+      }
+    },
+    
+    "nl_to_json_conversion": {
+      "step_1_parse_intent": {
+        "description": "Extract key information from the NL prompt",
+        "extract": [
+          "Object name (e.g., 'mounting bracket', 'gear assembly', 'cylindrical shaft')",
+          "Shape category (cylinder, box, plate, gear, bracket, housing, connector, etc.)",
+          "Dimensions (diameters, lengths, widths, heights, thicknesses)",
+          "Features (holes, fillets, chamfers, flanges, slots, cutouts)",
+          "Multi-part structure (base + additive/subtractive features)",
+          "Orientation/position hints (vertical, horizontal, centered, offset)"
+        ]
+      },
+      "step_2_determine_structure": {
+        "description": "Decide part decomposition strategy",
+        "single_part": "Simple shapes with no boolean operations (solid cylinder, basic box, single profile extrusion)",
+        "multi_part": "Complex shapes requiring boolean operations",
+        "patterns": {
+          "base_plus_holes": "part_1 (NewBody) + part_2+ (Cut) for holes/cutouts",
+          "additive_assembly": "part_1 (NewBody) + part_2+ (Join) for flanges, ribs, bosses",
+          "mixed_operations": "part_1 (NewBody) + part_2 (Join) + part_3 (Cut) for full assemblies"
+        }
+      },
+      "step_3_normalize_dimensions": {
+        "description": "Convert real-world dimensions to normalized 0.0-1.0 space",
+        "formula": "normalized_value = dimension_mm / scale_factor_mm",
+        "typical_scale_factors": {
+          "small_parts": "100mm → 0.75 normalized = 75mm actual",
+          "medium_parts": "200mm → 0.75 normalized = 150mm actual",
+          "large_parts": "500mm → 0.75 normalized = 375mm actual"
+        },
+        "recommendation": "Use sketch_scale to control overall size. Keep sketch coordinates in 0.0-0.75 range for compatibility."
+      },
+      "step_4_sketch_construction": {
+        "description": "Map geometric shapes to sketch primitives",
+        "mappings": {
+          "circle_solid": "Single face, loop_1 with circle_1 (Center + Radius)",
+          "rectangle": "Single face, loop_1 with 4 lines forming closed loop",
+          "rounded_rectangle": "Lines for straight edges + arcs for rounded corners",
+          "polygon": "Chain of lines forming closed loop (line_1 through line_N)",
+          "circle_with_hole": "Single face, loop_1 (outer circle) + loop_2 (inner circle)",
+          "rectangle_with_holes": "loop_1 (outer rectangle) + loop_2+ (circles or complex shapes)",
+          "complex_profile": "Mix of lines and arcs, potentially multiple faces for different regions",
+          "gear_teeth": "Multiple arcs forming cyclic pattern, often 8-12+ primitives"
+        },
+        "loop_rules": {
+          "closure": "For closed profiles, last entity's End Point MUST match first entity's Start Point",
+          "connectivity": "Each entity's End Point connects to next entity's Start Point",
+          "inner_loops": "Additional loops (loop_2+) represent holes, cutouts, or interior features"
+        }
+      },
+      "step_5_extrusion_parameters": {
+        "description": "Set 3D extrusion properties",
+        "extrude_depth_towards_normal": "Forward extrusion (typical: 0.01-0.75). Height in positive Z-direction.",
+        "extrude_depth_opposite_normal": "Backward extrusion (typically 0.0, or equal to forward for symmetric features)",
+        "sketch_scale": "Overall scaling factor. Usually matches the largest sketch dimension (0.01-0.75).",
+        "operation_selection": {
+          "NewBodyFeatureOperation": "First part OR independent bodies. Creates new solid geometry.",
+          "JoinFeatureOperation": "Additive features (flanges, ribs, bosses). Unions with existing geometry.",
+          "CutFeatureOperation": "Subtractive features (holes, slots, pockets). Boolean subtraction.",
+          "IntersectFeatureOperation": "Intersection of geometries (rare, specialized uses)."
+        }
+      },
+      "step_6_coordinate_systems": {
+        "description": "Set part positioning and orientation",
+        "euler_angles": "Rotation in degrees [X, Y, Z]. Common: [0,0,0] (no rotation), [0,0,-90] (90° Z-rotation), [-90,0,-90] (complex orientation). Always multiples of 90°.",
+        "translation_vector": "Position offset [X, Y, Z] in normalized space. [0,0,0] for base parts, non-zero for offset features (holes, flanges).",
+        "guidelines": {
+          "first_part": "Usually [0,0,0] Euler angles and [0,0,0] translation for the base body",
+          "subsequent_parts": "Apply transformations to position features correctly relative to base"
+        }
+      },
+      "step_7_fill_descriptions": {
+        "description": "Populate metadata fields",
+        "final_name": "Overall object name from NL prompt (e.g., 'Mounting Bracket with Holes')",
+        "final_shape": "High-level category (Cylinder, Bracket, Plate, Gear, Housing, Connector, etc.)",
+        "part_descriptions": "For each part, fill name/shape describing that specific feature",
+        "dimensions": "Calculate bounding box: length (X), width (Y), height (Z) = extrude_depth_towards + extrude_depth_opposite"
+      }
+    },
+    
+    "json_to_nl_reconstruction": {
+      "purpose": "Generate expert-level L3 parametric descriptions for VectorDB RAG indexing",
+      "output_format": "Technical, precise description suitable for semantic search and matching",
+      "template": "[Shape Category] with [Key Features]. Dimensions: [W]×[H]×[D]. Includes [Feature List]. Operations: [Operation Sequence].",
+      "include": [
+        "Overall shape and function (from final_name, final_shape)",
+        "critical dimensions (from description.length/width/height, scaled to real units)",
+        "Number and type of features (holes, flanges, cutouts)",
+        "Boolean operation sequence (Base → Join → Cut operations)",
+        "Geometric complexity (number of faces, loops, primitives)",
+        "Special characteristics (bidirectional extrusion, multi-loop profiles, complex arcs)"
+      ],
+      "example_outputs": {
+        "simple": "A cylindrical rod with a diameter of 75mm and height of 10.46mm. Single circular profile extruded upward. NewBodyFeatureOperation.",
+        "moderate": "A rectangular mounting plate (75mm × 15.63mm × 1.56mm thick) with 4 mounting features: two circular holes (Ø1.34mm) at the ends, one rounded slot (5mm × 1.88mm) in the center, and one additional circular hole (Ø1.34mm) near the right edge. Base plate created via NewBodyFeatureOperation with 4 internal loops representing cutouts.",
+        "complex": "A bracket assembly consisting of a square base plate (75mm × 75mm × 15mm) with a perpendicular mounting flange (30mm × 30mm × 75mm high) attached to one edge. Central through-hole (Ø10mm) passes through the base plate. Three-part construction: part_1 (NewBodyFeatureOperation, base), part_2 (JoinFeatureOperation, flange, 90° Z-rotation), part_3 (CutFeatureOperation, centered hole)."
+      }
+    },
+    
+    "validation_rules": [
+      "✓ All coordinates normalized to 0.0-1.0 range (can be smaller than 1.0, minimum ~0.0001)",
+      "✓ final_name and final_shape MUST be filled (never empty strings after LLM processing)",
+      "✓ units field MUST be specified at top level (default: 'mm')",
+      "✓ Part names follow strict pattern: 'part_1', 'part_2', ..., 'part_N' (sequential, no gaps)",
+      "✓ Face names: 'face_1', 'face_2', ..., 'face_N' (sequential per part)",
+      "✓ Loop names: 'loop_1', 'loop_2', ..., 'loop_N' (sequential per face)",
+      "✓ Primitive names: 'line_1', 'arc_1', 'circle_1', etc. (sequential per loop, per type)",
+      "✓ G0 Continuity: For closed loops, last End Point ≈ first Start Point (within 0.005 tolerance)",
+      "✓ Operation hierarchy: part_1 MUST be 'NewBodyFeatureOperation', subsequent parts use Join/Cut/Intersect",
+      "✓ Extrusion XOR Revolve: Each part must have EITHER (sketch+extrusion) OR (revolve_profile+revolve) OR (hole_feature), not multiple",
+      "✓ Extrusion depths: at least ONE of (towards_normal, opposite_normal) must be > 0",
+      "✓ Revolve angle: must be 0 < angle <= 360",
+      "✓ Sketch scale: must be > 0, typically 0.01-0.75",
+      "✓ Draft angle: -45° ≤ draft_angle ≤ 45°, typical 1-5° for molding",
+      "✓ Arc validity: Start, Mid, End points must NOT be collinear (forms valid curve)",
+      "✓ Circle radius: must be > 0",
+      "✓ Hole feature: diameter > 0, depth >= 0 (or 'through_all')",
+      "✓ Counterbore: counterbore_diameter > diameter, counterbore_depth > 0",
+      "✓ Pattern count: must be >= 2 (including original)",
+      "✓ Linear pattern: must have spacing > 0 and direction vector",
+      "✓ Polar pattern: must have center point and 0 < total_angle <= 360",
+      "✓ Fillet/Chamfer: radius/distance > 0, edge_selector must be valid CadQuery selector",
+      "✓ Face selector inference: For CadQuery generation, Translation[Z] position relative to base height determines face (Z≈height→>Z, Z≈0→<Z, X/Y boundaries→side faces)",
+      "✓ Feature positioning: Cut/Join operations should have Translation vectors that place them on or near base geometry surfaces, not floating in space",
+      "✓ Physical intersection: CutFeatureOperation must intersect existing solid, JoinFeatureOperation must touch existing solid",
+      "✓ Euler angles: typically multiples of 90° (0, ±90, ±180°), rarely arbitrary",
+      "✓ Translation vectors: any values, but typically 0.0-0.75 range for normalized space",
+      "✓ Bounding box calculations: length/width from sketch max-min, height from extrusion/revolve depths"
+    ],
+    
+    "common_patterns_catalog": {
+      "simple_cylinder": {
+        "parts": 1,
+        "sketch": "face_1/loop_1/circle_1",
+        "operation": "NewBodyFeatureOperation",
+        "use_case": "Rods, shafts, pins, simple cylindrical bodies"
+      },
+      "hollow_cylinder_pipe": {
+        "parts": 1,
+        "sketch": "face_1/loop_1 (outer circle) + loop_2 (inner circle)",
+        "operation": "NewBodyFeatureOperation",
+        "use_case": "Pipes, tubes, bushings, sleeves"
+      },
+      "rectangular_box": {
+        "parts": 1,
+        "sketch": "face_1/loop_1 (4 lines forming rectangle)",
+        "operation": "NewBodyFeatureOperation",
+        "use_case": "Plates, blocks, housings, enclosures"
+      },
+      "plate_with_holes": {
+        "parts": 1,
+        "sketch": "face_1/loop_1 (outer boundary) + loop_2+ (hole geometries)",
+        "operation": "NewBodyFeatureOperation",
+        "use_case": "Mounting plates, flanges, panels with cutouts"
+      },
+      "base_plus_cut": {
+        "parts": 2,
+        "structure": "part_1 NewBody (solid base) + part_2 Cut (hole/cutout)",
+        "use_case": "Any solid with drilled/milled features"
+      },
+      "base_plus_flange": {
+        "parts": 2,
+        "structure": "part_1 NewBody (main body) + part_2 Join (attached flange/rib)",
+        "use_case": "Brackets, T-joints, flanged connectors"
+      },
+      "complex_assembly": {
+        "parts": "3+",
+        "structure": "part_1 NewBody + part_2 Join + part_3 Cut + ...",
+        "use_case": "Multi-feature components (base + bosses + holes)"
+      }
+    },
+    
+    "troubleshooting": {
+      "loop_not_closed": "Check that last entity's End Point matches first entity's Start Point. Add/adjust line segments to close gaps.",
+      "arc_fails_invalid": "Verify Mid Point is not collinear with Start and End. Mid point must form a curved path.",
+      "extrusion_depth_zero": "At least one of (extrude_depth_towards_normal, extrude_depth_opposite_normal) must be > 0. Check if height was specified.",
+      "operation_order_wrong": "First part must be NewBodyFeatureOperation. Join/Cut/Intersect can only operate on existing geometry from previous parts.",
+      "coordinates_out_of_range": "Normalize coordinates to 0.0-1.0 space. Very small features can use values like 0.001-0.01.",
+      "missing_name_shape": "Always fill final_name and final_shape from the NL prompt. Never leave as empty strings.",
+      "wrong_primitive_type": "Use circle for circular features, lines for straight edges, arcs for curves. Don't use line for a circle.",
+      "face_selector_ambiguous": "When Translation Vector doesn't clearly indicate face, use Euler angles: [0,0,0]→top/bottom, [0,0,±90]→sides, [-90,0,0]→front/back. Default to >Z for holes if uncertain.",
+      "feature_floating": "If CadQuery generates floating geometry, verify face selector matches Translation[Z] position. Top features need >Z, bottom features need <Z, edge features need >X/Y/etc.",
+      "wrong_face_selected": "Check Translation Vector against base bounding box. Feature at Z=base_height uses >Z. Feature at Z=0 uses <Z or >Z depending on extrusion direction."
+    },
+    
+    "cadquery_quick_reference": {
+      "description": "Quick lookup for minimal JSON → CadQuery Face Selector conversion",
+      "hole_in_plate": {
+        "json_indicators": "CutFeatureOperation, circular sketch, Translation[Z] at base height",
+        "face_selector": ">Z",
+        "code_template": ".faces('>Z').workplane().circle(radius).cutThruAll()"
+      },
+      "flange_on_side": {
+        "json_indicators": "JoinFeatureOperation, Translation[X or Y] at boundary, Euler rotated",
+        "face_selector": ">X, >Y, <X, or <Y (based on which boundary)",
+        "code_template": ".faces('>Y').workplane().rect(w, h).extrude(d)"
+      },
+      "boss_on_top": {
+        "json_indicators": "JoinFeatureOperation, Translation[Z] at base height, circular or rect profile",
+        "face_selector": ">Z",
+        "code_template": ".faces('>Z').workplane().circle(r).extrude(h)"
+      },
+      "pocket_depression": {
+        "json_indicators": "CutFeatureOperation, non-through depth, Translation[Z] at surface",
+        "face_selector": ">Z or appropriate face",
+        "code_template": ".faces('>Z').workplane().rect(w, h).cutBlind(depth)"
+      },
+      "through_hole_centered": {
+        "json_indicators": "CutFeatureOperation, Translation centered on base, extrudes full height",
+        "face_selector": ">Z (start from top) or <Z (start from bottom)",
+        "code_template": ".faces('>Z').workplane().circle(r).cutThruAll()"
+      },
+      "ribs_internal": {
+        "json_indicators": "JoinFeatureOperation, thin profile, Translation inside base bounds",
+        "face_selector": "Internal face selection or use .rect().extrude() directly",
+        "code_template": ".workplane(offset=z).rect(w, h).extrude(thickness)"
+      }
+    }
+  }
+}
