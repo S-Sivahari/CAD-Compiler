@@ -159,7 +159,7 @@ class SynthoCadPipeline:
         
         # Call LLM
         try:
-            response_text = call_gemini(full_prompt, max_tokens=2048, temperature=0.1)
+            response_text = call_gemini(full_prompt, max_tokens=8192, temperature=0.1)
             
             # Strip markdown code blocks if present
             cleaned_text = self._strip_markdown_json(response_text)
