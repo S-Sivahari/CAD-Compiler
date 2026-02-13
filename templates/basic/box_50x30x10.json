@@ -1,0 +1,37 @@
+{
+  "final_name": "Box_50x30x10",
+  "final_shape": "Box",
+  "description": "Box 50mm x 30mm x 10mm",
+  "units": "mm",
+  "parts": {
+    "part_1": {
+      "coordinate_system": {
+        "Euler Angles": [0.0, 0.0, 0.0],
+        "Translation Vector": [0.0, 0.0, 0.0]
+      },
+      "sketch": {
+        "face_1": {
+          "loop_1": {
+            "line_1": {"Start Point": [0.0, 0.0], "End Point": [1.0, 0.0]},
+            "line_2": {"Start Point": [1.0, 0.0], "End Point": [1.0, 0.6]},
+            "line_3": {"Start Point": [1.0, 0.6], "End Point": [0.0, 0.6]},
+            "line_4": {"Start Point": [0.0, 0.6], "End Point": [0.0, 0.0]}
+          }
+        }
+      },
+      "extrusion": {
+        "extrude_depth_towards_normal": 0.2,
+        "extrude_depth_opposite_normal": 0.0,
+        "sketch_scale": 50.0,
+        "operation": "NewBodyFeatureOperation"
+      },
+      "description": {
+        "name": "Box_50x30x10",
+        "shape": "Box",
+        "length": 50.0,
+        "width": 30.0,
+        "height": 10.0
+      }
+    }
+  }
+}

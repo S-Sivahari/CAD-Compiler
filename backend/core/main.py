@@ -9,10 +9,6 @@ import logging
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-# Load .env for API keys
-from dotenv import load_dotenv
-load_dotenv(str(Path(__file__).parent.parent.parent / ".env"))
-
 from validators.prompt_validator import PromptValidator
 from validators.json_validator import validate_json
 from core.cadquery_generator import CadQueryGenerator
@@ -26,15 +22,43 @@ from core import config
 
 
 # LLM SYSTEM PROMPT - Instructions for converting natural language to SCL JSON
-LLM_SYSTEM_PROMPT = """You are a CAD design assistant. Your job is to convert natural language descriptions into valid SCL JSON format.
+LLM_SYSTEM_PROMPT = """You are a CAD design assistant. Convert natural language to valid SCL JSON.
 
 CRITICAL RULES:
-1. Output ONLY valid JSON - no markdown, no code blocks, no explanations before or after
-2. Use the SCL schema located at: backend/core/scl_schema.json
-3. The user's input may have missing values or extra details - YOU must figure out reasonable defaults
-4. Always include "units" field (default to "mm" if not specified)
-5. First operation must use "NewBodyFeatureOperation"
-6. Use normalized coordinates (0.0 to 1.0) in sketches, then use sketch_scale to size it correctly
+1. Output ONLY valid JSON - no markdown, no explanations
+2. Always include "units" field (default: "mm")
+3. First operation must use "NewBodyFeatureOperation"
+4. Sketch uses normalized 0.0-1.0 coordinates, then sketch_scale converts to real dimensions
+
+DIMENSION FORMULA (IMPORTANT):
+User input: "10mm radius cylinder, 20mm tall"
+
+Step 1 - Sketch (normalized 0-1 range):
+  Circle: Center [0.5, 0.5], Radius 0.5
+
+Step 2 - Scale to real size:
+  sketch_scale = diameter = 2 * radius = 20.0
+  extrude_depth_towards_normal = height / sketch_scale = 20 / 20 = 1.0
+
+Step 3 - Description (real dimensions):
+  length: 20.0 (diameter)
+  width: 20.0 (diameter)
+  height: 20.0 (actual height)
+
+ANOTHER EXAMPLE - "50mm x 30mm x 10mm box":
+
+Sketch (normalized, aspect ratio 50:30):
+  line_1: [0.0, 0.0] to [1.0, 0.0]
+  line_2: [1.0, 0.0] to [1.0, 0.6]  ← 30/50 = 0.6
+  line_3: [1.0, 0.6] to [0.0, 0.6]
+  line_4: [0.0, 0.6] to [0.0, 0.0]
+
+Scale:
+  sketch_scale = 50.0 (longest dimension)
+  extrude_depth = 10 / 50 = 0.2
+
+Description:
+  length: 50.0, width: 30.0, height: 10.0
 
 REQUIRED JSON STRUCTURE:
 {
@@ -61,7 +85,7 @@ REQUIRED JSON STRUCTURE:
         "operation": "NewBodyFeatureOperation"
       },
       "description": {
-        "name": "CylindricalPart",
+        "name": "PartName",
         "shape": "cylinder",
         "length": 20.0,
         "width": 20.0,
@@ -71,29 +95,12 @@ REQUIRED JSON STRUCTURE:
   }
 }
 
-SKETCH ENTITIES YOU CAN USE:
+SKETCH ENTITIES:
 - Circle: {"Center": [x, y], "Radius": r}
-- Line: {"Start Point": [x1, y1], "End Point": [x2, y2]}  
+- Line: {"Start Point": [x1, y1], "End Point": [x2, y2]}
 - Arc: {"Start Point": [x1, y1], "Mid Point": [xm, ym], "End Point": [x2, y2]}
 
-HOW TO HANDLE DIMENSIONS:
-- User says "10mm radius cylinder, 30mm tall"
-- Sketch: Circle with Center [0.5, 0.5], Radius 0.5 (normalized 0-1 range)
-- sketch_scale: 20.0 (this is the diameter = 2*radius)
-- extrude_depth_towards_normal: 1.5 (this ratio times sketch_scale gives 30mm height)
-- Description: length=20, width=20, height=30
-
-FEATURE TYPES:
-- "extrude" - for boxes, cylinders (circle + extrude), plates
-- "revolve" - for parts with rotational symmetry
-
-YOUR OUTPUT MUST:
-- Start with { and end with }
-- Be valid JSON that passes jsonschema validation
-- Match the SCL schema exactly (all required fields present, correct types)
-- Have reasonable values even if user input is vague
-
-DO NOT output markdown code blocks like ```json - just output the raw JSON."""
+Output ONLY raw JSON starting with { and ending with }"""
 
 
 class SynthoCadPipeline:
@@ -151,15 +158,15 @@ class SynthoCadPipeline:
         # Build full prompt
         examples_text = ""
         if templates:
-            examples_text = "\n\nEXAMPLES:\n"
+            examples_text = "\n\nWORKING EXAMPLES (study these for correct dimension scaling):\n"
             for i, t in enumerate(templates[:2], 1):
                 examples_text += f"\nExample {i}:\n{json.dumps(t, indent=2)}\n"
         
         full_prompt = f"{system_prompt}{examples_text}\n\nUSER REQUEST: {prompt}\n\nJSON output:"
         
-        # Call LLM
+        # Call LLM with slightly higher temperature for better reasoning
         try:
-            response_text = call_gemini(full_prompt, max_tokens=2048, temperature=0.1)
+            response_text = call_gemini(full_prompt, max_tokens=8192, temperature=0.2)
             
             # Strip markdown code blocks if present
             cleaned_text = self._strip_markdown_json(response_text)
@@ -185,9 +192,10 @@ class SynthoCadPipeline:
         templates = []
         prompt_lower = prompt.lower()
         
+        # Prefer concrete examples with real dimensions
         template_map = {
-            ('cylinder', 'rod', 'pipe', 'round', 'circular'): 'basic/cylinder.json',
-            ('box', 'cube', 'block', 'plate', 'rectangular'): 'basic/box.json',
+            ('cylinder', 'rod', 'pipe', 'round', 'circular'): 'basic/cylinder_10x20.json',
+            ('box', 'cube', 'block', 'plate', 'rectangular'): 'basic/box_50x30x10.json',
             ('tube', 'hollow'): 'basic/tube.json',
         }
         
@@ -198,9 +206,9 @@ class SynthoCadPipeline:
                     with open(template_path, 'r') as f:
                         templates.append(json.load(f))
         
-        # Always include at least one example
+        # Always include at least one concrete example
         if not templates:
-            default_template = config.TEMPLATES_DIR / 'basic' / 'cylinder.json'
+            default_template = config.TEMPLATES_DIR / 'basic' / 'cylinder_10x20.json'
             if default_template.exists():
                 with open(default_template, 'r') as f:
                     templates.append(json.load(f))
