@@ -1,0 +1,127 @@
+{
+    "final_name": "Rigid_Shaft_Coupling_12mm",
+    "final_shape": "Rigid Shaft Coupling",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 15.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Coupling_Body",
+                "shape": "Cylindrical Coupling",
+                "length": 30.0,
+                "width": 30.0,
+                "height": 40.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 6.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Shaft_Bore",
+                "shape": "Through Bore",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 40.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    10.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 2.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 15.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Set_Screw_Hole",
+                "shape": "Threaded Hole",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 15.0
+            }
+        }
+    }
+}

@@ -1,0 +1,492 @@
+{
+    "final_name": "DIN_Rail_TS35_Final",
+    "final_shape": "DIN Rail TS35",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    -17.5,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                2.5,
+                                0.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                2.5,
+                                0.0
+                            ],
+                            "End Point": [
+                                2.5,
+                                1.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                2.5,
+                                1.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                1.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                0.0,
+                                1.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 100.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Left_Base_Lip",
+                "shape": "Base Lip",
+                "length": 2.5,
+                "width": 1.0,
+                "height": 100.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    -15.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                1.0,
+                                0.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                1.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                1.0,
+                                5.5
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                1.0,
+                                5.5
+                            ],
+                            "End Point": [
+                                0.0,
+                                5.5
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                0.0,
+                                5.5
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 100.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Left_Wall",
+                "shape": "Vertical Wall",
+                "length": 1.0,
+                "width": 5.5,
+                "height": 100.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    -14.0,
+                    6.5,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                28.0,
+                                0.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                28.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                28.0,
+                                1.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                28.0,
+                                1.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                1.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                0.0,
+                                1.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 100.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Top_Plate",
+                "shape": "Top Plate",
+                "length": 28.0,
+                "width": 1.0,
+                "height": 100.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    14.0,
+                    1.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                1.0,
+                                0.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                1.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                1.0,
+                                5.5
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                1.0,
+                                5.5
+                            ],
+                            "End Point": [
+                                0.0,
+                                5.5
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                0.0,
+                                5.5
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 100.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Right_Wall",
+                "shape": "Vertical Wall",
+                "length": 1.0,
+                "width": 5.5,
+                "height": 100.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    15.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                2.5,
+                                0.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                2.5,
+                                0.0
+                            ],
+                            "End Point": [
+                                2.5,
+                                1.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                2.5,
+                                1.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                1.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                0.0,
+                                1.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 100.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Right_Base_Lip",
+                "shape": "Base Lip",
+                "length": 2.5,
+                "width": 1.0,
+                "height": 100.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    -16.0,
+                    0.0,
+                    20.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.5
+                            ],
+                            "Radius": 2.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 115.0,
+                "extrude_depth_opposite_normal": 115.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Mounting_Hole_1",
+                "shape": "Circular Hole",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 1.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    -16.0,
+                    0.0,
+                    50.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                -16.0,
+                                0.5
+                            ],
+                            "Radius": 2.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 115.0,
+                "extrude_depth_opposite_normal": 115.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Mounting_Hole_2",
+                "shape": "Circular Hole",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 1.0
+            }
+        },
+        "part_8": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    -16.0,
+                    0.0,
+                    80.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                -16.0,
+                                0.5
+                            ],
+                            "Radius": 2.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 115.0,
+                "extrude_depth_opposite_normal": 115.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Mounting_Hole_3",
+                "shape": "Circular Hole",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 1.0
+            }
+        }
+    }
+}

@@ -1,0 +1,210 @@
+{
+    "final_name": "Socket_Head_Cap_Screw_M8x40",
+    "final_shape": "Socket Head Cap Screw",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 6.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 8.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Socket_Head",
+                "shape": "Cylindrical Head",
+                "length": 13.0,
+                "width": 13.0,
+                "height": 8.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    2.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                3.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                3.0,
+                                1.732
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                3.0,
+                                1.732
+                            ],
+                            "End Point": [
+                                1.5,
+                                2.598
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                1.5,
+                                2.598
+                            ],
+                            "End Point": [
+                                -1.5,
+                                2.598
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -1.5,
+                                2.598
+                            ],
+                            "End Point": [
+                                -3.0,
+                                1.732
+                            ]
+                        },
+                        "line_5": {
+                            "Start Point": [
+                                -3.0,
+                                1.732
+                            ],
+                            "End Point": [
+                                -3.0,
+                                -1.732
+                            ]
+                        },
+                        "line_6": {
+                            "Start Point": [
+                                -3.0,
+                                -1.732
+                            ],
+                            "End Point": [
+                                -1.5,
+                                -2.598
+                            ]
+                        },
+                        "line_7": {
+                            "Start Point": [
+                                -1.5,
+                                -2.598
+                            ],
+                            "End Point": [
+                                1.5,
+                                -2.598
+                            ]
+                        },
+                        "line_8": {
+                            "Start Point": [
+                                1.5,
+                                -2.598
+                            ],
+                            "End Point": [
+                                3.0,
+                                -1.732
+                            ]
+                        },
+                        "line_9": {
+                            "Start Point": [
+                                3.0,
+                                -1.732
+                            ],
+                            "End Point": [
+                                3.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 0.0,
+                "extrude_depth_opposite_normal": 6.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Hex_Socket",
+                "shape": "Hexagonal Socket",
+                "length": 6.0,
+                "width": 5.196,
+                "height": 6.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    -40.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 4.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Screw_Shaft",
+                "shape": "Cylindrical Shaft",
+                "length": 8.0,
+                "width": 8.0,
+                "height": 40.0
+            }
+        }
+    }
+}

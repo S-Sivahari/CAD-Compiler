@@ -1,0 +1,179 @@
+{
+    "final_name": "Wing_Nut_M8",
+    "final_shape": "Wing Nut",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 6.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 6.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Nut_Base",
+                "shape": "Cylindrical Base",
+                "length": 13.0,
+                "width": 13.0,
+                "height": 6.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 4.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 6.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Thread_Hole_M8",
+                "shape": "Hole",
+                "length": 8.0,
+                "width": 8.0,
+                "height": 6.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    2.0,
+                    2.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                10.0
+                            ]
+                        },
+                        "arc_1": {
+                            "Start Point": [
+                                0.0,
+                                10.0
+                            ],
+                            "Mid Point": [
+                                10.0,
+                                18.0
+                            ],
+                            "End Point": [
+                                24.0,
+                                12.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                24.0,
+                                12.0
+                            ],
+                            "End Point": [
+                                6.5,
+                                0.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                6.5,
+                                0.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 4.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 2,
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "total_angle": 360,
+                "axis": [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            },
+            "description": {
+                "name": "Wings",
+                "shape": "Wing Profile",
+                "length": 30.0,
+                "width": 4.0,
+                "height": 18.0
+            }
+        }
+    }
+}

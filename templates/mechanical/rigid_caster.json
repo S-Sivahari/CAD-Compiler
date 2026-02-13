@@ -1,0 +1,426 @@
+{
+    "final_name": "Rigid_Caster_50mm",
+    "final_shape": "Rigid Caster Wheel Assembly",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                -20.0,
+                                -20.0
+                            ],
+                            "End Point": [
+                                20.0,
+                                -20.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                20.0,
+                                -20.0
+                            ],
+                            "End Point": [
+                                20.0,
+                                20.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                20.0,
+                                20.0
+                            ],
+                            "End Point": [
+                                -20.0,
+                                20.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -20.0,
+                                20.0
+                            ],
+                            "End Point": [
+                                -20.0,
+                                -20.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Top_Mounting_Plate",
+                "shape": "Square Plate",
+                "length": 40.0,
+                "width": 40.0,
+                "height": 3.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.5
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                15.0,
+                                15.0
+                            ],
+                            "Radius": 2.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Mounting_Hole_1",
+                "shape": "Cylindrical Hole",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 3.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.5
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                -15.0,
+                                15.0
+                            ],
+                            "Radius": 2.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Mounting_Hole_2",
+                "shape": "Cylindrical Hole",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 3.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.5
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                15.0,
+                                -15.0
+                            ],
+                            "Radius": 2.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Mounting_Hole_3",
+                "shape": "Cylindrical Hole",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 3.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.5
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                -15.0,
+                                -15.0
+                            ],
+                            "Radius": 2.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Mounting_Hole_4",
+                "shape": "Cylindrical Hole",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 3.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    12.0,
+                    10.0,
+                    -25.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                28.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                0.0,
+                                28.0
+                            ],
+                            "End Point": [
+                                -8.0,
+                                28.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                -8.0,
+                                28.0
+                            ],
+                            "End Point": [
+                                -8.0,
+                                0.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -8.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Side_Plate_Left",
+                "shape": "Vertical Support Plate",
+                "length": 28.0,
+                "width": 3.0,
+                "height": 8.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    -15.0,
+                    -13.0,
+                    -25.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                28.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                0.0,
+                                28.0
+                            ],
+                            "End Point": [
+                                -8.0,
+                                28.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                -8.0,
+                                28.0
+                            ],
+                            "End Point": [
+                                -8.0,
+                                0.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -8.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Side_Plate_Right",
+                "shape": "Vertical Support Plate",
+                "length": 28.0,
+                "width": 3.0,
+                "height": 8.0
+            }
+        },
+        "part_8": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    -33.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 25.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 20.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Wheel",
+                "shape": "Cylindrical Wheel",
+                "length": 50.0,
+                "width": 50.0,
+                "height": 20.0
+            }
+        }
+    }
+}

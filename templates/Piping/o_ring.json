@@ -1,0 +1,56 @@
+{
+    "final_name": "O_Ring_20x2_5",
+    "final_shape": "O-Ring",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 11.25
+                        }
+                    },
+                    "loop_2": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 8.75
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 2.5,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "O_Ring_Body",
+                "shape": "Toroidal Ring",
+                "length": 22.5,
+                "width": 22.5,
+                "height": 2.5
+            }
+        }
+    }
+}

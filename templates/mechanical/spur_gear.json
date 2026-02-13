@@ -1,0 +1,215 @@
+{
+    "final_name": "Spur_Gear_20T_Module2",
+    "final_shape": "Spur Gear with Hub",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 17.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Gear_Root_Cylinder",
+                "shape": "Cylindrical Base",
+                "length": 35.0,
+                "width": 35.0,
+                "height": 10.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    10.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 12.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Back_Hub",
+                "shape": "Cylindrical Hub",
+                "length": 24.0,
+                "width": 24.0,
+                "height": 10.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    17.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                -2.2
+                            ],
+                            "End Point": [
+                                4.5,
+                                -1.2
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                4.5,
+                                -1.2
+                            ],
+                            "End Point": [
+                                4.5,
+                                1.2
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                4.5,
+                                1.2
+                            ],
+                            "End Point": [
+                                0.0,
+                                2.2
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                0.0,
+                                2.2
+                            ],
+                            "End Point": [
+                                0.0,
+                                -2.2
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 20,
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "total_angle": 360,
+                "axis": [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            },
+            "description": {
+                "name": "Gear_Teeth",
+                "shape": "Trapezoidal Tooth Pattern",
+                "length": 44.0,
+                "width": 44.0,
+                "height": 10.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 6.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 20.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Center_Bore",
+                "shape": "Cylindrical Hole",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 20.0
+            }
+        }
+    }
+}

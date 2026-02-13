@@ -1,0 +1,122 @@
+{
+    "final_name": "Square_Tubing_25x25x2",
+    "final_shape": "Square Tubing",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                -12.5,
+                                -12.5
+                            ],
+                            "End Point": [
+                                12.5,
+                                -12.5
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                12.5,
+                                -12.5
+                            ],
+                            "End Point": [
+                                12.5,
+                                12.5
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                12.5,
+                                12.5
+                            ],
+                            "End Point": [
+                                -12.5,
+                                12.5
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -12.5,
+                                12.5
+                            ],
+                            "End Point": [
+                                -12.5,
+                                -12.5
+                            ]
+                        }
+                    },
+                    "loop_2": {
+                        "line_1": {
+                            "Start Point": [
+                                -10.5,
+                                -10.5
+                            ],
+                            "End Point": [
+                                10.5,
+                                -10.5
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                10.5,
+                                -10.5
+                            ],
+                            "End Point": [
+                                10.5,
+                                10.5
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                10.5,
+                                10.5
+                            ],
+                            "End Point": [
+                                -10.5,
+                                10.5
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -10.5,
+                                10.5
+                            ],
+                            "End Point": [
+                                -10.5,
+                                -10.5
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 1000.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Square_Tube_Body",
+                "shape": "Hollow Square Profile",
+                "length": 25.0,
+                "width": 25.0,
+                "height": 1000.0
+            }
+        }
+    }
+}

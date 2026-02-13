@@ -1,0 +1,295 @@
+{
+    "final_name": "Timing_Pulley_GT2_20T",
+    "final_shape": "Timing Belt Pulley",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 6.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 16.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Hub_Body",
+                "shape": "Cylinder",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 16.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    16.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 10.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 1.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Rear_Flange",
+                "shape": "Disc",
+                "length": 20.0,
+                "width": 20.0,
+                "height": 1.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    17.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 8.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Pulley_Body",
+                "shape": "Cylinder",
+                "length": 16.0,
+                "width": 16.0,
+                "height": 10.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    27.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 10.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 1.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Front_Flange",
+                "shape": "Disc",
+                "length": 20.0,
+                "width": 20.0,
+                "height": 1.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 2.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 30.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Center_Bore",
+                "shape": "Hole",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 30.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    7.6,
+                    0.0,
+                    17.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                -0.8,
+                                0.5
+                            ],
+                            "End Point": [
+                                0.8,
+                                0.5
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                0.8,
+                                0.5
+                            ],
+                            "End Point": [
+                                0.5,
+                                -0.5
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                0.5,
+                                -0.5
+                            ],
+                            "End Point": [
+                                -0.5,
+                                -0.5
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -0.5,
+                                -0.5
+                            ],
+                            "End Point": [
+                                -0.8,
+                                0.5
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 20,
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "total_angle": 360,
+                "axis": [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            },
+            "description": {
+                "name": "Teeth",
+                "shape": "Trapezoidal Teeth",
+                "length": 1.6,
+                "width": 1.0,
+                "height": 10.0
+            }
+        }
+    }
+}

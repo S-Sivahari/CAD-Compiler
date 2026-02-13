@@ -1,0 +1,169 @@
+{
+    "final_name": "Shaft_Collar_Split_12mm",
+    "final_shape": "Split Shaft Collar",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 18.0
+                        }
+                    },
+                    "loop_2": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 6.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 12.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Collar_Body",
+                "shape": "Annular Cylinder",
+                "length": 36.0,
+                "width": 36.0,
+                "height": 12.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                -20.0
+                            ],
+                            "End Point": [
+                                1.5,
+                                -20.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                1.5,
+                                -20.0
+                            ],
+                            "End Point": [
+                                1.5,
+                                20.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                1.5,
+                                20.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                20.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                0.0,
+                                20.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                -20.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 12.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Split_Gap",
+                "shape": "Rectangular Cut",
+                "length": 1.5,
+                "width": 40.0,
+                "height": 12.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    12.0,
+                    0.0,
+                    6.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 2.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 0.0,
+                "extrude_depth_opposite_normal": 12.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Mounting_Hole",
+                "shape": "Cylindrical Hole",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 12.0
+            }
+        }
+    }
+}

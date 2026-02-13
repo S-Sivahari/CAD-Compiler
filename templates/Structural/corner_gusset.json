@@ -1,0 +1,110 @@
+{
+    "final_name": "Corner_Gusset_40x40x3",
+    "final_shape": "Corner Gusset",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                40.0,
+                                0.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                40.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                40.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                0.0,
+                                40.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Gusset_Plate",
+                "shape": "Triangular Plate",
+                "length": 40.0,
+                "width": 40.0,
+                "height": 3.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    10.0,
+                    10.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 4.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Mounting_Hole",
+                "shape": "Circular Hole",
+                "length": 9.0,
+                "width": 9.0,
+                "height": 3.0
+            }
+        }
+    }
+}

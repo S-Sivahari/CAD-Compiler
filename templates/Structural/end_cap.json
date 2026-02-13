@@ -1,0 +1,153 @@
+{
+    "final_name": "End_Cap_20mm",
+    "final_shape": "Plastic End Cap",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                -10.0,
+                                -10.0
+                            ],
+                            "End Point": [
+                                10.0,
+                                -10.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                10.0,
+                                -10.0
+                            ],
+                            "End Point": [
+                                10.0,
+                                10.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                10.0,
+                                10.0
+                            ],
+                            "End Point": [
+                                -10.0,
+                                10.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -10.0,
+                                10.0
+                            ],
+                            "End Point": [
+                                -10.0,
+                                -10.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Cap_Face",
+                "shape": "Square Face",
+                "length": 20.0,
+                "width": 20.0,
+                "height": 3.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    -10.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                -9.0,
+                                -9.0
+                            ],
+                            "End Point": [
+                                9.0,
+                                -9.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                9.0,
+                                -9.0
+                            ],
+                            "End Point": [
+                                9.0,
+                                9.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                9.0,
+                                9.0
+                            ],
+                            "End Point": [
+                                -9.0,
+                                9.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -9.0,
+                                9.0
+                            ],
+                            "End Point": [
+                                -9.0,
+                                -9.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Insert_Plug",
+                "shape": "Square Plug",
+                "length": 18.0,
+                "width": 18.0,
+                "height": 10.0
+            }
+        }
+    }
+}

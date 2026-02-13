@@ -1,0 +1,193 @@
+{
+    "final_name": "Angle_Bracket_90deg_50x50",
+    "final_shape": "90 Degree Angle Bracket",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                50.0,
+                                0.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                50.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                50.0,
+                                50.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                50.0,
+                                50.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                50.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                0.0,
+                                50.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Vertical_Leg",
+                "shape": "Rectangular Plate",
+                "length": 50.0,
+                "width": 50.0,
+                "height": 3.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                50.0,
+                                0.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                50.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                50.0,
+                                50.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                50.0,
+                                50.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                50.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                0.0,
+                                50.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Horizontal_Leg",
+                "shape": "Rectangular Plate",
+                "length": 50.0,
+                "width": 50.0,
+                "height": 3.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    10.0,
+                    10.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 4.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Mounting_Holes_Vertical",
+                "shape": "Circular Holes",
+                "length": 9.0,
+                "width": 9.0,
+                "height": 3.0
+            }
+        }
+    }
+}

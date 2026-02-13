@@ -1,0 +1,127 @@
+{
+    "final_name": "Dowel_Pin_6x30_Chamfered",
+    "final_shape": "Dowel Pin with Chamfers",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 3.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 28.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Dowel_Pin_Body",
+                "shape": "Cylindrical Body",
+                "length": 6.0,
+                "width": 6.0,
+                "height": 28.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    28.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 3.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 1.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 0.33,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Top_Chamfer",
+                "shape": "Conical Chamfer",
+                "length": 6.0,
+                "width": 6.0,
+                "height": 1.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    180.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 3.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 1.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 0.33,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Bottom_Chamfer",
+                "shape": "Conical Chamfer",
+                "length": 6.0,
+                "width": 6.0,
+                "height": 1.0
+            }
+        }
+    }
+}

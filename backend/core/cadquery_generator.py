@@ -62,8 +62,7 @@ class CadQueryGenerator:
         elif has_hole:
             self.generate_hole_feature(part, part_num, result_var, euler, trans)
             
-        if "pattern" in part:
-            self.generate_pattern(part["pattern"], result_var)
+
             
         if "mirror" in part:
             self.generate_mirror(part["mirror"], result_var)
@@ -147,6 +146,9 @@ class CadQueryGenerator:
         if depth_opposite > 0:
             self.add_line(f"wp = wp.translate((0, 0, -{depth_opposite}))")
             
+        if "pattern" in part:
+            self.generate_pattern(part["pattern"], "wp")
+            
         if part_num == "1":
             self.add_line(f"{result_var} = wp")
         else:
@@ -208,6 +210,9 @@ class CadQueryGenerator:
                     
         self.add_line(f"wp = wp.revolve({angle}, ({origin[0]}, {origin[1]}, {origin[2]}), ({axis[0]}, {axis[1]}, {axis[2]}))")
         
+        if "pattern" in part:
+            self.generate_pattern(part["pattern"], "wp")
+            
         if part_num == "1":
             self.add_line(f"{result_var} = wp")
         else:
@@ -316,6 +321,36 @@ class CadQueryGenerator:
             self.add_line(f"{result_var} = {result_var}.edges().chamfer({distance})")
         else:
             self.add_line(f"{result_var} = {result_var}.edges('{edge_selector}').chamfer({distance})")
+            
+    def generate_pattern(self, pattern, result_var):
+        pattern_type = pattern["type"]
+        count = pattern["count"]
+        
+        if pattern_type == "linear":
+            spacing = pattern["spacing"]
+            direction = pattern["direction"]
+            self.add_line(f"# Linear pattern: {count} instances, spacing {spacing}")
+            self.add_line(f"pattern_dir = ({direction[0]}, {direction[1]}, {direction[2]})")
+            self.add_line(f"for i in range(1, {count}):")
+            self.indent += 1
+            self.add_line(f"offset = (pattern_dir[0]*{spacing}*i, pattern_dir[1]*{spacing}*i, pattern_dir[2]*{spacing}*i)")
+            self.add_line(f"{result_var} = {result_var}.union({result_var}.translate(offset))")
+            self.indent -= 1
+        elif pattern_type == "polar":
+            center = pattern["center"]
+            total_angle = pattern["total_angle"]
+            axis = pattern.get("axis", [0, 0, 1])
+            if abs(total_angle - 360) < 0.01:
+                angle_step = total_angle / count
+            else:
+                angle_step = total_angle / (count - 1) if count > 1 else 0
+            
+            self.add_line(f"# Polar pattern: {count} instances around ({center[0]}, {center[1]}, {center[2]})")
+            self.add_line(f"for i in range(1, {count}):")
+            self.indent += 1
+            self.add_line(f"angle = {angle_step} * i")
+            self.add_line(f"{result_var} = {result_var}.union({result_var}.rotate(({center[0]}, {center[1]}, {center[2]}), ({axis[0]}, {axis[1]}, {axis[2]}), angle))")
+            self.indent -= 1
             
     def get_operation_suffix(self, operation):
         return {

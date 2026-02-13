@@ -1,0 +1,170 @@
+{
+    "final_name": "Hex_Nut_M10",
+    "final_shape": "Hex Nut",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                8.66,
+                                0.0
+                            ],
+                            "End Point": [
+                                8.66,
+                                5.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                8.66,
+                                5.0
+                            ],
+                            "End Point": [
+                                4.33,
+                                7.5
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                4.33,
+                                7.5
+                            ],
+                            "End Point": [
+                                -4.33,
+                                7.5
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -4.33,
+                                7.5
+                            ],
+                            "End Point": [
+                                -8.66,
+                                5.0
+                            ]
+                        },
+                        "line_5": {
+                            "Start Point": [
+                                -8.66,
+                                5.0
+                            ],
+                            "End Point": [
+                                -8.66,
+                                -5.0
+                            ]
+                        },
+                        "line_6": {
+                            "Start Point": [
+                                -8.66,
+                                -5.0
+                            ],
+                            "End Point": [
+                                -4.33,
+                                -7.5
+                            ]
+                        },
+                        "line_7": {
+                            "Start Point": [
+                                -4.33,
+                                -7.5
+                            ],
+                            "End Point": [
+                                4.33,
+                                -7.5
+                            ]
+                        },
+                        "line_8": {
+                            "Start Point": [
+                                4.33,
+                                -7.5
+                            ],
+                            "End Point": [
+                                8.66,
+                                -5.0
+                            ]
+                        },
+                        "line_9": {
+                            "Start Point": [
+                                8.66,
+                                -5.0
+                            ],
+                            "End Point": [
+                                8.66,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 8.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Hex_Body",
+                "shape": "Hexagonal Body",
+                "length": 17.32,
+                "width": 15.0,
+                "height": 8.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 5.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 8.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Thread_Hole",
+                "shape": "Cylindrical Hole",
+                "length": 10.0,
+                "width": 10.0,
+                "height": 8.0
+            }
+        }
+    }
+}

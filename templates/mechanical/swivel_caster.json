@@ -1,0 +1,591 @@
+{
+    "final_name": "Swivel_Caster_75mm",
+    "final_shape": "Swivel Caster Assembly",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    68.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                -30.0,
+                                -25.0
+                            ],
+                            "End Point": [
+                                30.0,
+                                -25.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                30.0,
+                                -25.0
+                            ],
+                            "End Point": [
+                                30.0,
+                                25.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                30.0,
+                                25.0
+                            ],
+                            "End Point": [
+                                -30.0,
+                                25.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -30.0,
+                                25.0
+                            ],
+                            "End Point": [
+                                -30.0,
+                                -25.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Top_Plate",
+                "shape": "Rectangular Plate",
+                "length": 60.0,
+                "width": 50.0,
+                "height": 3.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    68.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                20.0,
+                                15.0
+                            ],
+                            "Radius": 3.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 40.0,
+                "direction": [
+                    -1.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "description": {
+                "name": "Mounting_Holes_Front",
+                "shape": "Holes",
+                "length": 40.0,
+                "width": 6.0,
+                "height": 3.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    68.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                20.0,
+                                -15.0
+                            ],
+                            "Radius": 3.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 40.0,
+                "direction": [
+                    -1.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "description": {
+                "name": "Mounting_Holes_Back",
+                "shape": "Holes",
+                "length": 40.0,
+                "width": 6.0,
+                "height": 3.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    63.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 20.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 5.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Swivel_Race",
+                "shape": "Cylindrical Housing",
+                "length": 40.0,
+                "width": 40.0,
+                "height": 5.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    60.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 28.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Yoke_Base",
+                "shape": "Cylindrical Base",
+                "length": 56.0,
+                "width": 56.0,
+                "height": 3.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    10.0,
+                    24.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                60.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                0.0,
+                                60.0
+                            ],
+                            "End Point": [
+                                -15.0,
+                                60.0
+                            ]
+                        },
+                        "arc_1": {
+                            "Start Point": [
+                                -15.0,
+                                60.0
+                            ],
+                            "Mid Point": [
+                                -25.0,
+                                30.0
+                            ],
+                            "End Point": [
+                                -15.0,
+                                0.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                -15.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Fork_Left",
+                "shape": "Curved Leg",
+                "length": 25.0,
+                "width": 3.0,
+                "height": 60.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    10.0,
+                    -21.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                0.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                60.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                0.0,
+                                60.0
+                            ],
+                            "End Point": [
+                                -15.0,
+                                60.0
+                            ]
+                        },
+                        "arc_1": {
+                            "Start Point": [
+                                -15.0,
+                                60.0
+                            ],
+                            "Mid Point": [
+                                -25.0,
+                                30.0
+                            ],
+                            "End Point": [
+                                -15.0,
+                                0.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                -15.0,
+                                0.0
+                            ],
+                            "End Point": [
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 3.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Fork_Right",
+                "shape": "Curved Leg",
+                "length": 25.0,
+                "width": 3.0,
+                "height": 60.0
+            }
+        },
+        "part_8": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    10.0,
+                    20.0,
+                    15.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 37.5
+                        }
+                    },
+                    "loop_2": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 30.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Wheel_Rim",
+                "shape": "Tire",
+                "length": 75.0,
+                "width": 40.0,
+                "height": 75.0
+            }
+        },
+        "part_9": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    10.0,
+                    20.0,
+                    15.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 8.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Wheel_Hub",
+                "shape": "Hub",
+                "length": 16.0,
+                "width": 40.0,
+                "height": 16.0
+            }
+        },
+        "part_10": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    10.0,
+                    7.0,
+                    15.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                -2.5,
+                                8.0
+                            ],
+                            "End Point": [
+                                2.5,
+                                8.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                2.5,
+                                8.0
+                            ],
+                            "End Point": [
+                                5.0,
+                                30.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                5.0,
+                                30.0
+                            ],
+                            "End Point": [
+                                -5.0,
+                                30.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -5.0,
+                                30.0
+                            ],
+                            "End Point": [
+                                -2.5,
+                                8.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 14.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 3,
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "total_angle": 360,
+                "axis": [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            },
+            "description": {
+                "name": "Wheel_Spokes",
+                "shape": "Spokes",
+                "length": 60.0,
+                "width": 14.0,
+                "height": 60.0
+            }
+        }
+    }
+}

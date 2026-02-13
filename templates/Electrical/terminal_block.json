@@ -1,0 +1,160 @@
+{
+    "final_name": "Terminal_Block_2P",
+    "final_shape": "Terminal Block",
+    "units": "mm",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [
+                                -10.0,
+                                -5.0
+                            ],
+                            "End Point": [
+                                10.0,
+                                -5.0
+                            ]
+                        },
+                        "line_2": {
+                            "Start Point": [
+                                10.0,
+                                -5.0
+                            ],
+                            "End Point": [
+                                10.0,
+                                5.0
+                            ]
+                        },
+                        "line_3": {
+                            "Start Point": [
+                                10.0,
+                                5.0
+                            ],
+                            "End Point": [
+                                -10.0,
+                                5.0
+                            ]
+                        },
+                        "line_4": {
+                            "Start Point": [
+                                -10.0,
+                                5.0
+                            ],
+                            "End Point": [
+                                -10.0,
+                                -5.0
+                            ]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 15.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Terminal_Body",
+                "shape": "Rectangular Block",
+                "length": 20.0,
+                "width": 10.0,
+                "height": 15.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    -5.0,
+                    0.0,
+                    12.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 1.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 0.0,
+                "extrude_depth_opposite_normal": 12.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Wire_Hole_1",
+                "shape": "Wire Entry",
+                "length": 3.0,
+                "width": 3.0,
+                "height": 12.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "Translation Vector": [
+                    5.0,
+                    0.0,
+                    12.0
+                ]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [
+                                0.0,
+                                0.0
+                            ],
+                            "Radius": 1.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 0.0,
+                "extrude_depth_opposite_normal": 12.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Wire_Hole_2",
+                "shape": "Wire Entry",
+                "length": 3.0,
+                "width": 3.0,
+                "height": 12.0
+            }
+        }
+    }
+}
