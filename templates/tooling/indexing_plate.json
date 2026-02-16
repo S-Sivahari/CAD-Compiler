@@ -1,0 +1,233 @@
+{
+    "final_name": "Indexing_Plate_200mm",
+    "final_shape": "Precision Indexing Plate",
+    "units": "mm",
+    "_template_category": "tooling",
+    "_editable_parameters": {
+        "plate_diameter": 200,
+        "plate_thickness": 15,
+        "center_bore": 25,
+        "hub_diameter": 50,
+        "hub_thickness": 10,
+        "inner_ring_radius": 50,
+        "inner_ring_holes": 12,
+        "inner_hole_diameter": 6,
+        "middle_ring_radius": 70,
+        "middle_ring_holes": 24,
+        "middle_hole_diameter": 5,
+        "outer_ring_radius": 90,
+        "outer_ring_holes": 36,
+        "outer_hole_diameter": 4,
+        "keyway_width": 8,
+        "keyway_depth": 4
+    },
+    "_engineering_note": "Precision indexing/dividing plate with 3 concentric rings of holes (12/24/36). Enables angular divisions of 30/15/10 degrees respectively. Ground flat to <0.01mm. Center bore with keyway for spindle mounting. Used on dividing heads, rotary tables, and fixture work.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 100.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 15.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Main_Plate_Disk",
+                "shape": "Circular Indexing Plate",
+                "length": 200.0,
+                "width": 200.0,
+                "height": 15.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 15.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 25.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Center_Hub",
+                "shape": "Cylindrical Mounting Hub",
+                "length": 50.0,
+                "width": 50.0,
+                "height": 10.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 12.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 25.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Center_Bore",
+                "shape": "Cylindrical Through Bore",
+                "length": 25.0,
+                "width": 25.0,
+                "height": 25.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [50.0, 0.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 6.0,
+                "depth": 12.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 12,
+                "center": [0.0, 0.0, 0.0],
+                "total_angle": 360,
+                "axis": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Inner_Ring_Holes",
+                "shape": "Blind Index Holes Inner Ring (12x, 30-deg spacing)",
+                "length": 6.0,
+                "width": 6.0,
+                "height": 12.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [70.0, 0.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 5.0,
+                "depth": 12.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 24,
+                "center": [0.0, 0.0, 0.0],
+                "total_angle": 360,
+                "axis": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Middle_Ring_Holes",
+                "shape": "Blind Index Holes Middle Ring (24x, 15-deg spacing)",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 12.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [90.0, 0.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 4.0,
+                "depth": 12.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 36,
+                "center": [0.0, 0.0, 0.0],
+                "total_angle": 360,
+                "axis": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Outer_Ring_Holes",
+                "shape": "Blind Index Holes Outer Ring (36x, 10-deg spacing)",
+                "length": 4.0,
+                "width": 4.0,
+                "height": 12.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [8.5, -4.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [8.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [8.0, 0.0],
+                            "End Point": [8.0, 4.0]
+                        },
+                        "line_3": {
+                            "Start Point": [8.0, 4.0],
+                            "End Point": [0.0, 4.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 4.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 25.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Keyway_Slot",
+                "shape": "Rectangular Keyway in Bore",
+                "length": 8.0,
+                "width": 4.0,
+                "height": 25.0
+            }
+        }
+    }
+}

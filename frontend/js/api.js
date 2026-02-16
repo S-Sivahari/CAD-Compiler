@@ -10,9 +10,6 @@ class SynthoCADAPI {
         this.baseUrl = baseUrl;
     }
 
-    /**
-     * Generic request handler with error handling
-     */
     async request(endpoint, options = {}) {
         const url = `${this.baseUrl}${endpoint}`;
         
@@ -37,8 +34,6 @@ class SynthoCADAPI {
             throw error;
         }
     }
-
-    // ========== Generation APIs ==========
 
     async validatePrompt(prompt) {
         return this.request('/generate/validate-prompt', {
@@ -70,8 +65,6 @@ class SynthoCADAPI {
 
     // ========== Parameter APIs ==========
 
-    async extractParameters(filename) {
-        return this.request(`/parameters/extract/${filename}`, {
             method: 'GET'
         });
     }
@@ -169,8 +162,6 @@ class SynthoCADAPI {
         });
     }
 
-    // ========== Monitoring APIs ==========
-
     async getRetryStats(operation = null, limit = 50) {
         const params = new URLSearchParams();
         if (operation) params.append('operation', operation);
@@ -181,8 +172,6 @@ class SynthoCADAPI {
             method: 'GET'
         });
     }
-
-    // ========== Template APIs ==========
 
     async getTemplates() {
         return this.request('/templates', {
@@ -198,8 +187,6 @@ class SynthoCADAPI {
 
     // ========== Health Check ==========
 
-    async healthCheck() {
-        return this.request('/health', {
             method: 'GET'
         });
     }

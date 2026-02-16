@@ -1,0 +1,193 @@
+{
+    "final_name": "Heat_Exchanger_Tube_Sheet",
+    "final_shape": "Shell and Tube Heat Exchanger Tube Sheet",
+    "units": "mm",
+    "_template_category": "fluid_power",
+    "_editable_parameters": {
+        "plate_diameter": 200,
+        "plate_thickness": 20,
+        "tube_hole_diameter": 12,
+        "tube_pitch": 18,
+        "num_tubes_ring_1": 6,
+        "num_tubes_ring_2": 12,
+        "num_tubes_ring_3": 18,
+        "bolt_circle_diameter": 190,
+        "num_bolts": 12,
+        "bolt_hole_diameter": 14,
+        "center_bore_diameter": 12,
+        "gasket_groove_diameter": 180,
+        "gasket_groove_depth": 2,
+        "gasket_groove_width": 5
+    },
+    "_engineering_note": "Tube sheet for shell-and-tube heat exchanger. Triangular pitch tube layout in 3 concentric rings (6+12+18=36 tubes). Bolt flange for shell and channel head connection. Gasket groove on face. Material typically SA-516 Gr.70 or stainless.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 100.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 20.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Tube_Sheet_Plate",
+                "shape": "Circular Plate",
+                "length": 200.0,
+                "width": 200.0,
+                "height": 20.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [25.0, 0.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 12.0,
+                "depth": 20.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 6,
+                "center": [0.0, 0.0, 0.0],
+                "total_angle": 360,
+                "axis": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Tube_Holes_Ring_1",
+                "shape": "Through Tube Holes Inner Ring (6x)",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 20.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [45.0, 0.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 12.0,
+                "depth": 20.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 12,
+                "center": [0.0, 0.0, 0.0],
+                "total_angle": 360,
+                "axis": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Tube_Holes_Ring_2",
+                "shape": "Through Tube Holes Middle Ring (12x)",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 20.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [65.0, 0.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 12.0,
+                "depth": 20.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 18,
+                "center": [0.0, 0.0, 0.0],
+                "total_angle": 360,
+                "axis": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Tube_Holes_Ring_3",
+                "shape": "Through Tube Holes Outer Ring (18x)",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 20.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [95.0, 0.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 14.0,
+                "depth": 20.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 12,
+                "center": [0.0, 0.0, 0.0],
+                "total_angle": 360,
+                "axis": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Bolt_Holes",
+                "shape": "Through Bolt Holes (12x M14)",
+                "length": 14.0,
+                "width": 14.0,
+                "height": 20.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 92.5
+                        }
+                    },
+                    "loop_2": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 87.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 2.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Gasket_Groove",
+                "shape": "Annular Gasket Seating Groove",
+                "length": 185.0,
+                "width": 185.0,
+                "height": 2.0
+            }
+        }
+    }
+}

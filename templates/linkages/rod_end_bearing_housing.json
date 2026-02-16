@@ -1,0 +1,210 @@
+{
+    "final_name": "Rod_End_Bearing_Housing_M12",
+    "final_shape": "Rod End Bearing Housing",
+    "units": "mm",
+    "_template_category": "linkages",
+    "_editable_parameters": {
+        "housing_outer_diameter": 35,
+        "housing_width": 16,
+        "bore_diameter": 12,
+        "shank_diameter": 12,
+        "shank_length": 50,
+        "thread_diameter": 12,
+        "thread_length": 30,
+        "flat_width": 17,
+        "flat_thickness": 14,
+        "grease_nipple_diameter": 4,
+        "body_transition_length": 10
+    },
+    "_engineering_note": "Rod end bearing housing (heim joint / rose joint) per DIN ISO 12240-4. Spherical plain bearing seats in the eye ring (bearing not modeled). Threaded shank for adjustable-length linkage connection. Wrench flats on shank for tightening. Used in control linkages, tie rods, steering.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, -8.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 17.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 16.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Eye_Ring_Body",
+                "shape": "Cylindrical Eye Ring",
+                "length": 35.0,
+                "width": 35.0,
+                "height": 16.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, -8.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 6.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 16.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Bearing_Bore",
+                "shape": "Cylindrical Bearing Seat Bore",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 16.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, -17.5, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [-7.0, -8.5],
+                            "End Point": [7.0, -8.5]
+                        },
+                        "line_2": {
+                            "Start Point": [7.0, -8.5],
+                            "End Point": [7.0, 8.5]
+                        },
+                        "line_3": {
+                            "Start Point": [7.0, 8.5],
+                            "End Point": [-7.0, 8.5]
+                        },
+                        "line_4": {
+                            "Start Point": [-7.0, 8.5],
+                            "End Point": [-7.0, -8.5]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Body_Transition",
+                "shape": "Rectangular Transition from Eye to Shank",
+                "length": 14.0,
+                "width": 17.0,
+                "height": 10.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, -27.5, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 6.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 50.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Threaded_Shank",
+                "shape": "Cylindrical Threaded Shank (M12)",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 50.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, -27.5, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [-8.5, -7.0],
+                            "End Point": [8.5, -7.0]
+                        },
+                        "line_2": {
+                            "Start Point": [8.5, -7.0],
+                            "End Point": [8.5, 7.0]
+                        },
+                        "line_3": {
+                            "Start Point": [8.5, 7.0],
+                            "End Point": [-8.5, 7.0]
+                        },
+                        "line_4": {
+                            "Start Point": [-8.5, 7.0],
+                            "End Point": [-8.5, -7.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Wrench_Flats",
+                "shape": "Hex Wrench Flat Section",
+                "length": 17.0,
+                "width": 14.0,
+                "height": 10.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [17.5, 0.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 4.0,
+                "depth": 12.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Grease_Nipple_Hole",
+                "shape": "Threaded Grease Nipple Hole",
+                "length": 12.0,
+                "width": 4.0,
+                "height": 4.0
+            }
+        }
+    }
+}

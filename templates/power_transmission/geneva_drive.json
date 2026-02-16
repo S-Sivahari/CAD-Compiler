@@ -1,0 +1,213 @@
+{
+    "final_name": "Geneva_Drive_4Slot",
+    "final_shape": "Geneva Drive Mechanism",
+    "units": "mm",
+    "_template_category": "power_transmission",
+    "_editable_parameters": {
+        "driver_diameter": 60,
+        "driven_diameter": 80,
+        "thickness": 10,
+        "pin_diameter": 6,
+        "pin_offset": 22,
+        "slot_width": 7,
+        "slot_depth": 30,
+        "num_slots": 4,
+        "center_bore": 10
+    },
+    "_engineering_note": "4-slot Geneva mechanism. Driver disk carries a pin that engages slots on the driven disk, producing intermittent rotary motion (90 deg per cycle). Slot profiles simplified as rectangular cuts.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 30.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Driver_Disk",
+                "shape": "Cylindrical Driver Disk",
+                "length": 60.0,
+                "width": 60.0,
+                "height": 10.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [22.0, 0.0, 10.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 3.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 8.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Driver_Pin",
+                "shape": "Cylindrical Drive Pin",
+                "length": 6.0,
+                "width": 6.0,
+                "height": 8.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 5.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Driver_Center_Bore",
+                "shape": "Cylindrical Center Bore",
+                "length": 10.0,
+                "width": 10.0,
+                "height": 10.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [70.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 40.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Driven_Disk",
+                "shape": "Cylindrical Driven Disk",
+                "length": 80.0,
+                "width": 80.0,
+                "height": 10.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [70.0, -3.5, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [35.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [35.0, 0.0],
+                            "End Point": [35.0, 7.0]
+                        },
+                        "line_3": {
+                            "Start Point": [35.0, 7.0],
+                            "End Point": [0.0, 7.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 7.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 4,
+                "center": [70.0, 0.0, 0.0],
+                "total_angle": 360,
+                "axis": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Geneva_Slots",
+                "shape": "Rectangular Radial Slots",
+                "length": 35.0,
+                "width": 7.0,
+                "height": 10.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [70.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 5.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Driven_Center_Bore",
+                "shape": "Cylindrical Center Bore",
+                "length": 10.0,
+                "width": 10.0,
+                "height": 10.0
+            }
+        }
+    }
+}

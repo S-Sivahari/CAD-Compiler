@@ -1,0 +1,210 @@
+{
+    "final_name": "Worm_Gear_Set_M2",
+    "final_shape": "Worm Gear Set",
+    "units": "mm",
+    "_template_category": "power_transmission",
+    "_editable_parameters": {
+        "worm_diameter": 30,
+        "worm_length": 80,
+        "wheel_diameter": 100,
+        "wheel_thickness": 25,
+        "bore_diameter": 15,
+        "shaft_diameter": 12,
+        "module": 2
+    },
+    "_engineering_note": "Simplified representation. Worm thread helix and wheel tooth involute profiles are approximated with cylindrical geometry. In production, CNC or hobbing creates the actual tooth forms.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 15.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 80.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Worm_Shaft_Body",
+                "shape": "Cylindrical Worm Shaft",
+                "length": 30.0,
+                "width": 30.0,
+                "height": 80.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [20.0, 0.0, 20.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, -2.0],
+                            "End Point": [5.0, -1.5]
+                        },
+                        "line_2": {
+                            "Start Point": [5.0, -1.5],
+                            "End Point": [5.0, 1.5]
+                        },
+                        "line_3": {
+                            "Start Point": [5.0, 1.5],
+                            "End Point": [0.0, 2.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 2.0],
+                            "End Point": [0.0, -2.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 10,
+                "spacing": 6.28,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Worm_Thread_Teeth",
+                "shape": "Trapezoidal Thread Approximation",
+                "length": 10.0,
+                "width": 4.0,
+                "height": 40.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, -10.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 6.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 20.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Worm_Input_Shaft",
+                "shape": "Cylindrical Input Shaft Extension",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 20.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, -60.0, 40.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 50.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 25.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Worm_Wheel_Body",
+                "shape": "Cylindrical Wheel Disk",
+                "length": 100.0,
+                "width": 100.0,
+                "height": 25.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, -60.0, 40.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 7.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 25.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Worm_Wheel_Bore",
+                "shape": "Cylindrical Bore Hole",
+                "length": 15.0,
+                "width": 15.0,
+                "height": 25.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, -60.0, 40.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 18.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 8.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Worm_Wheel_Hub",
+                "shape": "Cylindrical Hub Boss",
+                "length": 36.0,
+                "width": 36.0,
+                "height": 8.0
+            }
+        }
+    }
+}

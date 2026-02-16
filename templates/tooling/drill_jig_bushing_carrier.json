@@ -1,0 +1,303 @@
+{
+    "final_name": "Drill_Jig_Bushing_Carrier",
+    "final_shape": "Drill Jig Bushing Carrier Plate",
+    "units": "mm",
+    "_template_category": "tooling",
+    "_editable_parameters": {
+        "plate_length": 150,
+        "plate_width": 80,
+        "plate_thickness": 20,
+        "leg_height": 40,
+        "leg_width": 15,
+        "bushing_bore_diameter": 16,
+        "num_bushing_holes": 4,
+        "bushing_spacing_x": 30,
+        "bushing_spacing_y": 40,
+        "locating_pin_diameter": 8,
+        "clamp_slot_width": 12,
+        "clamp_slot_length": 30
+    },
+    "_engineering_note": "Drill jig bushing carrier for production drilling operations. Top plate carries 4 press-fit bushing holes (H7 tolerance) in a rectangular pattern. Two support legs create clearance for workpiece. Locating pins and clamping slots for workpiece positioning. All bushing holes reamed to H7.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 40.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [150.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [150.0, 0.0],
+                            "End Point": [150.0, 80.0]
+                        },
+                        "line_3": {
+                            "Start Point": [150.0, 80.0],
+                            "End Point": [0.0, 80.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 80.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 20.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Top_Plate",
+                "shape": "Rectangular Jig Plate",
+                "length": 150.0,
+                "width": 80.0,
+                "height": 20.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [15.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [15.0, 0.0],
+                            "End Point": [15.0, 80.0]
+                        },
+                        "line_3": {
+                            "Start Point": [15.0, 80.0],
+                            "End Point": [0.0, 80.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 80.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Left_Support_Leg",
+                "shape": "Rectangular Support Leg (Left)",
+                "length": 15.0,
+                "width": 80.0,
+                "height": 40.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [135.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [15.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [15.0, 0.0],
+                            "End Point": [15.0, 80.0]
+                        },
+                        "line_3": {
+                            "Start Point": [15.0, 80.0],
+                            "End Point": [0.0, 80.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 80.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Right_Support_Leg",
+                "shape": "Rectangular Support Leg (Right)",
+                "length": 15.0,
+                "width": 80.0,
+                "height": 40.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [45.0, 20.0, 40.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 16.0,
+                "depth": 20.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 30.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Bushing_Holes_Row1",
+                "shape": "Reamed Bushing Holes Row 1 (H7 fit)",
+                "length": 16.0,
+                "width": 16.0,
+                "height": 20.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [45.0, 60.0, 40.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 16.0,
+                "depth": 20.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 30.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Bushing_Holes_Row2",
+                "shape": "Reamed Bushing Holes Row 2 (H7 fit)",
+                "length": 16.0,
+                "width": 16.0,
+                "height": 20.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [30.0, 40.0, 40.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 8.0,
+                "depth": 15.0,
+                "direction": [0.0, 0.0, -1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 90.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Locating_Pin_Holes",
+                "shape": "Blind Locating Pin Holes (Dowel H7)",
+                "length": 8.0,
+                "width": 8.0,
+                "height": 15.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [60.0, 0.0, 40.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [30.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [30.0, 0.0],
+                            "End Point": [30.0, 12.0]
+                        },
+                        "line_3": {
+                            "Start Point": [30.0, 12.0],
+                            "End Point": [0.0, 12.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 12.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 20.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Front_Clamp_Slot",
+                "shape": "Rectangular Clamping Slot",
+                "length": 30.0,
+                "width": 12.0,
+                "height": 20.0
+            }
+        },
+        "part_8": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [60.0, 68.0, 40.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [30.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [30.0, 0.0],
+                            "End Point": [30.0, 12.0]
+                        },
+                        "line_3": {
+                            "Start Point": [30.0, 12.0],
+                            "End Point": [0.0, 12.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 12.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 20.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Rear_Clamp_Slot",
+                "shape": "Rectangular Clamping Slot (Rear)",
+                "length": 30.0,
+                "width": 12.0,
+                "height": 20.0
+            }
+        }
+    }
+}

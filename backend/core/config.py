@@ -24,7 +24,53 @@ PROMPT_MAX_LENGTH = 5000
 
 EXECUTION_TIMEOUT = 60
 
-SUPPORTED_TEMPLATES = ["cylinder", "box", "tube", "l_bracket", "flange", "shaft"]
+SUPPORTED_TEMPLATES = [
+    "cylinder", "box", "tube", "l_bracket", "flange", "shaft",
+    "hex_bolt", "socket_head_cap_screw", "flat_head_screw", "button_head_screw",
+    "set_screw", "hex_nut", "wing_nut", "t_nut",
+    "flat_washer", "lock_washer", "fender_washer",
+    "dowel_pin", "shoulder_bolt", "retaining_ring",
+    "ball_bearing", "spur_gear", "threaded_rod",
+    "rigid_coupling", "sleeve_bushing", "shaft_collar_split",
+    "flanged_bushing", "timing_pulley", "lead_screw",
+    "leveling_foot", "swivel_caster", "rigid_caster",
+    "angle_bracket", "corner_gusset", "square_tubing",
+    "end_cap", "t_slot_extrusion", "din_rail",
+    "pcb_standoff", "terminal_block",
+    "elbow_fitting", "hose_clamp", "o_ring",
+    "linear_array", "bolt_circle",
+    "worm_gear_set", "geneva_drive", "cv_joint_housing",
+    "helical_gear", "spline_shaft", "ball_screw_nut",
+    "hydraulic_manifold_block", "heat_exchanger_tube_sheet",
+    "centrifugal_impeller", "venturi_nozzle",
+    "plummer_block_housing", "vise_jaw", "indexing_plate",
+    "drill_jig_bushing_carrier",
+    "nema_motor_mount", "lathe_tailstock_body", "electronics_enclosure_ip67",
+    "knuckle_joint", "universal_coupling_yoke", "rod_end_bearing_housing",
+]
+
+TEMPLATE_CATEGORIES = {
+    "basic": ["cylinder", "box", "tube"],
+    "mechanical": ["flange", "l_bracket", "ball_bearing", "spur_gear", "threaded_rod",
+                    "rigid_coupling", "sleeve_bushing", "shaft_collar_split", "flanged_bushing",
+                    "timing_pulley", "lead_screw", "leveling_foot", "swivel_caster", "rigid_caster"],
+    "fasteners": ["hex_bolt", "socket_head_cap_screw", "flat_head_screw", "button_head_screw",
+                   "set_screw", "hex_nut", "wing_nut", "t_nut", "flat_washer", "lock_washer",
+                   "fender_washer", "dowel_pin", "shoulder_bolt", "retaining_ring"],
+    "structural": ["angle_bracket", "corner_gusset", "square_tubing", "end_cap",
+                    "t_slot_extrusion", "din_rail"],
+    "electrical": ["pcb_standoff", "terminal_block"],
+    "piping": ["elbow_fitting", "hose_clamp", "o_ring"],
+    "patterns": ["linear_array", "bolt_circle"],
+    "power_transmission": ["worm_gear_set", "geneva_drive", "cv_joint_housing",
+                           "helical_gear", "spline_shaft", "ball_screw_nut"],
+    "fluid_power": ["hydraulic_manifold_block", "heat_exchanger_tube_sheet",
+                     "centrifugal_impeller", "venturi_nozzle"],
+    "tooling": ["plummer_block_housing", "vise_jaw", "indexing_plate",
+                "drill_jig_bushing_carrier"],
+    "enclosures": ["nema_motor_mount", "lathe_tailstock_body", "electronics_enclosure_ip67"],
+    "linkages": ["knuckle_joint", "universal_coupling_yoke", "rod_end_bearing_housing"],
+}
 
 # Cleanup Configuration
 CLEANUP_ENABLED = True

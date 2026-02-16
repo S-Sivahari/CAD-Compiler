@@ -1,0 +1,146 @@
+{
+    "final_name": "Spline_Shaft_8T_25mm",
+    "final_shape": "Involute Spline Shaft",
+    "units": "mm",
+    "_template_category": "power_transmission",
+    "_editable_parameters": {
+        "shaft_diameter": 25,
+        "shaft_length": 120,
+        "spline_section_length": 40,
+        "num_splines": 8,
+        "spline_tooth_height": 3,
+        "spline_tooth_width": 5,
+        "major_diameter": 25,
+        "minor_diameter": 19,
+        "bearing_journal_diameter": 20,
+        "bearing_journal_length": 25
+    },
+    "_engineering_note": "8-tooth involute spline shaft per ISO 4156. Spline teeth simplified as rectangular extrusions in polar pattern. Actual spline would have involute flanks. Includes stepped diameters for bearing journals.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 12.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 120.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Main_Shaft_Body",
+                "shape": "Cylindrical Shaft",
+                "length": 25.0,
+                "width": 25.0,
+                "height": 120.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 40.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [9.5, -2.5],
+                            "End Point": [12.5, -2.5]
+                        },
+                        "line_2": {
+                            "Start Point": [12.5, -2.5],
+                            "End Point": [12.5, 2.5]
+                        },
+                        "line_3": {
+                            "Start Point": [12.5, 2.5],
+                            "End Point": [9.5, 2.5]
+                        },
+                        "line_4": {
+                            "Start Point": [9.5, 2.5],
+                            "End Point": [9.5, -2.5]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 8,
+                "center": [0.0, 0.0, 0.0],
+                "total_angle": 360,
+                "axis": [0.0, 1.0, 0.0]
+            },
+            "description": {
+                "name": "Spline_Teeth",
+                "shape": "Rectangular Spline Teeth Pattern",
+                "length": 25.0,
+                "width": 25.0,
+                "height": 40.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 2.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 2.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Shaft_Center_Hole",
+                "shape": "Center Drill Hole",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 2.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "post_processing": {
+                "chamfer": {
+                    "edge_selector": "all_edges",
+                    "distance": 0.5
+                }
+            },
+            "description": {
+                "name": "Shaft_End_Chamfers",
+                "shape": "Edge Chamfers",
+                "length": 25.0,
+                "width": 25.0,
+                "height": 0.5
+            }
+        }
+    }
+}

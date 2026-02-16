@@ -1,0 +1,179 @@
+{
+    "final_name": "Ball_Screw_Nut_16mm",
+    "final_shape": "Flanged Ball Screw Nut",
+    "units": "mm",
+    "_template_category": "power_transmission",
+    "_editable_parameters": {
+        "nut_outer_diameter": 36,
+        "nut_length": 40,
+        "bore_diameter": 16,
+        "lead": 5,
+        "flange_diameter": 52,
+        "flange_thickness": 8,
+        "bolt_circle_diameter": 44,
+        "num_bolts": 4,
+        "bolt_hole_diameter": 5.5,
+        "ball_return_hole_diameter": 4
+    },
+    "_engineering_note": "Flanged ball screw nut housing. Internal thread raceway not modeled (ground raceway). Flange provides mounting surface with 4-bolt pattern. Ball return tube holes included. Standard lead of 5mm for C7 accuracy class.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 18.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Nut_Cylinder_Body",
+                "shape": "Cylindrical Nut Housing",
+                "length": 36.0,
+                "width": 36.0,
+                "height": 40.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 26.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 8.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Mounting_Flange",
+                "shape": "Circular Mounting Flange",
+                "length": 52.0,
+                "width": 52.0,
+                "height": 8.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 8.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Screw_Bore",
+                "shape": "Cylindrical Through Bore for Screw",
+                "length": 16.0,
+                "width": 16.0,
+                "height": 40.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [22.0, 0.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 5.5,
+                "depth": 8.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 4,
+                "center": [0.0, 0.0, 0.0],
+                "total_angle": 360,
+                "axis": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Flange_Bolt_Holes",
+                "shape": "Through Bolt Holes (4x M5)",
+                "length": 5.5,
+                "width": 5.5,
+                "height": 8.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [18.0, 0.0, 10.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 4.0,
+                "depth": 18.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 2,
+                "center": [0.0, 0.0, 20.0],
+                "total_angle": 180,
+                "axis": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Ball_Return_Holes",
+                "shape": "Radial Ball Return Tube Holes",
+                "length": 4.0,
+                "width": 4.0,
+                "height": 18.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "post_processing": {
+                "chamfer": {
+                    "edge_selector": "top_edges",
+                    "distance": 1.5
+                }
+            },
+            "description": {
+                "name": "Nut_End_Chamfer",
+                "shape": "Edge Chamfer",
+                "length": 36.0,
+                "width": 36.0,
+                "height": 1.5
+            }
+        }
+    }
+}

@@ -1,0 +1,275 @@
+{
+    "final_name": "Knuckle_Joint_Assembly",
+    "final_shape": "Knuckle Joint Assembly",
+    "units": "mm",
+    "_template_category": "linkages",
+    "_editable_parameters": {
+        "rod_diameter": 25,
+        "rod_length": 80,
+        "eye_outer_diameter": 50,
+        "eye_inner_diameter": 22,
+        "eye_thickness": 15,
+        "fork_thickness": 12,
+        "fork_gap": 17,
+        "pin_diameter": 20,
+        "pin_length": 50,
+        "pin_head_diameter": 30,
+        "pin_head_thickness": 5,
+        "collar_diameter": 28,
+        "collar_thickness": 3
+    },
+    "_engineering_note": "Knuckle joint (toggle joint) for connecting two rods with angular freedom. Eye end fits between fork prongs, secured with a joint pin. Used in valve rod connections, suspension links, and turnbuckles. Pin secured with split pin or collar (collar shown).",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, -80.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 12.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 80.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Eye_Rod",
+                "shape": "Cylindrical Rod with Eye End",
+                "length": 25.0,
+                "width": 25.0,
+                "height": 80.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, -7.5]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 25.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 15.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Eye_Disk",
+                "shape": "Circular Eye End",
+                "length": 50.0,
+                "width": 50.0,
+                "height": 15.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, -7.5]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 11.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 15.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Eye_Pin_Hole",
+                "shape": "Cylindrical Pin Hole in Eye",
+                "length": 22.0,
+                "width": 22.0,
+                "height": 15.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 12.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 80.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Fork_Rod",
+                "shape": "Cylindrical Fork Rod",
+                "length": 25.0,
+                "width": 25.0,
+                "height": 80.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, -20.5]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 25.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 12.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Fork_Left_Prong",
+                "shape": "Left Fork Prong Disk",
+                "length": 50.0,
+                "width": 50.0,
+                "height": 12.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 8.5]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 25.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 12.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Fork_Right_Prong",
+                "shape": "Right Fork Prong Disk",
+                "length": 50.0,
+                "width": 50.0,
+                "height": 12.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, -20.5]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 22.0,
+                "depth": 41.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Fork_Pin_Holes",
+                "shape": "Through Pin Holes in Fork Prongs",
+                "length": 22.0,
+                "width": 22.0,
+                "height": 41.0
+            }
+        },
+        "part_8": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, -25.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 10.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 50.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Joint_Pin",
+                "shape": "Cylindrical Joint Pin",
+                "length": 20.0,
+                "width": 20.0,
+                "height": 50.0
+            }
+        },
+        "part_9": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, -25.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 15.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 5.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Pin_Head",
+                "shape": "Cylindrical Pin Head",
+                "length": 30.0,
+                "width": 30.0,
+                "height": 5.0
+            }
+        }
+    }
+}

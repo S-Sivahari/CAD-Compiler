@@ -1,0 +1,257 @@
+{
+    "final_name": "Centrifugal_Impeller_150mm",
+    "final_shape": "Centrifugal Pump Impeller",
+    "units": "mm",
+    "_template_category": "fluid_power",
+    "_editable_parameters": {
+        "impeller_diameter": 150,
+        "hub_diameter": 50,
+        "hub_height": 25,
+        "shroud_diameter": 150,
+        "shroud_thickness": 4,
+        "eye_diameter": 40,
+        "bore_diameter": 20,
+        "num_vanes": 6,
+        "vane_thickness": 4,
+        "vane_height": 18,
+        "keyway_width": 6,
+        "keyway_depth": 3
+    },
+    "_engineering_note": "Closed centrifugal impeller (simplified). Radial vanes in polar pattern between hub disk and shroud. Actual vane curvature (backward-swept, Francis type) not modeled - shown as straight radial fins. Eye opening in shroud allows axial flow inlet. Suitable for water/oil pumps.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 75.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 4.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Back_Plate_Disk",
+                "shape": "Circular Back Plate",
+                "length": 150.0,
+                "width": 150.0,
+                "height": 4.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 4.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 25.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 25.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Hub_Boss",
+                "shape": "Cylindrical Hub",
+                "length": 50.0,
+                "width": 50.0,
+                "height": 25.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [25.0, -2.0, 4.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [50.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [50.0, 0.0],
+                            "End Point": [50.0, 4.0]
+                        },
+                        "line_3": {
+                            "Start Point": [50.0, 4.0],
+                            "End Point": [0.0, 4.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 4.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 18.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 6,
+                "center": [0.0, 0.0, 0.0],
+                "total_angle": 360,
+                "axis": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Radial_Vanes",
+                "shape": "Straight Radial Vane Pattern (6x)",
+                "length": 50.0,
+                "width": 4.0,
+                "height": 18.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 22.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 75.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 4.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Front_Shroud",
+                "shape": "Circular Front Shroud Disk",
+                "length": 150.0,
+                "width": 150.0,
+                "height": 4.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 22.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 20.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 4.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Eye_Opening",
+                "shape": "Cylindrical Eye Inlet Opening",
+                "length": 40.0,
+                "width": 40.0,
+                "height": 4.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 10.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 29.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Shaft_Bore",
+                "shape": "Cylindrical Shaft Bore",
+                "length": 20.0,
+                "width": 20.0,
+                "height": 29.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [7.0, -3.0, 4.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [6.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [6.0, 0.0],
+                            "End Point": [6.0, 3.0]
+                        },
+                        "line_3": {
+                            "Start Point": [6.0, 3.0],
+                            "End Point": [0.0, 3.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 3.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 25.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Keyway",
+                "shape": "Rectangular Keyway Slot",
+                "length": 6.0,
+                "width": 3.0,
+                "height": 25.0
+            }
+        }
+    }
+}

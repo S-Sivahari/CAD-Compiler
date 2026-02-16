@@ -1,0 +1,313 @@
+{
+    "final_name": "NEMA_Motor_Mount_NEMA34",
+    "final_shape": "NEMA 34 Integrated Motor Mount",
+    "units": "mm",
+    "_template_category": "enclosures",
+    "_editable_parameters": {
+        "mount_width": 120,
+        "mount_height": 120,
+        "mount_thickness": 12,
+        "nema_bolt_spacing": 69.58,
+        "nema_bolt_diameter": 6.5,
+        "pilot_diameter": 73.03,
+        "pilot_depth": 4,
+        "shaft_clearance_diameter": 16,
+        "base_length": 120,
+        "base_width": 80,
+        "base_thickness": 10,
+        "base_mounting_holes": 4,
+        "base_bolt_diameter": 8,
+        "gusset_thickness": 8,
+        "gusset_height": 60
+    },
+    "_engineering_note": "NEMA 34 motor mounting bracket per IEC standard dimensions. Vertical face plate with NEMA bolt pattern, pilot bore for motor register, and shaft clearance hole. L-bracket base with gusset ribs for rigidity. Base has 4x slotted bolt holes for alignment adjustment.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [120.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [120.0, 0.0],
+                            "End Point": [120.0, 120.0]
+                        },
+                        "line_3": {
+                            "Start Point": [120.0, 120.0],
+                            "End Point": [0.0, 120.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 120.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 12.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Vertical_Face_Plate",
+                "shape": "Square Motor Mounting Face Plate",
+                "length": 120.0,
+                "width": 12.0,
+                "height": 120.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [60.0, 0.0, 60.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 36.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 4.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Pilot_Register_Bore",
+                "shape": "Circular Pilot Register Recess",
+                "length": 73.0,
+                "width": 73.0,
+                "height": 4.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [60.0, 0.0, 60.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 8.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 12.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Shaft_Clearance_Hole",
+                "shape": "Cylindrical Shaft Pass-Through Hole",
+                "length": 16.0,
+                "width": 16.0,
+                "height": 12.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [25.21, 0.0, 25.21]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 6.5,
+                "depth": 12.0,
+                "direction": [0.0, 1.0, 0.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 69.58,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "NEMA_Bolt_Holes_Bottom",
+                "shape": "Through Bolt Holes NEMA Pattern (Bottom Row)",
+                "length": 6.5,
+                "width": 6.5,
+                "height": 12.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [25.21, 0.0, 94.79]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 6.5,
+                "depth": 12.0,
+                "direction": [0.0, 1.0, 0.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 69.58,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "NEMA_Bolt_Holes_Top",
+                "shape": "Through Bolt Holes NEMA Pattern (Top Row)",
+                "length": 6.5,
+                "width": 6.5,
+                "height": 12.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [120.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [120.0, 0.0],
+                            "End Point": [120.0, 80.0]
+                        },
+                        "line_3": {
+                            "Start Point": [120.0, 80.0],
+                            "End Point": [0.0, 80.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 80.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Base_Plate",
+                "shape": "Rectangular Base Mounting Plate",
+                "length": 120.0,
+                "width": 80.0,
+                "height": 10.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [15.0, 15.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 8.0,
+                "depth": 10.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 90.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Base_Bolt_Holes_Front",
+                "shape": "Through Base Mounting Holes (Front Row)",
+                "length": 8.0,
+                "width": 8.0,
+                "height": 10.0
+            }
+        },
+        "part_8": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [15.0, 65.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 8.0,
+                "depth": 10.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 90.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Base_Bolt_Holes_Rear",
+                "shape": "Through Base Mounting Holes (Rear Row)",
+                "length": 8.0,
+                "width": 8.0,
+                "height": 10.0
+            }
+        },
+        "part_9": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [20.0, 12.0, 10.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [0.0, 60.0]
+                        },
+                        "line_2": {
+                            "Start Point": [0.0, 60.0],
+                            "End Point": [8.0, 60.0]
+                        },
+                        "line_3": {
+                            "Start Point": [8.0, 60.0],
+                            "End Point": [8.0, 0.0]
+                        },
+                        "line_4": {
+                            "Start Point": [8.0, 0.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 8.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 72.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Gusset_Ribs",
+                "shape": "Vertical Gusset Ribs (2x)",
+                "length": 8.0,
+                "width": 8.0,
+                "height": 60.0
+            }
+        }
+    }
+}

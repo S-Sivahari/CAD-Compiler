@@ -1,0 +1,242 @@
+{
+    "final_name": "Universal_Coupling_Yoke",
+    "final_shape": "Universal Joint Coupling Yoke",
+    "units": "mm",
+    "_template_category": "linkages",
+    "_editable_parameters": {
+        "yoke_width": 60,
+        "yoke_height": 50,
+        "yoke_depth": 40,
+        "prong_thickness": 10,
+        "prong_gap": 25,
+        "cross_pin_diameter": 12,
+        "bore_diameter": 25,
+        "hub_length": 40,
+        "hub_outer_diameter": 40,
+        "keyway_width": 8,
+        "keyway_depth": 4,
+        "set_screw_diameter": 6
+    },
+    "_engineering_note": "Universal joint (Cardan joint) yoke half. Hub accepts input/output shaft with keyway. Two prongs form the yoke fork with cross-pin bearing holes. Paired with a cross spider (not included) and matching yoke to form complete U-joint. Set screw for shaft retention.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, -40.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 20.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Hub_Cylinder",
+                "shape": "Cylindrical Shaft Hub",
+                "length": 40.0,
+                "width": 40.0,
+                "height": 40.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [0.0, -40.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 12.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Shaft_Bore",
+                "shape": "Cylindrical Shaft Bore",
+                "length": 25.0,
+                "width": 25.0,
+                "height": 40.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [-30.0, 0.0, -25.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [10.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [10.0, 0.0],
+                            "End Point": [10.0, 40.0]
+                        },
+                        "line_3": {
+                            "Start Point": [10.0, 40.0],
+                            "End Point": [0.0, 40.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 40.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 50.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Left_Yoke_Prong",
+                "shape": "Rectangular Yoke Prong (Left)",
+                "length": 10.0,
+                "width": 40.0,
+                "height": 50.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [20.0, 0.0, -25.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [10.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [10.0, 0.0],
+                            "End Point": [10.0, 40.0]
+                        },
+                        "line_3": {
+                            "Start Point": [10.0, 40.0],
+                            "End Point": [0.0, 40.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 40.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 50.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Right_Yoke_Prong",
+                "shape": "Rectangular Yoke Prong (Right)",
+                "length": 10.0,
+                "width": 40.0,
+                "height": 50.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [-30.0, 20.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 12.0,
+                "depth": 60.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Cross_Pin_Holes",
+                "shape": "Through Cross Pin Bearing Holes",
+                "length": 60.0,
+                "width": 12.0,
+                "height": 12.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [8.5, -40.0, -4.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [8.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [8.0, 0.0],
+                            "End Point": [8.0, 4.0]
+                        },
+                        "line_3": {
+                            "Start Point": [8.0, 4.0],
+                            "End Point": [0.0, 4.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 4.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 40.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Keyway",
+                "shape": "Rectangular Keyway in Bore",
+                "length": 8.0,
+                "width": 4.0,
+                "height": 40.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [20.0, -20.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 6.0,
+                "depth": 20.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Set_Screw_Hole",
+                "shape": "Threaded Set Screw Hole",
+                "length": 20.0,
+                "width": 6.0,
+                "height": 6.0
+            }
+        }
+    }
+}

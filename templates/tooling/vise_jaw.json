@@ -1,0 +1,218 @@
+{
+    "final_name": "Vise_Jaw_Hardened_100mm",
+    "final_shape": "Hardened Vise Jaw",
+    "units": "mm",
+    "_template_category": "tooling",
+    "_editable_parameters": {
+        "jaw_length": 100,
+        "jaw_width": 30,
+        "jaw_height": 25,
+        "v_groove_angle_deg": 90,
+        "v_groove_depth": 8,
+        "v_groove_position_y": 15,
+        "step_height": 12,
+        "step_depth": 10,
+        "mounting_hole_diameter": 8,
+        "mounting_hole_spacing": 60,
+        "serration_count": 10,
+        "serration_depth": 0.5
+    },
+    "_engineering_note": "Hardened steel vise jaw (HRC 55-60) with V-groove for round stock clamping and stepped face for parallel clamping at different heights. Serrations on clamping face approximated with linear groove pattern. Two mounting bolt holes for securing to vise body.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [100.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [100.0, 0.0],
+                            "End Point": [100.0, 30.0]
+                        },
+                        "line_3": {
+                            "Start Point": [100.0, 30.0],
+                            "End Point": [0.0, 30.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 30.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 25.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Jaw_Block_Body",
+                "shape": "Rectangular Jaw Block",
+                "length": 100.0,
+                "width": 30.0,
+                "height": 25.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 15.0, 25.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [100.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [100.0, 0.0],
+                            "End Point": [100.0, 8.0]
+                        },
+                        "line_3": {
+                            "Start Point": [100.0, 8.0],
+                            "End Point": [0.0, 8.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 8.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 8.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "V_Groove_Top_Cut",
+                "shape": "V-Groove for Round Stock (squared approximation)",
+                "length": 100.0,
+                "width": 8.0,
+                "height": 8.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 12.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [100.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [100.0, 0.0],
+                            "End Point": [100.0, 10.0]
+                        },
+                        "line_3": {
+                            "Start Point": [100.0, 10.0],
+                            "End Point": [0.0, 10.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 10.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 13.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Step_Cut",
+                "shape": "Step Cut for Height Offset Clamping",
+                "length": 100.0,
+                "width": 10.0,
+                "height": 13.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 20.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [5.0, 0.0],
+                            "End Point": [5.5, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [5.5, 0.0],
+                            "End Point": [5.5, 0.5]
+                        },
+                        "line_3": {
+                            "Start Point": [5.5, 0.5],
+                            "End Point": [5.0, 0.5]
+                        },
+                        "line_4": {
+                            "Start Point": [5.0, 0.5],
+                            "End Point": [5.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 12.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 10,
+                "spacing": 9.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Face_Serrations",
+                "shape": "Linear Serration Grooves",
+                "length": 0.5,
+                "width": 0.5,
+                "height": 12.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [20.0, 15.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 8.0,
+                "depth": 25.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 60.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Mounting_Bolt_Holes",
+                "shape": "Through Mounting Holes (2x M8)",
+                "length": 8.0,
+                "width": 8.0,
+                "height": 25.0
+            }
+        }
+    }
+}

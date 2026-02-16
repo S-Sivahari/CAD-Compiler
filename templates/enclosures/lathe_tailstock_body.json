@@ -1,0 +1,243 @@
+{
+    "final_name": "Lathe_Tailstock_Body",
+    "final_shape": "Lathe Tailstock Body Casting",
+    "units": "mm",
+    "_template_category": "enclosures",
+    "_editable_parameters": {
+        "body_length": 180,
+        "body_width": 100,
+        "body_height": 120,
+        "quill_bore_diameter": 40,
+        "quill_bore_depth": 120,
+        "base_length": 180,
+        "base_width": 120,
+        "base_height": 30,
+        "clamp_slot_width": 18,
+        "clamp_slot_length": 60,
+        "center_height": 80,
+        "taper_bore_diameter": 25,
+        "taper_bore_depth": 50
+    },
+    "_engineering_note": "Simplified lathe tailstock body casting. Quill bore runs horizontally through the upper body. Base slides on lathe bed ways. Clamping bolt slot in base for locking. Taper bore (MT3 simplified as cylindrical) in quill nose for dead/live center. Center height matches lathe spindle.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [180.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [180.0, 0.0],
+                            "End Point": [180.0, 120.0]
+                        },
+                        "line_3": {
+                            "Start Point": [180.0, 120.0],
+                            "End Point": [0.0, 120.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 120.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 30.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Base_Plate",
+                "shape": "Rectangular Base Casting",
+                "length": 180.0,
+                "width": 120.0,
+                "height": 30.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [20.0, 10.0, 30.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [140.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [140.0, 0.0],
+                            "End Point": [140.0, 100.0]
+                        },
+                        "line_3": {
+                            "Start Point": [140.0, 100.0],
+                            "End Point": [0.0, 100.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 100.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 90.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Upper_Body_Block",
+                "shape": "Rectangular Upper Body",
+                "length": 140.0,
+                "width": 100.0,
+                "height": 90.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 90.0, 0.0],
+                "Translation Vector": [20.0, 60.0, 80.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 20.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 140.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Quill_Bore",
+                "shape": "Horizontal Quill Bore",
+                "length": 140.0,
+                "width": 40.0,
+                "height": 40.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 90.0, 0.0],
+                "Translation Vector": [20.0, 60.0, 80.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 12.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 50.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Taper_Bore_MT3",
+                "shape": "Morse Taper Bore (Simplified Cylindrical)",
+                "length": 50.0,
+                "width": 25.0,
+                "height": 25.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [60.0, 51.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [60.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [60.0, 0.0],
+                            "End Point": [60.0, 18.0]
+                        },
+                        "line_3": {
+                            "Start Point": [60.0, 18.0],
+                            "End Point": [0.0, 18.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 18.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 30.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Base_Clamp_Slot",
+                "shape": "Rectangular T-Slot for Clamping Bolt",
+                "length": 60.0,
+                "width": 18.0,
+                "height": 30.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [150.0, 60.0, 70.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 12.0,
+                "depth": 25.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Quill_Lock_Hole",
+                "shape": "Threaded Quill Lock Bolt Hole",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 25.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "post_processing": {
+                "fillet": {
+                    "edge_selector": "all_edges",
+                    "radius": 3.0
+                }
+            },
+            "description": {
+                "name": "Casting_Radii",
+                "shape": "Fillet Radii (Casting Draft)",
+                "length": 180.0,
+                "width": 120.0,
+                "height": 3.0
+            }
+        }
+    }
+}

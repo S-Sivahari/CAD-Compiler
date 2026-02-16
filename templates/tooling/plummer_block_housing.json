@@ -1,0 +1,210 @@
+{
+    "final_name": "Plummer_Block_Housing_SN510",
+    "final_shape": "Plummer Block Bearing Housing",
+    "units": "mm",
+    "_template_category": "tooling",
+    "_editable_parameters": {
+        "bearing_bore": 50,
+        "housing_width": 160,
+        "housing_height": 95,
+        "housing_depth": 52,
+        "base_width": 160,
+        "base_depth": 52,
+        "base_height": 20,
+        "bore_diameter": 52,
+        "bolt_hole_diameter": 18,
+        "bolt_spacing": 130,
+        "cap_bolt_diameter": 12,
+        "oil_hole_diameter": 6
+    },
+    "_engineering_note": "Split plummer block housing (pillow block) per SN510 series. Base with 2 hold-down bolt holes, semi-cylindrical bearing seat, split cap (cap not modeled separately). Oil hole on top for lubrication. Bearing OD seats in the bore.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [160.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [160.0, 0.0],
+                            "End Point": [160.0, 52.0]
+                        },
+                        "line_3": {
+                            "Start Point": [160.0, 52.0],
+                            "End Point": [0.0, 52.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 52.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 20.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Base_Plate",
+                "shape": "Rectangular Base Plate",
+                "length": 160.0,
+                "width": 52.0,
+                "height": 20.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [80.0, 0.0, 20.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 45.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 52.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Bearing_Housing_Cylinder",
+                "shape": "Cylindrical Bearing Housing",
+                "length": 90.0,
+                "width": 52.0,
+                "height": 90.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [80.0, 0.0, 20.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 26.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 52.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Bearing_Bore",
+                "shape": "Cylindrical Bearing Seat Bore",
+                "length": 52.0,
+                "width": 52.0,
+                "height": 52.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [15.0, 26.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 18.0,
+                "depth": 20.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 130.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Holddown_Bolt_Holes",
+                "shape": "Through Bolt Holes for Base Mounting",
+                "length": 18.0,
+                "width": 18.0,
+                "height": 20.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [60.0, 26.0, 95.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 12.0,
+                "depth": 30.0,
+                "direction": [0.0, 0.0, -1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 40.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Cap_Bolt_Holes",
+                "shape": "Threaded Cap Bolt Holes",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 30.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [80.0, 26.0, 95.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 6.0,
+                "depth": 50.0,
+                "direction": [0.0, 0.0, -1.0]
+            },
+            "description": {
+                "name": "Oil_Lubrication_Hole",
+                "shape": "Vertical Oil Supply Hole",
+                "length": 6.0,
+                "width": 6.0,
+                "height": 50.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "post_processing": {
+                "fillet": {
+                    "edge_selector": "bottom_edges",
+                    "radius": 5.0
+                }
+            },
+            "description": {
+                "name": "Base_Fillets",
+                "shape": "Fillet Transitions",
+                "length": 160.0,
+                "width": 52.0,
+                "height": 5.0
+            }
+        }
+    }
+}

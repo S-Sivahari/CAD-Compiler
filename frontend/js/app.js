@@ -3,7 +3,6 @@
  * AutoCAD-inspired Black & Red Theme
  */
 
-// ========== State Management ==========
 const state = {
     currentModel: null,
     templates: [],
@@ -11,26 +10,18 @@ const state = {
     generating: false
 };
 
-// ========== Initialization ==========
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
 });
 
 async function initializeApp() {
-    // Check backend status
     await checkBackendStatus();
     await checkFreeCADStatus();
-    
-    // Load templates
     await loadTemplates();
-    
-    // Setup event listeners
     setupEventListeners();
-    
     showToast('SynthoCAD initialized', 'success');
 }
 
-// ========== Event Listeners ==========
 function setupEventListeners() {
     const generateBtn = document.getElementById('generate-btn');
     const promptInput = document.getElementById('prompt-input');
@@ -52,21 +43,16 @@ function setupEventListeners() {
         content.classList.toggle('show');
     });
     
-    // Regenerate button
-    regenerateBtn.addEventListener('click', handleRegenerate);
+    templatesToggle.addEventListener('click', () => {
+        const content = document.getElementById('templates-dropdown-content');
+        templatesToggle.classList.toggle('active');
+        content.classList.toggle('show');
+    });
     
-    // Real-time validation
+    regenerateBtn.addEventListener('click', handleRegenerate);
     promptInput.addEventListener('input', debounce(validatePromptRealtime, 500));
 }
-
-// ========== Status Checks ==========
-async function checkBackendStatus() {
-    const statusEl = document.getElementById('api-status');
-    try {
-        await api.healthCheck();
-        statusEl.classList.add('online');
-    } catch (error) {
-        statusEl.classList.add('offline');
+e');
         showToast('Backend offline', 'error');
     }
 }
@@ -104,7 +90,6 @@ async function loadTemplates() {
             container.innerHTML = '<div class="empty-state">No templates available</div>';
             return;
         }
-        
         container.innerHTML = templates.map(template => `
             <div class="template-item" onclick="useTemplate('${template.name}')">
                 <div class="template-name">${template.name}</div>
@@ -129,6 +114,10 @@ async function useTemplate(templateName) {
         // Close dropdown
         const content = document.getElementById('templates-dropdown-content');
         const toggle = document.getElementById('templates-toggle');
+        promptInput.value = `Template: ${templateName}`;
+        
+        const content = document.getElementById('templates-dropdown-content');
+        const toggle = document.getElementById('templates-toggle');
         content.classList.remove('show');
         toggle.classList.remove('active');
         
@@ -139,14 +128,7 @@ async function useTemplate(templateName) {
         console.error('Template error:', error);
     }
 }
-
-// ========== Generation ==========
-async function handleGenerate() {
-    const promptInput = document.getElementById('prompt-input');
-    const prompt = promptInput.value.trim();
-    
-    if (!prompt) {
-        showToast('Please enter a design description', 'warning');
+esign description', 'warning');
         return;
     }
     
@@ -164,29 +146,24 @@ async function handleGenerate() {
         const validation = await api.validatePrompt(prompt);
         
         if (!validation.valid) {
+        const validation = await api.validatePrompt(prompt);
+        
+        if (!validation.valid) {
             showToast(`Validation failed: ${validation.error}`, 'error');
             hideLoading();
             enableGenerateButton();
             return;
         }
         
-        // Generate from prompt
         updateLoadingMessage('Calling LLM...');
-        const result = await api.generateFromPrompt(prompt, false); // Don't open FreeCAD
-        
-        if (result.status === 'success') {
-            state.currentModel = result;
-            
+        const result = await api.generateFromPrompt(prompt, false);
             // Display results
             await displayParameters(result.py_file);
             displayModelInfo(result);
             
             showToast('Model generated successfully!', 'success');
-        } else {
-            showToast(`Generation failed: ${result.error?.message || 'Unknown error'}`, 'error');
-        }
-        
-    } catch (error) {
+        } elawait displayParameters(result.py_file);
+            displayModelInfo(result);(error) {
         showToast(`Error: ${error.message}`, 'error');
         console.error('Generation error:', error);
     } finally {
@@ -278,7 +255,6 @@ async function handleRegenerate() {
                 updates[param.name] = newValue;
             }
         });
-        
         const result = await api.updateAndRegenerate(filename, updates);
         
         if (result.status === 'success') {
@@ -307,10 +283,8 @@ async function handleRegenerate() {
         freecadInfo = '<div class="freecad-status success">✓ Model opened in FreeCAD</div>';
     } else {
         freecadInfo = '<div class="freecad-status warning">⚠ FreeCAD not opened (check installation)</div>';
-    }
-    
-    container.innerHTML = `
-        <div class="model-info">
+    downloadButtons.classList.remove('hidden');
+    nfo">
             <h4>📦 CAD Model Generated</h4>
             <div class="model-info-item">
                 <span class="model-info-label">STEP File:</span>
@@ -353,8 +327,6 @@ async function downloadFile(type) {
         const response = await fetch(apiUrl);
         if (!response.ok) {
             throw new Error('File not found');
-        }
-        
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -395,8 +367,7 @@ async function openInFreeCAD() {
             showToast(`Failed: ${result.message || 'FreeCAD unavailable'}`, 'error');
         }
     } catch (error) {
-        showToast(`Error: ${error.message}`, 'error');
-    } finally {
+            const freecadStatus = document.querySelector('.freecad-status');
         hideLoading(p().split('/').pop();
     const pyFile = result.py_file.split('\\').pop().split('/').pop();
     

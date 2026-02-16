@@ -1,0 +1,220 @@
+{
+    "final_name": "Hydraulic_Manifold_Block_D03",
+    "final_shape": "Hydraulic Manifold Block",
+    "units": "mm",
+    "_template_category": "fluid_power",
+    "_editable_parameters": {
+        "block_length": 120,
+        "block_width": 80,
+        "block_height": 60,
+        "main_port_diameter": 12,
+        "crossport_diameter": 8,
+        "num_valve_stations": 3,
+        "valve_station_spacing": 35,
+        "mounting_hole_diameter": 10,
+        "sae_port_diameter": 19
+    },
+    "_engineering_note": "D03 hydraulic manifold block with 3 valve stations. Main gallery runs length-wise, cross-drilled ports connect to valve mounting faces on top. SAE O-ring boss ports on ends. All internal passages are gun-drilled. Plug holes seal unused cross-drilling exit points.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [120.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [120.0, 0.0],
+                            "End Point": [120.0, 80.0]
+                        },
+                        "line_3": {
+                            "Start Point": [120.0, 80.0],
+                            "End Point": [0.0, 80.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 80.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 60.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Manifold_Block_Body",
+                "shape": "Rectangular Block",
+                "length": 120.0,
+                "width": 80.0,
+                "height": 60.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [25.0, 40.0, 60.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 12.0,
+                "depth": 50.0,
+                "direction": [0.0, 0.0, -1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 3,
+                "spacing": 35.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Valve_Port_Holes_P",
+                "shape": "Blind Vertical Port Holes (Pressure)",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 50.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [25.0, 55.0, 60.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 12.0,
+                "depth": 50.0,
+                "direction": [0.0, 0.0, -1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 3,
+                "spacing": 35.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Valve_Port_Holes_T",
+                "shape": "Blind Vertical Port Holes (Tank Return)",
+                "length": 12.0,
+                "width": 12.0,
+                "height": 50.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 40.0, 20.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 8.0,
+                "depth": 120.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Main_Pressure_Gallery",
+                "shape": "Horizontal Through-Drilled Pressure Gallery",
+                "length": 120.0,
+                "width": 8.0,
+                "height": 8.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 55.0, 40.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 8.0,
+                "depth": 120.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Main_Return_Gallery",
+                "shape": "Horizontal Through-Drilled Return Gallery",
+                "length": 120.0,
+                "width": 8.0,
+                "height": 8.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 40.0, 20.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 19.0,
+                "depth": 12.0,
+                "counterbore_diameter": 25.0,
+                "counterbore_depth": 3.0,
+                "direction": [-1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "SAE_Inlet_Port",
+                "shape": "SAE O-Ring Boss Inlet Port",
+                "length": 19.0,
+                "width": 19.0,
+                "height": 12.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [10.0, 10.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 10.0,
+                "depth": 60.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 100.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Mounting_Bolt_Holes",
+                "shape": "Through Mounting Bolt Holes",
+                "length": 10.0,
+                "width": 10.0,
+                "height": 60.0
+            }
+        },
+        "part_8": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [10.0, 70.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 10.0,
+                "depth": 60.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 100.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Mounting_Bolt_Holes_Rear",
+                "shape": "Through Mounting Bolt Holes (Rear Row)",
+                "length": 10.0,
+                "width": 10.0,
+                "height": 60.0
+            }
+        }
+    }
+}

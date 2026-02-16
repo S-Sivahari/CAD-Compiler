@@ -55,7 +55,6 @@ def open_in_freecad():
         
         api_logger.info(f"Opening STEP file in FreeCAD: {step_path}")
         
-        # Initialize FreeCAD instance and open file
         freecad_instance = FreeCADInstanceGenerator(freecad_path)
         freecad_instance.open_step_file(str(step_path), async_mode=True)
         
@@ -125,7 +124,6 @@ def reload_in_freecad():
         
         api_logger.info(f"Reloading STEP file in FreeCAD: {step_path}")
         
-        # Initialize FreeCAD instance and reload file
         freecad_instance = FreeCADInstanceGenerator(freecad_path)
         freecad_instance.reload_step_file(str(step_path))
         

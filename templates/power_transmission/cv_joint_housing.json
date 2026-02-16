@@ -1,0 +1,125 @@
+{
+    "final_name": "CV_Joint_Housing_80mm",
+    "final_shape": "CV Joint Outer Housing",
+    "units": "mm",
+    "_template_category": "power_transmission",
+    "_editable_parameters": {
+        "outer_diameter": 80,
+        "housing_depth": 65,
+        "bore_diameter": 30,
+        "wall_thickness": 8,
+        "flange_diameter": 95,
+        "flange_thickness": 8,
+        "bolt_circle_diameter": 82,
+        "num_bolts": 6,
+        "bolt_hole_diameter": 8
+    },
+    "_engineering_note": "Bell-shaped CV joint outer housing. Revolved profile creates the bell shape. Internal ball track grooves are not modeled (requires 5-axis machining). Bolt flange for attachment to drive shaft companion flange.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "revolve_profile": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [15.0, 0.0],
+                            "End Point": [40.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [40.0, 0.0],
+                            "End Point": [40.0, 10.0]
+                        },
+                        "arc_1": {
+                            "Start Point": [40.0, 10.0],
+                            "End Point": [35.0, 55.0],
+                            "Center Point": [0.0, 30.0]
+                        },
+                        "line_3": {
+                            "Start Point": [35.0, 55.0],
+                            "End Point": [20.0, 65.0]
+                        },
+                        "line_4": {
+                            "Start Point": [20.0, 65.0],
+                            "End Point": [15.0, 65.0]
+                        },
+                        "line_5": {
+                            "Start Point": [15.0, 65.0],
+                            "End Point": [15.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "revolve": {
+                "axis_origin": [0.0, 0.0],
+                "axis_direction": [0.0, 1.0],
+                "angle": 360.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Bell_Housing_Body",
+                "shape": "Revolved Bell Housing",
+                "length": 80.0,
+                "width": 80.0,
+                "height": 65.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 47.5
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 8.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "description": {
+                "name": "Bolt_Flange",
+                "shape": "Annular Flange Ring",
+                "length": 95.0,
+                "width": 95.0,
+                "height": 8.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [41.0, 0.0, 0.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 8.0,
+                "depth": 8.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "polar",
+                "count": 6,
+                "center": [0.0, 0.0, 0.0],
+                "total_angle": 360,
+                "axis": [0.0, 0.0, 1.0]
+            },
+            "description": {
+                "name": "Flange_Bolt_Holes",
+                "shape": "Through Bolt Holes (6x M8)",
+                "length": 8.0,
+                "width": 8.0,
+                "height": 8.0
+            }
+        }
+    }
+}

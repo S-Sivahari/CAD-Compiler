@@ -1,0 +1,378 @@
+{
+    "final_name": "Electronics_Enclosure_IP67",
+    "final_shape": "IP67 Electronics Enclosure",
+    "units": "mm",
+    "_template_category": "enclosures",
+    "_editable_parameters": {
+        "outer_length": 200,
+        "outer_width": 150,
+        "outer_height": 75,
+        "wall_thickness": 4,
+        "lid_thickness": 6,
+        "corner_radius": 8,
+        "gasket_groove_width": 3,
+        "gasket_groove_depth": 2,
+        "num_lid_bolts": 8,
+        "lid_bolt_diameter": 5,
+        "pcb_standoff_diameter": 8,
+        "pcb_standoff_height": 10,
+        "pcb_mount_hole_diameter": 3.5,
+        "cable_gland_diameter": 20,
+        "cable_gland_count": 2,
+        "din_rail_width": 35,
+        "din_rail_length": 160
+    },
+    "_engineering_note": "IP67-rated die-cast aluminum electronics enclosure. Box body with integral gasket groove, lid with bolt-down fastening. Internal PCB standoffs (4x), DIN rail mounting boss, and 2x cable gland entry holes. Gasket groove ensures water/dust sealing. Wall thickness suitable for EMI shielding.",
+    "parts": {
+        "part_1": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [0.0, 0.0, 0.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [200.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [200.0, 0.0],
+                            "End Point": [200.0, 150.0]
+                        },
+                        "line_3": {
+                            "Start Point": [200.0, 150.0],
+                            "End Point": [0.0, 150.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 150.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 75.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "NewBodyFeatureOperation"
+            },
+            "description": {
+                "name": "Enclosure_Outer_Box",
+                "shape": "Rectangular Outer Shell",
+                "length": 200.0,
+                "width": 150.0,
+                "height": 75.0
+            }
+        },
+        "part_2": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [4.0, 4.0, 4.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [192.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [192.0, 0.0],
+                            "End Point": [192.0, 142.0]
+                        },
+                        "line_3": {
+                            "Start Point": [192.0, 142.0],
+                            "End Point": [0.0, 142.0]
+                        },
+                        "line_4": {
+                            "Start Point": [0.0, 142.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 71.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Internal_Cavity",
+                "shape": "Rectangular Internal Cavity (Hollowed)",
+                "length": 192.0,
+                "width": 142.0,
+                "height": 71.0
+            }
+        },
+        "part_3": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [6.0, 6.0, 73.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "line_1": {
+                            "Start Point": [0.0, 0.0],
+                            "End Point": [188.0, 0.0]
+                        },
+                        "line_2": {
+                            "Start Point": [188.0, 0.0],
+                            "End Point": [188.0, 3.0]
+                        },
+                        "line_3": {
+                            "Start Point": [188.0, 3.0],
+                            "End Point": [185.0, 3.0]
+                        },
+                        "line_4": {
+                            "Start Point": [185.0, 3.0],
+                            "End Point": [185.0, 135.0]
+                        },
+                        "line_5": {
+                            "Start Point": [185.0, 135.0],
+                            "End Point": [188.0, 135.0]
+                        },
+                        "line_6": {
+                            "Start Point": [188.0, 135.0],
+                            "End Point": [188.0, 138.0]
+                        },
+                        "line_7": {
+                            "Start Point": [188.0, 138.0],
+                            "End Point": [0.0, 138.0]
+                        },
+                        "line_8": {
+                            "Start Point": [0.0, 138.0],
+                            "End Point": [0.0, 135.0]
+                        },
+                        "line_9": {
+                            "Start Point": [0.0, 135.0],
+                            "End Point": [3.0, 135.0]
+                        },
+                        "line_10": {
+                            "Start Point": [3.0, 135.0],
+                            "End Point": [3.0, 3.0]
+                        },
+                        "line_11": {
+                            "Start Point": [3.0, 3.0],
+                            "End Point": [0.0, 3.0]
+                        },
+                        "line_12": {
+                            "Start Point": [0.0, 3.0],
+                            "End Point": [0.0, 0.0]
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 2.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "CutFeatureOperation"
+            },
+            "description": {
+                "name": "Gasket_Groove",
+                "shape": "Perimeter Gasket Groove (3mm wide x 2mm deep)",
+                "length": 188.0,
+                "width": 138.0,
+                "height": 2.0
+            }
+        },
+        "part_4": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [15.0, 15.0, 4.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 4.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 170.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "PCB_Standoffs_Front",
+                "shape": "Cylindrical PCB Standoff Posts (Front Row)",
+                "length": 8.0,
+                "width": 8.0,
+                "height": 10.0
+            }
+        },
+        "part_5": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [15.0, 135.0, 4.0]
+            },
+            "sketch": {
+                "face_1": {
+                    "loop_1": {
+                        "circle_1": {
+                            "Center": [0.0, 0.0],
+                            "Radius": 4.0
+                        }
+                    }
+                }
+            },
+            "extrusion": {
+                "extrude_depth_towards_normal": 10.0,
+                "extrude_depth_opposite_normal": 0.0,
+                "sketch_scale": 1.0,
+                "operation": "JoinFeatureOperation"
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 170.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "PCB_Standoffs_Rear",
+                "shape": "Cylindrical PCB Standoff Posts (Rear Row)",
+                "length": 8.0,
+                "width": 8.0,
+                "height": 10.0
+            }
+        },
+        "part_6": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [15.0, 15.0, 4.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 3.5,
+                "depth": 10.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 170.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "PCB_Mount_Holes_Front",
+                "shape": "Threaded PCB Mount Holes (Front)",
+                "length": 3.5,
+                "width": 3.5,
+                "height": 10.0
+            }
+        },
+        "part_7": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [15.0, 135.0, 4.0]
+            },
+            "hole_feature": {
+                "hole_type": "blind",
+                "diameter": 3.5,
+                "depth": 10.0,
+                "direction": [0.0, 0.0, 1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 170.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "PCB_Mount_Holes_Rear",
+                "shape": "Threaded PCB Mount Holes (Rear)",
+                "length": 3.5,
+                "width": 3.5,
+                "height": 10.0
+            }
+        },
+        "part_8": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [15.0, 10.0, 75.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 5.0,
+                "depth": 6.0,
+                "direction": [0.0, 0.0, -1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 4,
+                "spacing": 56.6,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Lid_Bolt_Holes_Front",
+                "shape": "Through Lid Bolt Holes (Front Side 4x)",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 6.0
+            }
+        },
+        "part_9": {
+            "coordinate_system": {
+                "Euler Angles": [0.0, 0.0, 0.0],
+                "Translation Vector": [15.0, 140.0, 75.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 5.0,
+                "depth": 6.0,
+                "direction": [0.0, 0.0, -1.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 4,
+                "spacing": 56.6,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Lid_Bolt_Holes_Rear",
+                "shape": "Through Lid Bolt Holes (Rear Side 4x)",
+                "length": 5.0,
+                "width": 5.0,
+                "height": 6.0
+            }
+        },
+        "part_10": {
+            "coordinate_system": {
+                "Euler Angles": [90.0, 0.0, 0.0],
+                "Translation Vector": [50.0, 0.0, 35.0]
+            },
+            "hole_feature": {
+                "hole_type": "through",
+                "diameter": 20.0,
+                "depth": 4.0,
+                "direction": [0.0, -1.0, 0.0]
+            },
+            "pattern": {
+                "type": "linear",
+                "count": 2,
+                "spacing": 100.0,
+                "direction": [1.0, 0.0, 0.0]
+            },
+            "description": {
+                "name": "Cable_Gland_Holes",
+                "shape": "Through Cable Gland Entry Holes (2x M20)",
+                "length": 20.0,
+                "width": 20.0,
+                "height": 4.0
+            }
+        }
+    }
+}
