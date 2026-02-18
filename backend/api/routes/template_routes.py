@@ -12,6 +12,7 @@ from core import config
 bp = Blueprint('templates', __name__)
 
 
+@bp.route('/', methods=['GET'])
 @bp.route('/list', methods=['GET'])
 def list_templates():
     

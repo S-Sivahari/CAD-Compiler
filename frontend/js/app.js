@@ -1,8 +1,11 @@
 /**
- * SynthoCAD - Simplified Single Page App
- * AutoCAD-inspired Black & Red Theme
+ * SynthoCAD - Application Logic
+ * Component-based architecture with clean separation
  */
 
+// ========================================
+// State Management
+// ========================================
 const state = {
     currentModel: null,
     templates: [],
@@ -10,448 +13,431 @@ const state = {
     generating: false
 };
 
-document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
-});
+// ========================================
+// DOM References
+// ========================================
+const DOM = {
+    promptInput: () => document.getElementById('prompt-input'),
+    generateBtn: () => document.getElementById('generate-btn'),
+    errorMessage: () => document.getElementById('error-message'),
+    templatesSelect: () => document.getElementById('templates-select'),
+    regenerateBtn: () => document.getElementById('regenerate-btn'),
+    loadingOverlay: () => document.getElementById('loading-overlay'),
+    loadingMessage: () => document.getElementById('loading-message'),
+    toastContainer: () => document.getElementById('toast-container'),
+    jsonViewer: () => document.getElementById('json-viewer'),
+    pythonViewer: () => document.getElementById('python-viewer'),
+    stepInfo: () => document.getElementById('step-info'),
+    parametersForm: () => document.getElementById('parameters-form')
+};
 
-async function initializeApp() {
-    await checkBackendStatus();
-    await checkFreeCADStatus();
-    await loadTemplates();
+// ========================================
+// Initialization
+// ========================================
+document.addEventListener('DOMContentLoaded', initApp);
+
+async function initApp() {
     setupEventListeners();
-    showToast('SynthoCAD initialized', 'success');
+    await loadTemplates();
 }
 
 function setupEventListeners() {
-    const generateBtn = document.getElementById('generate-btn');
-    const promptInput = document.getElementById('prompt-input');
-    const templatesToggle = document.getElementById('templates-toggle');
-    const regenerateBtn = document.getElementById('regenerate-btn');
-
-    generateBtn.addEventListener('click', handleGenerate);
-
-    promptInput.addEventListener('keydown', (e) => {
+    // Generate button
+    DOM.generateBtn().addEventListener('click', handleGenerate);
+    
+    // Enter key in prompt
+    DOM.promptInput().addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && e.ctrlKey) {
             handleGenerate();
         }
     });
-
-    // Templates dropdown toggle
-    templatesToggle.addEventListener('click', () => {
-        const content = document.getElementById('templates-dropdown-content');
-        templatesToggle.classList.toggle('active');
-        content.classList.toggle('show');
+    
+    // Templates dropdown
+    DOM.templatesSelect().addEventListener('change', handleTemplateSelect);
+    
+    // Regenerate button
+    DOM.regenerateBtn().addEventListener('click', handleRegenerate);
+    
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
     });
-
-    regenerateBtn.addEventListener('click', handleRegenerate);
-    promptInput.addEventListener('input', debounce(validatePromptRealtime, 500));
 }
 
-// ========== Status Checks ==========
-async function checkBackendStatus() {
-    const apiStatus = document.getElementById('api-status');
-    const apiText = apiStatus.querySelector('span:last-child');
-
-    try {
-        await api.request('/health');
-        apiStatus.classList.add('online');
-        apiText.textContent = 'Backend';
-        showToast('Backend online', 'success');
-    } catch {
-        apiStatus.classList.add('offline');
-        apiText.textContent = 'Backend (Offline)';
-        showToast('Backend offline', 'error');
+// ========================================
+// Tab Management
+// ========================================
+function switchTab(tabName) {
+    // Update tab buttons
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.tab === tabName);
+    });
+    
+    // Update panels
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === `panel-${tabName}`);
+    });
+    
+    // Load content if model exists
+    if (state.currentModel) {
+        loadTabContent(tabName);
     }
 }
 
-async function checkFreeCADStatus() {
-    const freecadStatus = document.getElementById('freecad-status');
-    const freecadText = freecadStatus.querySelector('span:last-child');
-
+async function loadTabContent(tabName) {
+    if (!state.currentModel) return;
+    
+    const baseName = state.currentModel.baseName;
+    
     try {
-        const result = await api.checkFreeCAD();
-
-        if (result.installed && result.path) {
-            freecadStatus.classList.add('online');
-            freecadText.textContent = 'FreeCAD';
-        } else {
-            freecadStatus.classList.add('offline');
-            freecadText.textContent = 'FreeCAD (Not Installed)';
+        switch (tabName) {
+            case 'json':
+                await loadJsonContent(baseName);
+                break;
+            case 'python':
+                await loadPythonContent(baseName);
+                break;
+            case 'step':
+                await loadStepContent(baseName);
+                break;
+            case 'parameters':
+                await loadParameters();
+                break;
         }
-    } catch {
-        freecadStatus.classList.add('offline');
-        freecadText.textContent = 'FreeCAD (Error)';
+    } catch (error) {
+        console.error(`Failed to load ${tabName}:`, error);
+        showError(`Failed to load ${tabName} content`);
     }
 }
 
-// ========== Templates ==========
-async function loadTemplates() {
-    const container = document.getElementById('templates-list');
+// ========================================
+// Content Loaders
+// ========================================
+async function loadJsonContent(baseName) {
+    const viewer = DOM.jsonViewer();
+    viewer.textContent = 'Loading...';
+    
+    try {
+        const result = await api.viewJsonFile(`${baseName}.json`);
+        viewer.textContent = result.success ? result.content_str : `Error: ${result.message}`;
+    } catch (error) {
+        viewer.textContent = `Error: ${error.message}`;
+    }
+}
 
+async function loadPythonContent(baseName) {
+    const viewer = DOM.pythonViewer();
+    viewer.textContent = 'Loading...';
+    
+    try {
+        const result = await api.viewPythonFile(`${baseName}_generated.py`);
+        viewer.textContent = result.success ? result.content : `Error: ${result.message}`;
+    } catch (error) {
+        viewer.textContent = `Error: ${error.message}`;
+    }
+}
+
+async function loadStepContent(baseName) {
+    const container = DOM.stepInfo();
+    
+    try {
+        const result = await api.viewStepFile(`${baseName}.step`);
+        
+        if (result.success) {
+            container.innerHTML = `
+                <div class="step-details">
+                    <div class="step-row">
+                        <span class="step-label">Filename</span>
+                        <span class="step-value">${result.filename}</span>
+                    </div>
+                    <div class="step-row">
+                        <span class="step-label">Size</span>
+                        <span class="step-value">${result.file_size_kb} KB</span>
+                    </div>
+                    <div class="step-row">
+                        <span class="step-label">Path</span>
+                        <span class="step-value">${result.file_path}</span>
+                    </div>
+                </div>
+                <button class="download-btn" onclick="downloadStepFile()">Download STEP File</button>
+            `;
+        } else {
+            container.innerHTML = `<p class="step-placeholder">Error: ${result.message}</p>`;
+        }
+    } catch (error) {
+        container.innerHTML = `<p class="step-placeholder">Error: ${error.message}</p>`;
+    }
+}
+
+async function loadParameters() {
+    const form = DOM.parametersForm();
+    const regenBtn = DOM.regenerateBtn();
+    
+    if (!state.currentModel) {
+        form.innerHTML = '<p class="params-placeholder">Generate a model to edit parameters</p>';
+        regenBtn.classList.add('hidden');
+        return;
+    }
+    
+    try {
+        const filename = extractFilename(state.currentModel.py_file);
+        const result = await api.extractParameters(filename);
+        
+        if (!result.parameters || result.parameters.length === 0) {
+            form.innerHTML = '<p class="params-placeholder">No editable parameters found</p>';
+            regenBtn.classList.add('hidden');
+            return;
+        }
+        
+        state.parameters = result.parameters;
+        regenBtn.classList.remove('hidden');
+        
+        form.innerHTML = result.parameters.map((param, i) => `
+            <div class="param-row">
+                <span class="param-name">${param.name}</span>
+                <span class="param-type">${param.type}</span>
+                <input 
+                    type="number" 
+                    class="param-input" 
+                    id="param-${i}"
+                    value="${param.value}"
+                    step="0.1"
+                />
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        form.innerHTML = `<p class="params-placeholder">Error: ${error.message}</p>`;
+        regenBtn.classList.add('hidden');
+    }
+}
+
+// ========================================
+// Templates
+// ========================================
+const PREDEFINED_TEMPLATES = [
+    { name: 'Cylinder', prompt: 'Create a cylinder with diameter 20mm and height 50mm' },
+    { name: 'Bolt', prompt: 'Create an M8 hex bolt with thread length 25mm and head height 5mm' },
+    { name: 'Nut', prompt: 'Create an M8 hex nut with height 6.5mm' },
+    { name: 'Gear', prompt: 'Create a spur gear with 24 teeth, module 2mm, and thickness 10mm' },
+    { name: 'Plate with Holes', prompt: 'Create a rectangular plate 100mm x 60mm x 5mm with 4 corner holes of 6mm diameter' }
+];
+
+async function loadTemplates() {
+    const select = DOM.templatesSelect();
+    
+    // Try to load from backend
     try {
         const templates = await api.getTemplates();
-        state.templates = templates;
-
-        if (templates.length === 0) {
-            container.innerHTML = '<div class="empty-state">No templates available</div>';
+        if (templates && templates.length > 0) {
+            state.templates = templates;
+            templates.forEach(t => {
+                const option = document.createElement('option');
+                option.value = t.name;
+                option.textContent = t.name;
+                select.appendChild(option);
+            });
             return;
         }
-        container.innerHTML = templates.map(template => `
-            <div class="template-item" onclick="useTemplate('${template.name}')">
-                <div class="template-name">${template.name}</div>
-                <div class="template-desc">${template.description || 'Click to use'}</div>
-            </div>
-        `).join('');
-
     } catch (error) {
-        container.innerHTML = '<div class="error-state">Failed to load templates</div>';
-        console.error('Template loading error:', error);
+        console.log('Backend templates not available, using predefined');
     }
+    
+    // Use predefined templates
+    state.templates = PREDEFINED_TEMPLATES;
+    PREDEFINED_TEMPLATES.forEach(t => {
+        const option = document.createElement('option');
+        option.value = t.name;
+        option.textContent = t.name;
+        select.appendChild(option);
+    });
 }
 
-async function useTemplate(templateName) {
-    try {
-        const template = await api.getTemplate(templateName);
-        const promptInput = document.getElementById('prompt-input');
-
-        promptInput.value = `Template: ${templateName}`;
-
-        // Close dropdown
-        const content = document.getElementById('templates-dropdown-content');
-        const toggle = document.getElementById('templates-toggle');
-        content.classList.remove('show');
-        toggle.classList.remove('active');
-
-        showToast(`Using template: ${templateName}`, 'success');
-
-    } catch (error) {
-        showToast('Failed to load template', 'error');
-        console.error('Template error:', error);
+function handleTemplateSelect(e) {
+    const templateName = e.target.value;
+    if (!templateName) return;
+    
+    const template = state.templates.find(t => t.name === templateName);
+    if (template) {
+        DOM.promptInput().value = template.prompt || `Create a ${template.name}`;
     }
+    
+    // Reset selection
+    e.target.value = '';
 }
 
-// ========== Generation ==========
+// ========================================
+// Generation
+// ========================================
 async function handleGenerate() {
-    const prompt = document.getElementById('prompt-input').value.trim();
-
+    const prompt = DOM.promptInput().value.trim();
+    
     if (!prompt) {
-        showToast('Please enter a design description', 'warning');
+        showError('Please enter a design description');
         return;
     }
-
+    
     if (state.generating) {
-        showToast('Generation already in progress', 'warning');
+        showError('Generation already in progress');
         return;
     }
-
+    
+    clearError();
+    state.generating = true;
+    setGenerating(true);
+    showLoading('Generating CAD model...');
+    
     try {
-        state.generating = true;
-        showLoading('Generating CAD model...');
-        disableGenerateButton();
-
-        // Validate prompt first
+        // Validate prompt
         const validation = await api.validatePrompt(prompt);
-
         if (!validation.valid) {
-            showToast(`Validation failed: ${validation.error}`, 'error');
-            hideLoading();
-            enableGenerateButton();
-            state.generating = false;
-            return;
+            throw new Error(validation.error || 'Invalid prompt');
         }
-
-        updateLoadingMessage('Calling LLM...');
+        
+        updateLoading('Calling LLM...');
+        
+        // Generate model
         const result = await api.generateFromPrompt(prompt, false);
-
-        state.currentModel = result;
-
-        // Display results
-        await displayParameters(result.py_file);
-        displayModelInfo(result);
-
-        showToast('Model generated successfully!', 'success');
-
+        
+        // Store result
+        const stepFile = extractFilename(result.step_file);
+        state.currentModel = {
+            ...result,
+            baseName: stepFile.replace('.step', '')
+        };
+        
+        // Load all tab content
+        await Promise.all([
+            loadJsonContent(state.currentModel.baseName),
+            loadPythonContent(state.currentModel.baseName),
+            loadStepContent(state.currentModel.baseName),
+            loadParameters()
+        ]);
+        
+        showToast('Model generated successfully', 'success');
+        
     } catch (error) {
+        showError(error.message);
         showToast(`Error: ${error.message}`, 'error');
-        console.error('Generation error:', error);
     } finally {
         state.generating = false;
+        setGenerating(false);
         hideLoading();
-        enableGenerateButton();
     }
 }
 
-async function validatePromptRealtime() {
-    const promptInput = document.getElementById('prompt-input');
-    const validationMsg = document.getElementById('validation-message');
-    const prompt = promptInput.value.trim();
-
-    if (!prompt) {
-        validationMsg.textContent = '';
-        validationMsg.className = 'validation-message';
-        return;
-    }
-
-    try {
-        const result = await api.validatePrompt(prompt);
-
-        if (result.valid) {
-            validationMsg.textContent = '✓ Prompt looks good';
-            validationMsg.className = 'validation-message success';
-        } else {
-            validationMsg.textContent = result.error;
-            validationMsg.className = 'validation-message error';
-        }
-    } catch (error) {
-        validationMsg.textContent = '';
-    }
-}
-
-// ========== Parameters ==========
-async function displayParameters(pyFile) {
-    const container = document.getElementById('parameters-list');
-    const regenerateBtn = document.getElementById('regenerate-btn');
-
-    try {
-        const filename = pyFile.split('\\').pop().split('/').pop();
-        const result = await api.extractParameters(filename);
-
-        if (!result.parameters || result.parameters.length === 0) {
-            container.innerHTML = '<div class="empty-state">No editable parameters found</div>';
-            regenerateBtn.classList.add('hidden');
-            return;
-        }
-
-        state.parameters = result.parameters;
-        regenerateBtn.classList.remove('hidden');
-
-        container.innerHTML = result.parameters.map((param, index) => `
-            <div class="param-item">
-                <div class="param-header">
-                    <div class="param-name">${param.name}</div>
-                    <div class="param-type">${param.type}</div>
-                </div>
-                <div class="param-value">
-                    <input 
-                        type="number" 
-                        id="param-${index}" 
-                        value="${param.value}"
-                        step="0.1"
-                        class="param-input"
-                    />
-                </div>
-            </div>
-        `).join('');
-
-    } catch (error) {
-        container.innerHTML = '<div class="error-state">Failed to extract parameters</div>';
-        console.error('Parameter extraction error:', error);
-    }
-}
-
+// ========================================
+// Regeneration
+// ========================================
 async function handleRegenerate() {
-    if (!state.currentModel || !state.parameters || state.parameters.length === 0) {
-        showToast('No parameters to update', 'warning');
+    if (!state.currentModel || state.parameters.length === 0) {
+        showError('No parameters to update');
         return;
     }
-
+    
+    showLoading('Regenerating model...');
+    
     try {
-        showLoading('Regenerating model with updated parameters...');
-
-        const filename = state.currentModel.py_file.split('\\').pop().split('/').pop();
+        const filename = extractFilename(state.currentModel.py_file);
         const updates = {};
-
-        // Collect all parameter values
-        state.parameters.forEach((param, index) => {
-            const input = document.getElementById(`param-${index}`);
-            const newValue = parseFloat(input.value);
-            if (!isNaN(newValue)) {
-                updates[param.name] = newValue;
+        
+        state.parameters.forEach((param, i) => {
+            const input = document.getElementById(`param-${i}`);
+            const value = parseFloat(input.value);
+            if (!isNaN(value)) {
+                updates[param.name] = value;
             }
         });
-
-        const result = await api.updateAndRegenerate(filename, updates);
-
+        
+        const result = await api.updateAndRegenerate(filename, updates, false);
+        
         if (result.status === 'success') {
             state.currentModel.step_file = result.step_file;
-            displayModelInfo(state.currentModel);
-            showToast('Model regenerated successfully!', 'success');
+            
+            // Refresh content
+            await Promise.all([
+                loadJsonContent(state.currentModel.baseName),
+                loadPythonContent(state.currentModel.baseName),
+                loadStepContent(state.currentModel.baseName)
+            ]);
+            
+            showToast('Model regenerated successfully', 'success');
         } else {
-            showToast('Regeneration failed', 'error');
+            throw new Error('Regeneration failed');
         }
-
+        
     } catch (error) {
-        showToast(`Regeneration error: ${error.message}`, 'error');
-        console.error('Regeneration error:', error);
-    } finally {
-        hideLoading();
-    }
-}
-
-// ========== Model Display ==========
-function displayModelInfo(result) {
-    const container = document.getElementById('model-info');
-    const downloadButtons = document.getElementById('download-buttons');
-
-    const stepFile = result.step_file.split('\\').pop().split('/').pop();
-    const jsonFile = result.json_file.split('\\').pop().split('/').pop();
-    const pyFile = result.py_file.split('\\').pop().split('/').pop();
-
-    // Show download buttons
-    downloadButtons.classList.remove('hidden');
-
-    // Check FreeCAD status
-    let freecadInfo = '';
-    if (result.freecad_opened) {
-        freecadInfo = '<div class="freecad-status success">✓ Model opened in FreeCAD</div>';
-    } else {
-        freecadInfo = '<div class="freecad-status warning">⚠ FreeCAD not opened (check installation)</div>';
-    }
-
-    container.innerHTML = `
-        <div class="model-info">
-            <h4>📦 CAD Model Generated</h4>
-            <div class="model-info-item">
-                <span class="model-info-label">STEP File:</span>
-                <span class="model-info-value">${stepFile}</span>
-            </div>
-            <div class="model-info-item">
-                <span class="model-info-label">Python File:</span>
-                <span class="model-info-value">${pyFile}</span>
-            </div>
-            <div class="model-info-item">
-                <span class="model-info-label">JSON File:</span>
-                <span class="model-info-value">${jsonFile}</span>
-            </div>
-            <div class="model-info-item">
-                <span class="model-info-label">Parameters:</span>
-                <span class="model-info-value">${result.parameters.total_count}</span>
-            </div>
-            ${freecadInfo}
-            <div style="margin-top: 15px; font-size: 11px; color: var(--text-muted);">
-                <p>💡 Use the download buttons above to save files</p>
-                <p>📐 Modify parameters on the left and click REGENERATE</p>
-            </div>
-        </div>
-    `;
-}
-
-// ========== File Operations ==========
-async function downloadFile(type) {
-    if (!state.currentModel) {
-        showToast('No model to download', 'warning');
-        return;
-    }
-
-    const file = type === 'step' ? state.currentModel.step_file : state.currentModel.json_file;
-    const filename = file.split('\\').pop().split('/').pop();
-
-    const apiUrl = `http://localhost:5000/outputs/${type}/${filename}`;
-
-    try {
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-            throw new Error('File not found');
-        }
-
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-
-        showToast(`Downloaded ${filename}`, 'success');
-    } catch (error) {
-        showToast(`Download failed: ${error.message}`, 'error');
-    }
-}
-
-async function openInFreeCAD() {
-    if (!state.currentModel) {
-        showToast('No model to open', 'warning');
-        return;
-    }
-
-    try {
-        showLoading('Opening in FreeCAD...');
-        const stepFile = state.currentModel.step_file.split('\\').pop().split('/').pop();
-        const result = await api.openInFreeCAD(stepFile);
-
-        if (result.status === 'success') {
-            showToast('✓ Model opened in FreeCAD', 'success');
-
-            const freecadStatus = document.querySelector('.freecad-status');
-            if (freecadStatus) {
-                freecadStatus.className = 'freecad-status success';
-                freecadStatus.textContent = '✓ Model opened in FreeCAD';
-            }
-        } else {
-            showToast(`Failed: ${result.message || 'FreeCAD unavailable'}`, 'error');
-        }
-    } catch (error) {
+        showError(error.message);
         showToast(`Error: ${error.message}`, 'error');
     } finally {
         hideLoading();
     }
 }
 
-// ========== UI Helpers ==========
-function showLoading(message = 'Processing...') {
-    const overlay = document.getElementById('loading-overlay');
-    const messageEl = document.getElementById('loading-message');
-    messageEl.textContent = message;
-    overlay.classList.remove('hidden');
+// ========================================
+// Download
+// ========================================
+function downloadStepFile() {
+    if (!state.currentModel) return;
+    
+    const stepPath = state.currentModel.step_file;
+    const filename = extractFilename(stepPath);
+    
+    // Create download link
+    const url = `http://localhost:5000/outputs/step/${filename}`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+// ========================================
+// UI Helpers
+// ========================================
+function showError(message) {
+    DOM.errorMessage().textContent = message;
+}
+
+function clearError() {
+    DOM.errorMessage().textContent = '';
+}
+
+function setGenerating(isGenerating) {
+    const btn = DOM.generateBtn();
+    btn.disabled = isGenerating;
+    btn.textContent = isGenerating ? 'Generating...' : 'Generate';
+}
+
+function showLoading(message) {
+    DOM.loadingMessage().textContent = message;
+    DOM.loadingOverlay().classList.remove('hidden');
+}
+
+function updateLoading(message) {
+    DOM.loadingMessage().textContent = message;
 }
 
 function hideLoading() {
-    const overlay = document.getElementById('loading-overlay');
-    overlay.classList.add('hidden');
-}
-
-function updateLoadingMessage(message) {
-    const messageEl = document.getElementById('loading-message');
-    messageEl.textContent = message;
-}
-
-function disableGenerateButton() {
-    const btn = document.getElementById('generate-btn');
-    btn.disabled = true;
-    btn.textContent = 'GENERATING...';
-}
-
-function enableGenerateButton() {
-    const btn = document.getElementById('generate-btn');
-    btn.disabled = false;
-    btn.textContent = 'GENERATE';
+    DOM.loadingOverlay().classList.add('hidden');
 }
 
 function showToast(message, type = 'info') {
-    const container = document.getElementById('toast-container');
-
+    const container = DOM.toastContainer();
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.innerHTML = `<div class="toast-message">${message}</div>`;
-
+    toast.textContent = message;
     container.appendChild(toast);
-
+    
     setTimeout(() => {
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+        toast.remove();
+    }, 4000);
 }
 
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
+// ========================================
+// Utilities
+// ========================================
+function extractFilename(path) {
+    return path.split('\\').pop().split('/').pop();
 }

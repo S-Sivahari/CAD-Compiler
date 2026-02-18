@@ -65,6 +65,8 @@ class SynthoCADAPI {
 
     // ========== Parameter APIs ==========
 
+    async extractParameters(filename) {
+        return this.request(`/parameters/extract/${filename}`, {
             method: 'GET'
         });
     }
@@ -83,6 +85,40 @@ class SynthoCADAPI {
                 parameters,
                 open_freecad: openFreecad 
             })
+        });
+    }
+
+    async updateAndRegenerate(filename, parameters, openFreecad = true) {
+        return this.request(`/parameters/update/${filename}`, {
+            method: 'POST',
+            body: JSON.stringify({ 
+                parameters,
+                open_freecad: openFreecad 
+            })
+        });
+    }
+
+    async viewJsonFile(filename) {
+        return this.request(`/parameters/view/json/${filename}`, {
+            method: 'GET'
+        });
+    }
+
+    async viewPythonFile(filename) {
+        return this.request(`/parameters/view/python/${filename}`, {
+            method: 'GET'
+        });
+    }
+
+    async viewStepFile(filename) {
+        return this.request(`/parameters/view/step/${filename}`, {
+            method: 'GET'
+        });
+    }
+
+    async listGeneratedFiles() {
+        return this.request(`/parameters/list-files`, {
+            method: 'GET'
         });
     }
 
@@ -174,9 +210,10 @@ class SynthoCADAPI {
     }
 
     async getTemplates() {
-        return this.request('/templates', {
+        const response = await this.request('/templates', {
             method: 'GET'
         });
+        return response.templates || [];
     }
 
     async getTemplate(name) {
@@ -187,6 +224,8 @@ class SynthoCADAPI {
 
     // ========== Health Check ==========
 
+    async healthCheck() {
+        return this.request('/health', {
             method: 'GET'
         });
     }

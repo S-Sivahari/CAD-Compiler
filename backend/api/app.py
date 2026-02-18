@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 import sys
 from pathlib import Path
@@ -21,6 +21,13 @@ def create_app():
     app.register_blueprint(template_routes.bp, url_prefix='/api/v1/templates')
     app.register_blueprint(viewer_routes.bp, url_prefix='/api/v1/viewer')
     app.register_blueprint(cleanup_routes.bp, url_prefix='/api/v1/cleanup')
+    
+    # Serve static files from outputs directory
+    @app.route('/outputs/<path:subpath>/<filename>')
+    def serve_output_file(subpath, filename):
+        """Serve generated files (JSON, Python, STEP) from outputs directory"""
+        output_dir = Path(__file__).parent.parent.parent / 'outputs' / subpath
+        return send_from_directory(output_dir, filename)
     
     # Run auto cleanup on startup if enabled
     if config.CLEANUP_AUTO_RUN and config.CLEANUP_ENABLED:

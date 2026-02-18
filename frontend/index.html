@@ -3,103 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SynthoCAD - AI-Powered CAD Generation</title>
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <title>SynthoCAD</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="app-container">
+    <div class="app">
         <!-- Header -->
         <header class="header">
-            <div class="branding">
-                <h1 class="logo">SYNTHOCAD</h1>
-                <p class="tagline">AI-Powered Parametric CAD Generation Platform</p>
-            </div>
-            <div class="status-indicators">
-                <div class="status-item" id="api-status">
-                    <span class="status-dot"></span>
-                    <span>Backend</span>
-                </div>
-                <div class="status-item" id="freecad-status">
-                    <span class="status-dot"></span>
-                    <span>FreeCAD</span>
-                </div>
+            <div class="header-brand">
+                <h1 class="header-title">SYNTHOCAD</h1>
+                <p class="header-subtitle">AI-Powered Parametric CAD Generation Platform</p>
             </div>
         </header>
 
-        <!-- Input Section -->
-        <section class="input-section">
-            <div class="input-wrapper">
-                <textarea 
-                    id="prompt-input" 
-                    placeholder="Enter your CAD design description... (e.g., Create a cylinder 20mm diameter, 50mm tall)"
-                    rows="2"
-                ></textarea>
-                <button id="generate-btn" class="generate-btn">GENERATE</button>
-            </div>
-            <div id="validation-message" class="validation-message"></div>
-            
-            <!-- Templates Dropdown -->
-            <div class="templates-dropdown">
-                <button class="dropdown-toggle" id="templates-toggle">
-                    <span>📋 TEMPLATES</span>
-                    <span class="arrow">▼</span>
-                </button>
-                <div class="dropdown-content" id="templates-dropdown-content">
-                    <div class="templates-grid" id="templates-list">
-                        <div class="loading">Loading templates...</div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <!-- Main Layout -->
+        <main class="main">
+            <!-- Left Column: Input Area -->
+            <aside class="left-column">
+                <!-- Section A: Prompt Input -->
+                <section class="input-section">
+                    <label class="section-label">PROMPT</label>
+                    <textarea 
+                        id="prompt-input" 
+                        class="prompt-textarea"
+                        placeholder="Create a cylinder diameter 20mm height 50mm with center hole 5mm"
+                        rows="6"
+                    ></textarea>
+                    <button id="generate-btn" class="generate-btn">Generate</button>
+                    <div id="error-message" class="error-message"></div>
+                </section>
 
-        <!-- Main Content: Two Column Layout -->
-        <main class="main-content">
-            <!-- Left Column: Parameters -->
-            <aside class="left-panel">
-                <div class="panel-section parameters-section">
-                    <div class="section-header">
-                        <h3 class="section-title">EXTRACTED PARAMETERS</h3>
-                        <button id="regenerate-btn" class="action-btn hidden">🔄 REGENERATE</button>
-                    </div>
-                    <div class="scrollable-content" id="parameters-list">
-                        <div class="empty-state">Generate a model to see parameters</div>
-                    </div>
-                </div>
+                <!-- Section B: Templates -->
+                <section class="templates-section">
+                    <label class="section-label">TEMPLATES</label>
+                    <select id="templates-select" class="templates-select">
+                        <option value="">Select a template...</option>
+                    </select>
+                </section>
             </aside>
 
-            <!-- Right Column: 3D Viewer -->
-            <section class="right-panel">
-                <div class="panel-section viewer-section">
-                    <div class="section-header">
-                        <h3 class="section-title">3D VIEWER</h3>
-                        <div class="download-buttons hidden" id="download-buttons">
-                            <button class="action-btn" onclick="downloadFile('step')">📥 STEP</button>
-                            <button class="action-btn" onclick="downloadFile('json')">📥 JSON</button>
-                            <button class="action-btn" onclick="openInFreeCAD()">🔧 FREECAD</button>
+            <!-- Right Column: Output Workspace -->
+            <section class="right-column">
+                <!-- Tabs -->
+                <nav class="tabs">
+                    <button class="tab active" data-tab="freecad">FreeCAD Model</button>
+                    <button class="tab" data-tab="json">JSON</button>
+                    <button class="tab" data-tab="python">Python</button>
+                    <button class="tab" data-tab="step">STEP</button>
+                    <button class="tab" data-tab="parameters">Parameters</button>
+                </nav>
+
+                <!-- Tab Panels -->
+                <div class="tab-panels">
+                    <!-- FreeCAD Model -->
+                    <div class="tab-panel active" id="panel-freecad">
+                        <div class="placeholder">
+                            <p>Model preview coming soon</p>
                         </div>
                     </div>
-                    <div class="viewer-content" id="viewer-content">
-                        <div class="viewer-placeholder">
-                            <div class="placeholder-icon">🔧</div>
-                            <p>Generate a CAD model to view</p>
-                            <div id="model-info" class="model-info"></div>
+
+                    <!-- JSON -->
+                    <div class="tab-panel" id="panel-json">
+                        <div class="code-container">
+                            <pre id="json-viewer" class="code-viewer">Generate a model to view JSON output</pre>
+                        </div>
+                    </div>
+
+                    <!-- Python -->
+                    <div class="tab-panel" id="panel-python">
+                        <div class="code-container">
+                            <pre id="python-viewer" class="code-viewer">Generate a model to view Python code</pre>
+                        </div>
+                    </div>
+
+                    <!-- STEP -->
+                    <div class="tab-panel" id="panel-step">
+                        <div class="step-info" id="step-info">
+                            <p class="step-placeholder">Generate a model to view STEP file</p>
+                        </div>
+                    </div>
+
+                    <!-- Parameters -->
+                    <div class="tab-panel" id="panel-parameters">
+                        <div class="parameters-container">
+                            <div id="parameters-form" class="parameters-form">
+                                <p class="params-placeholder">Generate a model to edit parameters</p>
+                            </div>
+                            <button id="regenerate-btn" class="regenerate-btn hidden">Regenerate Model</button>
                         </div>
                     </div>
                 </div>
             </section>
         </main>
 
-        <!-- Toast Notifications -->
-        <div id="toast-container" class="toast-container"></div>
-
         <!-- Loading Overlay -->
         <div id="loading-overlay" class="loading-overlay hidden">
-            <div class="spinner"></div>
-            <p id="loading-message">Processing...</p>
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p id="loading-message">Processing...</p>
+            </div>
         </div>
+
+        <!-- Toast Container -->
+        <div id="toast-container" class="toast-container"></div>
     </div>
 
-    <script src="js/api.js?v=3"></script>
-    <script src="js/app.js?v=3"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
