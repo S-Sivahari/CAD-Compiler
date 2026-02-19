@@ -11,7 +11,14 @@ Modern web interface for SynthoCAD - AI-Powered CAD Generation Platform
 - **Real-time Validation**: Validate prompts before generation
 - **Automatic FreeCAD Integration**: Open models immediately after generation
 
-### 📁 Model Management
+### � STEP File Preview & Editing
+- **Drag-and-Drop Upload**: Drop any `.step` / `.stp` file onto the upload zone
+- **7-Angle Annotated Views**: Instantly renders Isometric, Top, Bottom, Front, Back, Left, and Right views with feature labels (cylinders, planes, cones)
+- **Thumbnail Strip**: Click any of the 7 thumbnails to switch to that view in the main pane
+- **Image Zoom**: Scroll-wheel zoom (0.5× – 6×) plus toolbar `+` / `−` / Reset buttons with live percentage readout
+- **Natural-Language Editing**: Enter an edit prompt (e.g. "Make the hole diameter 10mm") and receive a new STEP file based on exact geometric analysis
+
+### �📁 Model Management
 - View all generated models
 - Open models in FreeCAD with one click
 - Search and filter models
@@ -113,6 +120,24 @@ Change this if your backend is running on a different port or host.
 3. Filter operation history
 4. Diagnose failures
 
+### 6. Preview a STEP File (7-Angle View)
+
+1. In the left panel, find the **Upload & Preview STEP** section
+2. Drag-and-drop a `.step` / `.stp` file onto the drop zone, or click to browse
+3. Click **Preview** — the backend analyzes geometry and renders 7 annotated images
+4. The **Preview** tab activates automatically, showing a **thumbnail strip** of all 7 angles
+5. Click any thumbnail to enlarge it in the main viewer
+6. Use the **scroll wheel** or toolbar `+` / `−` buttons to zoom in and out
+7. Click **100%** in the toolbar to reset zoom
+
+### 7. Edit an Uploaded STEP File
+
+1. After previewing, the **Edit Prompt** area appears below the upload zone
+2. Enter a natural-language change (e.g., `"Increase the boss diameter to 15mm"`)
+   - The feature IDs shown in the rendered images can be referenced directly (e.g., `"feature C1"`)
+3. Click **Edit STEP**
+4. A new STEP file is generated and a download link appears in the **STEP** tab
+
 ## File Structure
 
 ```
@@ -139,6 +164,11 @@ The frontend connects to these backend endpoints:
 - `GET /api/v1/parameters/extract/<filename>`
 - `POST /api/v1/parameters/update/<filename>`
 - `POST /api/v1/parameters/regenerate/<filename>`
+
+### STEP Preview & Editing
+- `POST /api/v1/edit/preview` — Upload STEP → returns 7 annotated image URLs + feature analysis
+- `POST /api/v1/edit/from-step` — Upload STEP + prompt → returns new STEP file
+- `GET /outputs/previews/<stem>/<view>.png` — Serve a rendered view image
 
 ### FreeCAD Viewer
 - `GET /api/v1/viewer/check`

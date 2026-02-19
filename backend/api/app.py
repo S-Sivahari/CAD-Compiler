@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from api.routes import generation_routes, parameter_routes, template_routes, viewer_routes, cleanup_routes
+from api.routes import generation_routes, parameter_routes, template_routes, viewer_routes, cleanup_routes, edit_routes
 from utils.logger import api_logger
 from utils.errors import SynthoCadError
 from core import config
@@ -21,11 +21,12 @@ def create_app():
     app.register_blueprint(template_routes.bp, url_prefix='/api/v1/templates')
     app.register_blueprint(viewer_routes.bp, url_prefix='/api/v1/viewer')
     app.register_blueprint(cleanup_routes.bp, url_prefix='/api/v1/cleanup')
+    app.register_blueprint(edit_routes.bp, url_prefix='/api/v1/edit')
     
     # Serve static files from outputs directory
     @app.route('/outputs/<path:subpath>/<filename>')
     def serve_output_file(subpath, filename):
-        """Serve generated files (JSON, Python, STEP) from outputs directory"""
+        """Serve generated files (JSON, Python, STEP, images) from outputs directory"""
         output_dir = Path(__file__).parent.parent.parent / 'outputs' / subpath
         return send_from_directory(output_dir, filename)
     
@@ -77,7 +78,8 @@ def create_app():
                 'parameters': '/api/v1/parameters',
                 'templates': '/api/v1/templates',
                 'viewer': '/api/v1/viewer',
-                'cleanup': '/api/v1/cleanup'
+                'cleanup': '/api/v1/cleanup',
+                'edit': '/api/v1/edit'
             }
         }), 200
         

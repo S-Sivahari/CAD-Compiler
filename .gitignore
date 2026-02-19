@@ -13,7 +13,7 @@ venv/
 ENV/
 
 data_set/
-
+templates/minimal_json
 outputs/py/*.py
 outputs/step/*.step
 outputs/json/*.json
@@ -22,6 +22,16 @@ outputs/logs/*.log
 node_modules/
 frontend/build/
 frontend/dist/
+
+backend/chroma_db
+backend/scripts/batches
+backend/scripts/local_descriptions
+backend/scripts/dataset_extractor
+templates/txt
+batches.zip
+
+outputs/uploads
+outputs/previews
 
 .env
 .env.local

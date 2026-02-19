@@ -10,10 +10,12 @@ PY_OUTPUT_DIR = OUTPUT_DIR / "py"
 STEP_OUTPUT_DIR = OUTPUT_DIR / "step"
 JSON_OUTPUT_DIR = OUTPUT_DIR / "json"
 LOGS_DIR = OUTPUT_DIR / "logs"
+UPLOAD_DIR = OUTPUT_DIR / "uploads"
+PREVIEWS_DIR = OUTPUT_DIR / "previews"
 
 SCHEMA_PATH = BACKEND_DIR / "core" / "scl_schema.json"
 
-for dir_path in [PY_OUTPUT_DIR, STEP_OUTPUT_DIR, JSON_OUTPUT_DIR, LOGS_DIR]:
+for dir_path in [PY_OUTPUT_DIR, STEP_OUTPUT_DIR, JSON_OUTPUT_DIR, LOGS_DIR, UPLOAD_DIR, PREVIEWS_DIR]:
     dir_path.mkdir(parents=True, exist_ok=True)
 
 LOG_LEVEL = "INFO"
@@ -77,6 +79,11 @@ CLEANUP_ENABLED = True
 CLEANUP_MAX_AGE_DAYS = 30  # Delete files older than 30 days
 CLEANUP_MAX_FILES_PER_TYPE = 100  # Keep max 100 files of each type
 CLEANUP_AUTO_RUN = False  # Auto cleanup on startup (set True for production)
+
+# LLM Configuration
+LLM_PROVIDER = "gemini"  # Options: "gemini", "ollama"
+OLLAMA_LLM_MODEL = "qwen2.5:7b"  # Recommended for CPU: qwen2.5:7b, llama3.1:8b
+OLLAMA_URL = "http://localhost:11434/api/generate"
 
 # Retry/Error Recovery Configuration
 RETRY_ENABLED = True

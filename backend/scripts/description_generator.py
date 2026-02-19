@@ -52,18 +52,35 @@ def generate_desc(data, img_path):
 
     # DETAILED VISUAL PROMPT
     prompt = f"""
-    Act as a CAD engineer describing this 3D part for a catalog.
+    Act as an expert parametric CAD engineer analysing this 3D engineering drawing for reconstruction.
     
-    Describe the object in detail, answering these three question:
+    SYSTEM INSTRUCTION:
+    The image may contain a SINGLE part or an ASSEMBLY of MULTIPLE shapes.
+    Break down the object into its primitive geometric components and describe their SPATIAL RELATIONSHIPS.
     
-    1. **How is the Base Shape**: Is it a plate, a bracket, a cylinder, a block? Is it flat or thick?
-    2. **How to describe the Features?**: detailed list of specific features like holes (center/corners), slots, cutouts, chamfers, or fillets.
-    3. **How is its Functional Appearance?**: What does it look like it's used for? (e.g., "mounting plate", "spacer", "pivot arm").
+    **1. IDENTIFY SHAPES (Use this list):**
+    - Primitives: Cube, Block, Cylinder, Sphere, Cone, Tube, Torus, Prism.
+    - Profiles: L-Bracket, T-Profile, U-Channel, I-Beam, Hexagon, Octagon.
+    - Complex: Gear (Spur/Helical), Flange, Pulley, Bearing Housing, Threaded Rod.
     
-    **Style Rules**:
-    - Use technical language (e.g., "extruded", "profile", "concentric","cut").
-    - Write 2-3 complete sentences.
-    - Do NOT make up specific dimensions (numbers). Just describe the relative shape/proportions.
+    **2. DESCRIBE COMPOSITION (Spatial Logic):**
+    - "A [Shape A] is positioned [on top of / adjacent to / intersecting] a [Shape B]."
+    - "The base is a [Shape], with a [Shape] protruding from the center."
+    - "Two [Shapes] are connected by a [Shape]."
+    
+    **3. DESCRIBE FEATURES (Critical Details if present):**
+    - **Holes**: Round, Countersunk, Counterbored, Hexagonal? Where? (Center, corners, bolt circle?)
+    - **Cuts/Slots**: Rectangular slots, keyways, side cutouts, arched cutouts?
+    - **Additions**: Bosses, ribs, fillets, chamfers?
+    - **Patterns**: Linear array (row of holes), Polar array (circular pattern of holes/spokes)?
+    
+    **RESPONSE FORMAT**:
+    - Start with a high-level summary: "This is a [Function/Name] consisting of..."
+    - Describe the BASE geometry.
+    - Describe ADDITIONAL parts and their positions relative to the base.
+    - List internal features (holes, cuts).
+    - Keep it purely geometrical and descriptive. NO specific dimensions (numbers), only usage of relative terms (large, small, centered, equidistant).
+    - Ensure that the description is under 125 words.
     """
     
     payload = {

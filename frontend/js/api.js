@@ -12,7 +12,7 @@ class SynthoCADAPI {
 
     async request(endpoint, options = {}) {
         const url = `${this.baseUrl}${endpoint}`;
-        
+
         try {
             const response = await fetch(url, {
                 ...options,
@@ -45,9 +45,9 @@ class SynthoCADAPI {
     async generateFromPrompt(prompt, openFreecad = true) {
         return this.request('/generate/from-prompt', {
             method: 'POST',
-            body: JSON.stringify({ 
-                prompt, 
-                open_freecad: openFreecad 
+            body: JSON.stringify({
+                prompt,
+                open_freecad: openFreecad
             })
         });
     }
@@ -55,10 +55,10 @@ class SynthoCADAPI {
     async generateFromJSON(jsonData, outputName = null, openFreecad = true) {
         return this.request('/generate/from-json', {
             method: 'POST',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 json: jsonData,
                 output_name: outputName,
-                open_freecad: openFreecad 
+                open_freecad: openFreecad
             })
         });
     }
@@ -81,9 +81,9 @@ class SynthoCADAPI {
     async regenerateWithParameters(filename, parameters, openFreecad = true) {
         return this.request(`/parameters/regenerate/${filename}`, {
             method: 'POST',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 parameters,
-                open_freecad: openFreecad 
+                open_freecad: openFreecad
             })
         });
     }
@@ -91,9 +91,9 @@ class SynthoCADAPI {
     async updateAndRegenerate(filename, parameters, openFreecad = true) {
         return this.request(`/parameters/update/${filename}`, {
             method: 'POST',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 parameters,
-                open_freecad: openFreecad 
+                open_freecad: openFreecad
             })
         });
     }
@@ -116,6 +116,53 @@ class SynthoCADAPI {
         });
     }
 
+    // ========== Step Editor (Upload-based) APIs ==========
+
+    async previewStep(formData) {
+        /**
+         * Upload a STEP file for multi-angle preview.
+         * formData must contain a 'file' field with the .step file.
+         * Returns { features, image_urls: [{view, label, url}], instructions }
+         */
+        const url = `${this.baseUrl}/edit/preview`;
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData   // multipart, NO Content-Type header (browser sets it)
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || data.error || `HTTP ${response.status}`);
+            }
+            return data;
+        } catch (error) {
+            console.error('previewStep failed:', error);
+            throw error;
+        }
+    }
+
+    async editStep(formData) {
+        /**
+         * Upload a STEP file + text prompt to get an edited STEP back.
+         * formData must contain 'file' (.step) and 'prompt' (string).
+         */
+        const url = `${this.baseUrl}/edit/from-step`;
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || data.error || `HTTP ${response.status}`);
+            }
+            return data;
+        } catch (error) {
+            console.error('editStep failed:', error);
+            throw error;
+        }
+    }
+
     async listGeneratedFiles() {
         return this.request(`/parameters/list-files`, {
             method: 'GET'
@@ -133,9 +180,9 @@ class SynthoCADAPI {
     async openInFreeCAD(stepFile, freecadPath = null) {
         return this.request('/viewer/open', {
             method: 'POST',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 step_file: stepFile,
-                freecad_path: freecadPath 
+                freecad_path: freecadPath
             })
         });
     }
@@ -143,9 +190,9 @@ class SynthoCADAPI {
     async reloadInFreeCAD(stepFile, freecadPath = null) {
         return this.request('/viewer/reload', {
             method: 'POST',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 step_file: stepFile,
-                freecad_path: freecadPath 
+                freecad_path: freecadPath
             })
         });
     }
@@ -161,10 +208,10 @@ class SynthoCADAPI {
     async cleanup(maxAgeDays = null, maxFilesPerType = null, dryRun = false) {
         return this.request('/cleanup/cleanup', {
             method: 'POST',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 max_age_days: maxAgeDays,
                 max_files_per_type: maxFilesPerType,
-                dry_run: dryRun 
+                dry_run: dryRun
             })
         });
     }
@@ -172,10 +219,10 @@ class SynthoCADAPI {
     async cleanupByAge(maxAgeDays, fileType = 'all', dryRun = false) {
         return this.request('/cleanup/cleanup/by-age', {
             method: 'POST',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 max_age_days: maxAgeDays,
                 file_type: fileType,
-                dry_run: dryRun 
+                dry_run: dryRun
             })
         });
     }
@@ -183,10 +230,10 @@ class SynthoCADAPI {
     async cleanupByCount(maxFiles, fileType = 'all', dryRun = false) {
         return this.request('/cleanup/cleanup/by-count', {
             method: 'POST',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 max_files: maxFiles,
                 file_type: fileType,
-                dry_run: dryRun 
+                dry_run: dryRun
             })
         });
     }
@@ -202,7 +249,7 @@ class SynthoCADAPI {
         const params = new URLSearchParams();
         if (operation) params.append('operation', operation);
         if (limit) params.append('limit', limit.toString());
-        
+
         const query = params.toString() ? `?${params.toString()}` : '';
         return this.request(`/cleanup/retry-stats${query}`, {
             method: 'GET'
