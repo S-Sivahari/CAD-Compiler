@@ -37,6 +37,7 @@ const DOM = {
     stepFileInput: () => document.getElementById('step-file-input'),
     dropZoneText: () => document.getElementById('drop-zone-text'),
     previewBtn: () => document.getElementById('preview-btn'),
+    view3dBtn: () => document.getElementById('view3d-btn'),
     previewError: () => document.getElementById('preview-error'),
     editArea: () => document.getElementById('edit-area'),
     editPromptInput: () => document.getElementById('edit-prompt-input'),
@@ -58,6 +59,8 @@ document.addEventListener('DOMContentLoaded', initApp);
 async function initApp() {
     setupEventListeners();
     await loadTemplates();
+    // Initialise the Three.js viewer (non-blocking — WASM loads in background)
+    stepViewer.init();
 }
 
 function setupEventListeners() {
@@ -110,6 +113,13 @@ function setupEventListeners() {
 
     // Preview button
     DOM.previewBtn().addEventListener('click', handlePreview);
+
+    // View 3D button
+    DOM.view3dBtn().addEventListener('click', async () => {
+        if (!state.previewFile) return;
+        switchTab('freecad');
+        await stepViewer.loadStepFile(state.previewFile);
+    });
 
     // Edit STEP button
     DOM.editBtn().addEventListener('click', handleEditStep);
@@ -314,6 +324,12 @@ async function handleGenerate() {
             loadStepContent(state.currentModel.baseName),
             loadParameters()
         ]);
+
+        // Auto-load the generated STEP into the 3D viewer
+        const stepUrl = `http://localhost:5000/outputs/step/${stepFile}`;
+        switchTab('freecad');
+        stepViewer.loadStepUrl(stepUrl);
+
         showToast('Model generated successfully', 'success');
     } catch (error) {
         showError(error.message);
@@ -371,6 +387,7 @@ function selectStepFile(file) {
     DOM.dropZoneText().textContent = file.name;
     DOM.dropZone().classList.add('has-file');
     DOM.previewBtn().disabled = false;
+    DOM.view3dBtn().disabled = false;
     DOM.previewError().textContent = '';
 }
 
@@ -418,9 +435,8 @@ function renderPreviewGallery(imageUrls) {
     DOM.previewPlaceholder().classList.add('hidden');
     DOM.previewViewer().classList.remove('hidden');
 
-    // Reset zoom whenever a new preview loads
-    _zoomLevel = 1;
-    _applyZoom();
+    // Reset pan and zoom whenever a new preview loads
+    _resetTransform();
 
     const BASE = 'http://localhost:5000';
     const strip = DOM.viewStrip();
@@ -460,47 +476,104 @@ function selectView(thumbEl, item) {
     document.querySelectorAll('.view-thumb').forEach(t => t.classList.remove('active'));
     thumbEl.classList.add('active');
 
-    // Update main image and reset zoom
-    _zoomLevel = 1;
-    _applyZoom();
+    // Update main image and reset pan+zoom
+    _resetTransform();
     DOM.viewMainImg().src = BASE + item.url;
     DOM.viewMainImg().alt = item.label;
     DOM.viewMainLabel().textContent = item.label;
 }
 
 // ========================================
-// Image Zoom
+// Image Pan + Zoom
 // ========================================
 let _zoomLevel = 1;
-const ZOOM_MIN = 0.5;
-const ZOOM_MAX = 6;
+let _panX = 0;
+let _panY = 0;
+let _isDragging = false;
+let _dragStart = { x: 0, y: 0 };
+let _panStart = { x: 0, y: 0 };
+
+const ZOOM_MIN = 0.25;
+const ZOOM_MAX = 8;
 const ZOOM_STEP = 0.15;
 
-function _applyZoom() {
+function _applyTransform() {
     const img = DOM.viewMainImg();
-    img.style.transform = `scale(${_zoomLevel})`;
-    img.style.transformOrigin = 'center center';
+    if (!img) return;
+    // transform-origin is top-left (0 0); pan+scale are applied together
+    img.style.transformOrigin = '0 0';
+    img.style.transform = `translate(${_panX}px, ${_panY}px) scale(${_zoomLevel})`;
     const zoomPct = document.getElementById('zoom-pct');
     if (zoomPct) zoomPct.textContent = Math.round(_zoomLevel * 100) + '%';
 }
 
-// Attach wheel + button zoom after DOM is ready
+function _resetTransform() {
+    _zoomLevel = 1;
+    _panX = 0;
+    _panY = 0;
+    _applyTransform();
+}
+
+// Zoom toward a specific viewport point (px, py) relative to the wrap element
+function _zoomToward(delta, viewportX, viewportY) {
+    const newZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, _zoomLevel + delta));
+    const scale = newZoom / _zoomLevel;
+    // Keep the point under the cursor fixed in image space
+    _panX = viewportX - scale * (viewportX - _panX);
+    _panY = viewportY - scale * (viewportY - _panY);
+    _zoomLevel = newZoom;
+    _applyTransform();
+}
+
+// Attach wheel + drag listeners once DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Wheel zoom on the main image wrap
     const wrap = document.querySelector('.view-main-wrap');
-    if (wrap) {
-        wrap.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
-            _zoomLevel = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, _zoomLevel + delta));
-            _applyZoom();
-        }, { passive: false });
-    }
+    if (!wrap) return;
+
+    // Wheel: zoom toward cursor
+    wrap.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const rect = wrap.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+        _zoomToward(delta, mouseX, mouseY);
+    }, { passive: false });
+
+    // Drag: pan the image
+    wrap.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;   // left button only
+        _isDragging = true;
+        _dragStart = { x: e.clientX, y: e.clientY };
+        _panStart = { x: _panX, y: _panY };
+        wrap.style.cursor = 'grabbing';
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!_isDragging) return;
+        _panX = _panStart.x + (e.clientX - _dragStart.x);
+        _panY = _panStart.y + (e.clientY - _dragStart.y);
+        _applyTransform();
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (_isDragging) {
+            _isDragging = false;
+            if (wrap) wrap.style.cursor = 'grab';
+        }
+    });
 });
 
-function zoomIn() { _zoomLevel = Math.min(ZOOM_MAX, _zoomLevel + ZOOM_STEP * 2); _applyZoom(); }
-function zoomOut() { _zoomLevel = Math.max(ZOOM_MIN, _zoomLevel - ZOOM_STEP * 2); _applyZoom(); }
-function zoomReset() { _zoomLevel = 1; _applyZoom(); }
+// Toolbar button helpers — zoom toward the visible center
+function _wrapCenter() {
+    const wrap = document.querySelector('.view-main-wrap');
+    if (!wrap) return { x: 0, y: 0 };
+    return { x: wrap.clientWidth / 2, y: wrap.clientHeight / 2 };
+}
+function zoomIn() { const c = _wrapCenter(); _zoomToward(ZOOM_STEP * 2, c.x, c.y); }
+function zoomOut() { const c = _wrapCenter(); _zoomToward(-ZOOM_STEP * 2, c.x, c.y); }
+function zoomReset() { _resetTransform(); }
 
 // ========================================
 // Edit STEP

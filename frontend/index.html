@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SynthoCAD</title>
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- Three.js r128 + OrbitControls via CDN (r128 is the last version with stable global THREE.OrbitControls) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- occt-import-js: OpenCASCADE WASM for STEP parsing (0.0.23 = latest; global: occtimportjs) -->
+    <script src="https://cdn.jsdelivr.net/npm/occt-import-js@0.0.23/dist/occt-import-js.js"></script>
 </head>
 
 <body>
@@ -46,7 +52,10 @@
                             <span id="drop-zone-text">Drop .step file or click to browse</span>
                         </div>
                     </div>
-                    <button id="preview-btn" class="preview-btn" disabled>Preview</button>
+                    <div class="upload-btn-row">
+                        <button id="preview-btn" class="preview-btn" disabled>Preview</button>
+                        <button id="view3d-btn" class="view3d-btn" disabled>View 3D</button>
+                    </div>
                     <div id="preview-error" class="error-message"></div>
 
                     <!-- Edit prompt (shown after preview) -->
@@ -82,10 +91,26 @@
 
                 <!-- Tab Panels -->
                 <div class="tab-panels">
-                    <!-- FreeCAD Model -->
+                    <!-- FreeCAD Model: Three.js STEP Viewer -->
                     <div class="tab-panel active" id="panel-freecad">
-                        <div class="placeholder">
-                            <p>Model preview coming soon</p>
+                        <div id="step3d-container">
+                            <canvas id="step3d-canvas"></canvas>
+                            <!-- Status overlay -->
+                            <div id="step3d-status">Drop or generate a STEP file to view in 3D</div>
+                            <!-- Loading spinner overlay -->
+                            <div id="step3d-loading" class="step3d-loading hidden">
+                                <div class="step3d-spinner"></div>
+                                <span id="step3d-loading-text">Loading…</span>
+                            </div>
+                            <!-- Viewer toolbar -->
+                            <div class="step3d-toolbar">
+                                <button class="step3d-btn" id="step3d-btn-reset" onclick="stepViewer.resetView()"
+                                    title="Fit to view">⊡ Fit</button>
+                                <button class="step3d-btn" id="step3d-btn-wire" onclick="stepViewer.toggleWireframe()"
+                                    title="Toggle wireframe">⬡ Wire</button>
+                            </div>
+                            <!-- Face-click tooltip -->
+                            <div id="step3d-face-tip" class="step3d-face-tip" style="display:none;"></div>
                         </div>
                     </div>
 
@@ -161,6 +186,7 @@
     </div>
 
     <script src="js/api.js"></script>
+    <script src="js/step-viewer.js"></script>
     <script src="js/app.js"></script>
 </body>
 

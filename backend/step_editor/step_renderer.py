@@ -298,7 +298,6 @@ def render_multiview(step_path: str, features: Dict[str, Any],
                 features=features,
                 step_stem=step_path.stem,
                 output_path=out_png,
-                include_legend=(view_cfg["name"] == "isometric"),
             )
             result[view_cfg["name"]] = str(out_png)
             logger.info(f"Rendered view '{view_cfg['name']}' → {out_png}")
@@ -310,46 +309,53 @@ def render_multiview(step_path: str, features: Dict[str, Any],
 
 # ─── Core per-view render ─────────────────────────────────────────────────────
 
+# Canvas layout
+_W        = 1200   # total image width
+_H        = 900    # total image height
+_LEGEND_W = 270    # right-side legend panel width
+_GEO_W    = _W - _LEGEND_W   # width available for geometry
+
 def _render_view(view_cfg: dict, all_edge_pts: List[List[Tuple]],
                  features: Dict[str, Any], step_stem: str,
                  output_path, include_legend: bool = False) -> str:
     """Render a single view and save it to output_path. Returns path string."""
     from PIL import Image, ImageDraw, ImageFont
 
-    W, H = 1000, 750
-    img  = Image.new("RGB", (W, H), (248, 249, 250))
+    img  = Image.new("RGB", (_W, _H), (248, 249, 250))
     draw = ImageDraw.Draw(img)
 
     try:
         font_label = ImageFont.truetype("arial.ttf", 13)
         font_title = ImageFont.truetype("arial.ttf", 15)
         font_sm    = ImageFont.truetype("arial.ttf", 11)
+        font_bold  = ImageFont.truetype("arialbd.ttf", 12)
     except Exception:
         font_label = ImageFont.load_default()
         font_title = font_label
         font_sm    = font_label
+        font_bold  = font_label
 
-    # ── Determine projection function for this view ────────────────────────────
-    proj_fn = view_cfg.get("project_fn", "isometric")
-    u_axis = view_cfg.get("u_axis")
-    v_axis = view_cfg.get("v_axis")
+    # ── Legend panel background ────────────────────────────────────────────────
+    draw.rectangle([_GEO_W, 0, _W, _H], fill=(240, 242, 248))
+    draw.line([(_GEO_W, 0), (_GEO_W, _H)], fill=(200, 205, 215), width=1)
+
+    # ── Determine projection function ─────────────────────────────────────────
+    proj_fn     = view_cfg.get("project_fn", "isometric")
+    u_axis      = view_cfg.get("u_axis")
+    v_axis      = view_cfg.get("v_axis")
     view_direction = view_cfg.get("view_dir", (0.5, -0.5, 0.5))
 
     def project3d(x, y, z):
         if proj_fn == "isometric":
             return _iso_project(x, y, z)
-        else:
-            return _ortho_project(x, y, z, u_axis, v_axis)
+        return _ortho_project(x, y, z, u_axis, v_axis)
 
-    # ── Compute depth range for visibility culling ─────────────────────────────
+    # ── Visibility culling ─────────────────────────────────────────────────────
     depth_min, depth_max = _compute_model_depth_range(all_edge_pts, view_direction)
     depth_range = max(depth_max - depth_min, 1e-6)
-    # threshold is 12% from front face (depths closer to depth_min are "back")
     visibility_threshold = depth_min + depth_range * 0.12
 
-    # ── Filter visible edges ───────────────────────────────────────────────────
     if proj_fn == "isometric":
-        # Isometric: show all edges (same behaviour as before)
         visible_edge_pts = all_edge_pts
     else:
         visible_edge_pts = [
@@ -357,25 +363,31 @@ def _render_view(view_cfg: dict, all_edge_pts: List[List[Tuple]],
             if max(_dot(p, view_direction) for p in pts) > visibility_threshold
         ]
 
-    # ── Compute projection bounds from visible edges ───────────────────────────
-    all_proj = []
-    for pts in visible_edge_pts:
-        for p in pts:
-            all_proj.append(project3d(*p))
+    # ── Projection bounds (geometry area only) ────────────────────────────────
+    all_proj = [project3d(*p) for pts in visible_edge_pts for p in pts]
     proj_min, proj_max = _get_proj_bounds(all_proj)
 
+    MARGIN = 80
     def to_px(x, y, z):
         sx, sy = project3d(x, y, z)
-        return _map_to_canvas(sx, sy, proj_min, proj_max, W, H, margin=100)
+        px_min, py_min = proj_min
+        px_max, py_max = proj_max
+        span_x = max(px_max - px_min, 1e-6)
+        span_y = max(py_max - py_min, 1e-6)
+        cw = _GEO_W - 2 * MARGIN
+        ch = _H     - 2 * MARGIN
+        cx = MARGIN + (sx - px_min) / span_x * cw
+        cy = MARGIN + (sy - py_min) / span_y * ch
+        return int(cx), int(cy)
 
-    # ── Draw visible edges ─────────────────────────────────────────────────────
+    # ── Draw edges ────────────────────────────────────────────────────────────
     EDGE_COLOR = (80, 100, 130)
     for pts in visible_edge_pts:
         px_pts = [to_px(*p) for p in pts]
         for k in range(len(px_pts) - 1):
             draw.line([px_pts[k], px_pts[k + 1]], fill=EDGE_COLOR, width=1)
 
-    # ── Draw axis indicators (isometric only) ─────────────────────────────────
+    # ── Axis indicators (isometric only) ─────────────────────────────────────
     if proj_fn == "isometric":
         bb = features.get("bounding_box", {"x_mm": 10, "y_mm": 10, "z_mm": 10})
         xM, yM, zM = bb["x_mm"], bb["y_mm"], bb["z_mm"]
@@ -390,20 +402,21 @@ def _render_view(view_cfg: dict, all_edge_pts: List[List[Tuple]],
         draw.text(ax_y, " Y", font=font_sm, fill=(60, 160, 60))
         draw.text(ax_z, " Z", font=font_sm, fill=(60, 60, 200))
 
-    # ── Overlay feature markers (only features visible from this view) ─────────
+    # ── Feature markers (geometry area) ───────────────────────────────────────
     _draw_feature_markers(draw, features, to_px, view_direction,
-                          visibility_threshold, font_label, font_sm, view_cfg)
+                          visibility_threshold, font_bold, font_sm, view_cfg)
 
-    # ── Legend (isometric view only) ─────────────────────────────────────────
-    if include_legend:
-        _draw_legend(draw, font_sm, font_label, features)
+    # ── Legend panel ──────────────────────────────────────────────────────────
+    _draw_legend(draw, font_sm, font_bold, font_label, features)
 
     # ── Title ─────────────────────────────────────────────────────────────────
-    bb = features.get("bounding_box", {"x_mm": "?", "y_mm": "?", "z_mm": "?"})
-    bbs = f"{bb.get('x_mm', '?')}mm × {bb.get('y_mm', '?')}mm × {bb.get('z_mm', '?')}mm"
+    bb  = features.get("bounding_box", {"x_mm": "?", "y_mm": "?", "z_mm": "?"})
+    bbs = f"{bb.get('x_mm','?')}mm × {bb.get('y_mm','?')}mm × {bb.get('z_mm','?')}mm"
     view_label = view_cfg.get("label", view_cfg["name"])
-    draw.text((10, 8),  f"{step_stem}  —  {view_label}  —  {bbs}", font=font_title, fill=(30, 30, 30))
-    draw.text((10, 28), "Use feature IDs in your edit prompt (e.g. 'change f6 radius to 5mm')",
+    draw.text((10, 8),  f"{step_stem}  —  {view_label}  —  {bbs}",
+              font=font_title, fill=(30, 30, 30))
+    draw.text((10, 28),
+              "Markers: \u25cf cylinder  \u25a0 horiz-face  \u25c6 vert-face  \u25b2 cone  |  see panel → for IDs",
               font=font_sm, fill=(100, 100, 100))
 
     output_path = Path(output_path)
@@ -411,64 +424,110 @@ def _render_view(view_cfg: dict, all_edge_pts: List[List[Tuple]],
     return str(output_path)
 
 
+# ─── Pattern-based marker helpers ────────────────────────────────────────────
+
+def _overlaps(rect, placed: list, pad: int = 4) -> bool:
+    """Return True if rect (x0,y0,x1,y1) overlaps any rect in placed (with pad)."""
+    x0, y0, x1, y1 = rect
+    for (bx0, by0, bx1, by1) in placed:
+        if x0 - pad < bx1 and x1 + pad > bx0 and y0 - pad < by1 and y1 + pad > by0:
+            return True
+    return False
+
+
+def _marker_radius(feature: dict, feature_type: str, base: int = 8) -> int:
+    """Scale marker radius slightly with feature significance."""
+    if feature_type == "cylinder":
+        r = feature.get("radius_mm", 1)
+        return min(14, max(base, int(base + r * 0.3)))
+    if feature_type in ("plane", "cone"):
+        a = feature.get("area_mm2", 1)
+        return min(13, max(base, int(base + a ** 0.25)))
+    return base
+
+
 def _draw_feature_markers(draw, features, to_px, view_direction, visibility_threshold,
-                          font_label, font_sm, view_cfg):
-    """Draw cylinder, plane, and cone markers - only for features visible in this view."""
+                          font_badge, font_sm, view_cfg):
+    """
+    Draw pattern markers for all visible features.
+
+    Strategy:
+    - Always draw the shape (circle / square / diamond / triangle).
+    - Draw a short ID badge (e.g. 'C2', 'P14') next to the shape ONLY if it
+      doesn’t overlap any previously-placed badges.  This prevents the label
+      blizzard on complex parts while preserving the marker itself.
+    """
+    from PIL import ImageDraw as _ID
+
     proj_fn = view_cfg.get("project_fn", "isometric")
 
-    def _is_loc_visible(loc):
-        """Check if a 3D location is visible (not fully behind the model) in this view."""
+    def visible(loc):
         if proj_fn == "isometric":
-            return True  # Show all in isometric
-        depth = _dot(loc, view_direction)
-        return depth >= visibility_threshold
+            return True
+        return _dot(tuple(loc), view_direction) >= visibility_threshold
 
-    # ── Cylinder markers (red dots) ──────────────────────────────────────────
-    CYL_COLOR = (210, 40, 40)
+    placed: List[Tuple] = []   # list of (x0,y0,x1,y1) bounding-boxes already drawn
+
+    def try_badge(draw, px, py, text, color, font):
+        """Draw a badge label if there is clear space for it."""
+        try:
+            bbox = draw.textbbox((px, py), text, font=font)
+        except Exception:
+            bbox = (px, py, px + len(text) * 7, py + 14)
+        pad   = 3
+        rb    = (bbox[0]-pad, bbox[1]-pad, bbox[2]+pad, bbox[3]+pad)
+        if _overlaps(rb, placed):
+            return  # skip — too crowded
+        placed.append(rb)
+        draw.rectangle(rb, fill=(255, 255, 255, 220), outline=color, width=1)
+        draw.text((px, py), text, font=font, fill=color)
+
+    # ── Cylinders — filled red circles ────────────────────────────────────────
+    CYL = (210, 40, 40)
     for cyl in features.get("cylinders", []):
-        loc = tuple(cyl["location"])
-        if not _is_loc_visible(loc):
-            continue
+        loc = cyl["location"]
+        if not visible(loc): continue
         px, py = to_px(*loc)
-        r = 9
-        draw.ellipse([px-r, py-r, px+r, py+r], fill=CYL_COLOR, outline="white", width=2)
-        tag = f"{cyl['id']}  R={cyl['radius_mm']}mm  ax={cyl['axis']}"
-        _draw_label(draw, px + 13, py - 7, tag, font_label, CYL_COLOR)
+        r = _marker_radius(cyl, "cylinder")
+        draw.ellipse([px-r, py-r, px+r, py+r], fill=CYL, outline=(255,255,255), width=2)
+        badge = cyl["id"].replace("f","C")  # e.g. "f3" -> "C3"
+        try_badge(draw, px + r + 3, py - 7, badge, CYL, font_badge)
 
-    # ── Plane markers (blue diamonds at face center) ───────────────────────
-    PLN_STRONG = (25, 90, 200)
-    PLN_SIDE   = (80, 140, 220)
-
+    # ── Planes — filled squares (horiz) or diamonds (vert) ────────────────────
+    PLN_H = (25, 90, 200)    # horizontal faces — strong blue square
+    PLN_V = (80, 140, 220)   # vertical/side faces — lighter blue diamond
     for pln in features.get("planes", []):
-        if pln.get("area_mm2", 0) < 0.001:
+        if pln.get("area_mm2", 0) < 0.5:   # skip sub-mm² noise
             continue
-        loc = tuple(pln["location"])
-        if not _is_loc_visible(loc):
-            continue
+        loc = pln["location"]
+        if not visible(loc): continue
         px, py = to_px(*loc)
-        r = 7
-        color = PLN_STRONG if pln.get("face_type") == "horizontal" else PLN_SIDE
-        draw.polygon([
-            (px, py - r), (px + r, py), (px, py + r), (px - r, py)
-        ], fill=color, outline="white")
-        dims = pln.get("dims", [0, 0])
-        ft   = pln.get("face_type", "plane")
-        tag  = f"{pln['id']}  {ft}  {dims[0]:.1f}×{dims[1]:.1f}mm"
-        _draw_label(draw, px + 11, py - 6, tag, font_sm, color)
+        r = _marker_radius(pln, "plane")
+        ft = pln.get("face_type", "vertical")
+        color = PLN_H if ft == "horizontal" else PLN_V
+        if ft == "horizontal":
+            # Square
+            draw.rectangle([px-r, py-r, px+r, py+r], fill=color, outline=(255,255,255), width=2)
+        else:
+            # Diamond
+            draw.polygon([
+                (px, py - r), (px + r, py), (px, py + r), (px - r, py)
+            ], fill=color, outline=(255,255,255))
+        badge = pln["id"].replace("f","P")
+        try_badge(draw, px + r + 3, py - 7, badge, color, font_badge)
 
-    # ── Cone markers ──────────────────────────────────────────────────────
-    CONE_COLOR = (180, 80, 200)
+    # ── Cones — filled purple triangles ──────────────────────────────────────
+    CONE = (180, 80, 200)
     for cone in features.get("cones", []):
-        loc = tuple(cone["location"])
-        if not _is_loc_visible(loc):
-            continue
+        loc = cone["location"]
+        if not visible(loc): continue
         px, py = to_px(*loc)
-        r = 8
+        r = _marker_radius(cone, "cone")
         draw.polygon([
             (px, py - r), (px + r, py + r), (px - r, py + r)
-        ], fill=CONE_COLOR, outline="white")
-        tag = f"{cone['id']}  cone  α={cone['half_angle_deg']}°"
-        _draw_label(draw, px + 11, py - 6, tag, font_sm, CONE_COLOR)
+        ], fill=CONE, outline=(255,255,255), width=1)
+        badge = cone["id"].replace("f","K")  # K = countersink
+        try_badge(draw, px + r + 3, py - 7, badge, CONE, font_badge)
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -485,46 +544,116 @@ def _draw_label(draw, x, y, text, font, color):
     draw.text((x, y), text, font=font, fill=color)
 
 
-def _draw_legend(draw, font_sm, font_label, features):
-    """Draw feature reference table in bottom-left."""
-    x0, y0 = 10, 530
-    line_h  = 17
+def _draw_legend(draw, font_sm, font_bold, font_label, features):
+    """
+    Draw a compact grouped legend in the right-side panel.
 
-    n_meaningful_planes = sum(1 for p in features.get("planes", []) if p.get("area_mm2", 0) >= 0.001)
-    total_rows = len(features.get("cylinders", [])) + n_meaningful_planes + len(features.get("cones", [])) + 1
-    box_h = total_rows * line_h + 24
-    draw.rectangle([x0-4, y0-22, 420, y0 + box_h],
-                   fill=(255, 255, 255), outline=(190, 190, 200), width=1)
-    draw.text((x0, y0 - 18), "FEATURE REFERENCE", font=font_label, fill=(40, 40, 40))
+    Groups:
+      CYLINDERS (N)             — list all (usually few)
+      HORIZ FACES (N)           — top-5 by area + "... N more"
+      VERT / SIDE FACES (N)     — top-5 by area + "... N more"
+      CONES (N)                 — list all
+    """
+    # Panel starts at x = _GEO_W + 10
+    x0     = _GEO_W + 12
+    x_end  = _W - 6
+    y      = 14
+    lh     = 16    # line height
+    MAX_ROWS = 5   # max rows per group before truncating
 
-    row = y0
-    for c in features.get("cylinders", []):
-        draw.ellipse([x0, row+3, x0+11, row+14], fill=(210, 40, 40))
-        draw.text((x0+16, row),
-                  f"{c['id']}  Cylinder   R={c['radius_mm']}mm   axis={c['axis']}   loc={c['location']}",
-                  font=font_sm, fill=(170, 30, 30))
-        row += line_h
+    CYL  = (210, 40, 40)
+    PLN_H = (25, 90, 200)
+    PLN_V = (80, 140, 220)
+    CONE = (180, 80, 200)
+    HDR  = (40,  40,  40)
+    SEP  = (190, 195, 210)
 
-    for p in features.get("planes", []):
-        if p.get("area_mm2", 0) < 0.001:
-            continue
-        ft   = p.get("face_type", "plane")
+    def section_header(title, count, color):
+        nonlocal y
+        draw.line([(x0, y+2), (x_end, y+2)], fill=SEP, width=1)
+        y += 6
+        draw.text((x0, y), f"{title}  ({count})", font=font_bold, fill=color)
+        y += lh + 2
+
+    def icon_row(shape, color, text):
+        nonlocal y
+        if shape == "circle":
+            draw.ellipse([x0, y+2, x0+10, y+12], fill=color)
+        elif shape == "square":
+            draw.rectangle([x0, y+2, x0+10, y+12], fill=color)
+        elif shape == "diamond":
+            mx = x0 + 5
+            draw.polygon([(mx, y+1),(x0+10, y+7),(mx, y+13),(x0, y+7)], fill=color)
+        elif shape == "triangle":
+            draw.polygon([(x0+5, y+1),(x0+11, y+13),(x0-1, y+13)], fill=color)
+        # Clip text to panel width
+        max_chars = int((x_end - x0 - 14) / 6.5)
+        clipped = text if len(text) <= max_chars else text[:max_chars-1] + "…"
+        draw.text((x0 + 14, y), clipped, font=font_sm, fill=(50, 50, 50))
+        y += lh
+
+    def note_row(text):
+        nonlocal y
+        draw.text((x0 + 14, y), text, font=font_sm, fill=(120, 120, 130))
+        y += lh
+
+    # Title
+    draw.text((x0, y), "FEATURE REFERENCE", font=font_label, fill=HDR)
+    y += lh + 4
+
+    # ── Cylinders ───────────────────────────────────
+    cyls = features.get("cylinders", [])
+    section_header("● CYLINDERS", len(cyls), CYL)
+    if not cyls:
+        note_row("  none detected")
+    for c in cyls:
+        fid  = c["id"]
+        r    = c["radius_mm"]
+        axis = c.get("axis", "?")
+        icon_row("circle", CYL, f"{fid}  R={r}mm  axis={axis}")
+
+    y += 4
+    # ── Horizontal flat faces ────────────────────────
+    h_planes = sorted(
+        [p for p in features.get("planes", []) if p.get("face_type") == "horizontal" and p.get("area_mm2",0) >= 0.5],
+        key=lambda p: -p.get("area_mm2", 0)
+    )
+    section_header("■ HORIZ FACES", len(h_planes), PLN_H)
+    if not h_planes:
+        note_row("  none detected")
+    for p in h_planes[:MAX_ROWS]:
         dims = p.get("dims", [0, 0])
-        n    = p["normal"]
-        color = (25, 90, 200) if ft == "horizontal" else (80, 140, 220)
-        draw.polygon([(x0+5, row), (x0+11, row+11), (x0-1, row+11)], fill=color)
-        draw.text((x0+16, row),
-                  f"{p['id']}  {ft}   {dims[0]:.1f}×{dims[1]:.1f}mm   n=[{n[0]:.0f},{n[1]:.0f},{n[2]:.0f}]   area={p['area_mm2']:.1f}mm²",
-                  font=font_sm, fill=color)
-        row += line_h
+        z    = round(p["location"][2], 1)
+        icon_row("square", PLN_H, f"{p['id']}  {dims[0]:.1f}×{dims[1]:.1f}mm  z={z}mm")
+    if len(h_planes) > MAX_ROWS:
+        note_row(f"  … {len(h_planes)-MAX_ROWS} more (use zoom)")
 
-    for cone in features.get("cones", []):
-        draw.polygon([(x0+5, row), (x0+11, row+11), (x0-1, row+11)], fill=(180, 80, 200))
-        draw.text((x0+16, row),
-                  f"{cone['id']}  Cone   half_angle={cone['half_angle_deg']}°",
-                  font=font_sm, fill=(140, 50, 170))
-        row += line_h
+    y += 4
+    # ── Vertical / side flat faces ───────────────────
+    v_planes = sorted(
+        [p for p in features.get("planes", []) if p.get("face_type") != "horizontal" and p.get("area_mm2",0) >= 0.5],
+        key=lambda p: -p.get("area_mm2", 0)
+    )
+    section_header("◆ VERT FACES", len(v_planes), PLN_V)
+    if not v_planes:
+        note_row("  none detected")
+    for p in v_planes[:MAX_ROWS]:
+        dims = p.get("dims", [0, 0])
+        n    = p.get("normal", [0, 0, 0])
+        icon_row("diamond", PLN_V,
+                 f"{p['id']}  {dims[0]:.1f}×{dims[1]:.1f}mm  n=[{n[0]:.0f},{n[1]:.0f},{n[2]:.0f}]")
+    if len(v_planes) > MAX_ROWS:
+        note_row(f"  … {len(v_planes)-MAX_ROWS} more (zoom in)")
 
+    y += 4
+    # ── Cones / countersinks ─────────────────────────
+    cones = features.get("cones", [])
+    section_header("▲ CONES", len(cones), CONE)
+    if not cones:
+        note_row("  none detected")
+    for cone in cones:
+        ang = cone.get("half_angle_deg", "?")
+        icon_row("triangle", CONE, f"{cone['id']}  half-angle={ang}°")
 
 if __name__ == "__main__":
     import sys

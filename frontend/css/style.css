@@ -590,8 +590,15 @@ body {
     line-height: 1.4;
 }
 
-.preview-btn {
+.upload-btn-row {
     margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.preview-btn,
+.view3d-btn {
     padding: 8px 18px;
     background: var(--dark-gray);
     color: var(--white);
@@ -599,18 +606,28 @@ body {
     font-size: 13px;
     font-weight: 500;
     cursor: pointer;
-    align-self: flex-start;
     transition: background 0.15s;
+    flex-shrink: 0;
 }
 
-.preview-btn:hover:not(:disabled) {
+.preview-btn:hover:not(:disabled),
+.view3d-btn:hover:not(:disabled) {
     background: var(--black);
 }
 
-.preview-btn:disabled {
+.preview-btn:disabled,
+.view3d-btn:disabled {
     background: var(--mid-gray);
     color: var(--text-gray);
     cursor: not-allowed;
+}
+
+.view3d-btn {
+    background: #1a3a5c;
+}
+
+.view3d-btn:hover:not(:disabled) {
+    background: #0f2540;
 }
 
 .edit-area {
@@ -704,7 +721,8 @@ body {
     padding: 16px;
     background: var(--white);
     position: relative;
-    cursor: zoom-in;
+    cursor: grab;
+    /* pan affordance; JS sets grabbing while dragging */
 }
 
 .view-main-img {
@@ -713,9 +731,12 @@ body {
     object-fit: contain;
     display: block;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-    transition: transform 0.12s ease;
-    transform-origin: center center;
+    transition: transform 0.08s ease;
+    transform-origin: 0 0;
+    /* matches translate+scale system in JS */
     user-select: none;
+    -webkit-user-drag: none;
+    /* prevent native image drag interfering with pan */
 }
 
 .view-main-label {
@@ -771,4 +792,156 @@ body {
     margin-left: 8px;
     font-size: 11px;
     color: var(--text-gray);
+}
+
+/* ========================================
+   Three.js STEP Viewer
+   ======================================== */
+#step3d-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #111418;
+    overflow: hidden;
+}
+
+#step3d-canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Status / empty-state overlay */
+#step3d-status {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #6a7280;
+    pointer-events: none;
+    text-align: center;
+    padding: 24px;
+    letter-spacing: 0.3px;
+}
+
+/* Loading spinner overlay */
+.step3d-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(17, 20, 24, 0.75);
+    z-index: 10;
+}
+
+.step3d-loading.hidden {
+    display: none;
+}
+
+.step3d-spinner {
+    width: 28px;
+    height: 28px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-top-color: #7090b0;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+}
+
+#step3d-loading-text {
+    font-size: 12px;
+    color: #9aa3af;
+    letter-spacing: 0.5px;
+}
+
+/* Viewer toolbar – floating top-right */
+.step3d-toolbar {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 20;
+}
+
+.step3d-btn {
+    padding: 6px 12px;
+    background: rgba(30, 35, 42, 0.88);
+    color: #c8d0da;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: background 0.15s, color 0.15s;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+    white-space: nowrap;
+}
+
+.step3d-btn:hover {
+    background: rgba(60, 70, 85, 0.95);
+    color: #ffffff;
+}
+
+.step3d-btn.active {
+    background: rgba(40, 80, 130, 0.9);
+    color: #a8c8f0;
+    border-color: rgba(100, 160, 240, 0.3);
+}
+
+/* ========================================
+   Face-click tooltip
+   ======================================== */
+.step3d-face-tip {
+    position: absolute;
+    z-index: 30;
+    pointer-events: none;
+    /* pass clicks through to canvas */
+    background: rgba(14, 18, 24, 0.92);
+    border: 1px solid rgba(240, 160, 32, 0.55);
+    border-radius: 6px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 90px;
+    max-width: 220px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    animation: tipFadeIn 0.12s ease;
+}
+
+@keyframes tipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.face-tip-id {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 700;
+    color: #f0a020;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+}
+
+.face-tip-name {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #9aa5b4;
+    word-break: break-all;
+    line-height: 1.3;
 }

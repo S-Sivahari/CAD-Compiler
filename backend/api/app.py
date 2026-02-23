@@ -5,6 +5,9 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent.parent))
 
+# Absolute path to the frontend directory (two levels up from backend/api/)
+FRONTEND_DIR = Path(__file__).parent.parent.parent / 'frontend'
+
 from api.routes import generation_routes, parameter_routes, template_routes, viewer_routes, cleanup_routes, edit_routes
 from utils.logger import api_logger
 from utils.errors import SynthoCadError
@@ -23,7 +26,22 @@ def create_app():
     app.register_blueprint(cleanup_routes.bp, url_prefix='/api/v1/cleanup')
     app.register_blueprint(edit_routes.bp, url_prefix='/api/v1/edit')
     
+    # ── Serve Frontend ────────────────────────────────────────────────────────
+    @app.route('/')
+    def serve_index():
+        """Serve the SynthoCAD frontend"""
+        return send_from_directory(FRONTEND_DIR, 'index.html')
+
+    @app.route('/<path:filename>')
+    def serve_frontend_asset(filename):
+        """Serve frontend static assets (CSS, JS, images, etc.)"""
+        # Don't intercept /api/ or /outputs/ routes
+        if filename.startswith('api/') or filename.startswith('outputs/'):
+            return jsonify({'error': 'Not found'}), 404
+        return send_from_directory(FRONTEND_DIR, filename)
+
     # Serve static files from outputs directory
+
     @app.route('/outputs/<path:subpath>/<filename>')
     def serve_output_file(subpath, filename):
         """Serve generated files (JSON, Python, STEP, images) from outputs directory"""
