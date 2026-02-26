@@ -15,16 +15,30 @@ python backend/llm_cli.py -p "Create a cylinder 10mm radius, 20mm tall"
 python backend/llm_cli.py
 ```
 
-### Web Interface
+### Web Interface (Recommended)
 ```bash
-# Start backend API
+# Start the server (serves both frontend and API)
 cd backend
 python api/app.py
 
-# Open frontend (in another terminal)
+# Open in browser
+# http://localhost:5000
+```
+
+**Note:** The Flask backend automatically serves the frontend on port 5000. You don't need a separate frontend server.
+
+### Web Interface (Development Mode - Optional)
+```bash
+# Only needed for frontend development with hot-reload
+# Terminal 1: Backend API
+cd backend
+python api/app.py
+
+# Terminal 2: Frontend dev server
 cd frontend
 python -m http.server 8000
 # Open http://localhost:8000 in browser
+# (Frontend will still call API at localhost:5000)
 ```
 
 ---
@@ -186,14 +200,22 @@ python api/app.py
 
 Backend will run on `http://localhost:5000`
 
-### 6. Start Frontend
+### 6. Access the Application
+
+**The Flask backend automatically serves the frontend on port 5000. Just open:**
+
+```
+http://localhost:5000
+```
+
+**Optional: Separate Frontend Server (for development only)**
 
 ```bash
 cd frontend
 
 # Option 1: Python http server
 python -m http.server 8000
-# Open http://localhost:8000
+# Open http://localhost:8000 (still calls API at :5000)
 
 # Option 2: Node.js serve
 npx serve
@@ -209,7 +231,7 @@ npx serve
 
 ### Web Interface (Recommended)
 
-1. **Open** `http://localhost:8000` in browser
+1. **Open** `http://localhost:5000` in browser
 2. **Generate Tab**: Enter natural language description or JSON
 3. **Parameters Tab**: Extract and modify parameters
 4. **Cleanup Tab**: Manage storage and cleanup old files
@@ -590,7 +612,7 @@ Open source - use for learning/research.
 - **Issues**: Report bugs and feature requests
 - **Logs**: Check `outputs/logs/` for debugging
 - **Health Check**: `http://localhost:5000/api/v1/health`
-- **Frontend**: `http://localhost:8000`
+- **Application**: `http://localhost:5000`
 
 **System Status Indicators:**
 - 🟢 Backend: Online
@@ -603,9 +625,9 @@ Open source - use for learning/research.
 ## 🚀 Quick Reference
 
 ```bash
-# Start everything
-python backend/api/app.py &
-cd frontend && python -m http.server 8000
+# Start server (serves both frontend and API)
+cd backend
+python api/app.py
 
 # Generate model (CLI)
 python backend/llm_cli.py -p "cylinder 20mm x 50mm"
@@ -619,9 +641,9 @@ curl -X POST http://localhost:5000/api/v1/generate/from-prompt \
 curl http://localhost:5000/api/v1/cleanup/stats
 
 # Open browser
-# Windows: start http://localhost:8000
-# Mac: open http://localhost:8000
-# Linux: xdg-open http://localhost:8000
+# Windows: start http://localhost:5000
+# Mac: open http://localhost:5000
+# Linux: xdg-open http://localhost:5000
 ```
 
 ---

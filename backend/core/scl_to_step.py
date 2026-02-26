@@ -17,7 +17,8 @@ if __name__ == "__main__":
     with open(json_file_path, 'r') as f:
         json_data = json.load(f)
     
-    pipeline = SynthoCadPipeline()
+    from core import config as _cfg
+    pipeline = SynthoCadPipeline(rag_provider=_cfg.get_rag_provider())
     result = pipeline.process_from_json(json_data, open_freecad=False)
     
     if result['status'] == 'success':

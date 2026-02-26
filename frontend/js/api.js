@@ -62,7 +62,7 @@ class SynthoCADAPI {
     // ========== Parameter APIs ==========
 
     async extractParameters(filename) {
-        return this.request(`/parameters/extract/${filename}`, {
+        return this.request(`/parameters/extract/${filename}?method=legacy`, {
             method: 'GET'
         });
     }
@@ -82,7 +82,7 @@ class SynthoCADAPI {
     }
 
     async updateAndRegenerate(filename, parameters) {
-        return this.request(`/parameters/update/${filename}`, {
+        return this.request(`/parameters/regenerate/${filename}`, {
             method: 'POST',
             body: JSON.stringify({ parameters })
         });
@@ -103,6 +103,13 @@ class SynthoCADAPI {
     async viewStepFile(filename) {
         return this.request(`/parameters/view/step/${filename}`, {
             method: 'GET'
+        });
+    }
+
+    async previewStepByName(filename) {
+        return this.request(`/edit/preview-by-name`, {
+            method: 'POST',
+            body: JSON.stringify({ filename })
         });
     }
 

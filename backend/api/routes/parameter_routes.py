@@ -15,38 +15,33 @@ from utils.errors import ParameterUpdateError
 from core import config
 
 bp = Blueprint('parameters', __name__)
-extractor = ParameterExtractor()  # Legacy regex-based
-ai_extractor = AIParameterExtractor()  # AI-powered (most accurate)
+extractor = ParameterExtractor()  # AST-based (default, most reliable)
+ai_extractor = AIParameterExtractor()  # AI-powered (LLM fallback)
 intelligent_extractor = IntelligentParameterExtractor()  # Rule-based JSON parser
 updater = ParameterUpdater()
-pipeline = SynthoCadPipeline()  # For regeneration
+pipeline = SynthoCadPipeline(rag_provider=config.get_rag_provider())
 
 
 @bp.route('/extract/<filename>', methods=['GET'])
 def extract_parameters(filename):
     """
-    Extract parameters using AI-powered extraction (most accurate)
+    Extract parameters from generated CadQuery Python file.
     Query params:
-    - method: 'ai' (default), 'intelligent', 'legacy'
+    - method: 'legacy' (default, AST-based), 'ai', 'intelligent'
     """
     
-    method = request.args.get('method', 'ai')
+    method = request.args.get('method', 'legacy')
     
     # Find corresponding files
     base_name = filename.replace('_generated.py', '')
     json_file = config.JSON_OUTPUT_DIR / f"{base_name}.json"
     py_file = config.PY_OUTPUT_DIR / filename
     
-    if not json_file.exists():
-        return jsonify({
-            'error': True,
-            'message': f'JSON file not found: {base_name}.json'
-        }), 404
-    
     try:
         # Choose extraction method
         if method == 'ai':
-            # AI-powered extraction (most accurate)
+            if not json_file.exists():
+                return jsonify({'error': True, 'message': f'JSON file not found: {base_name}.json'}), 404
             params_data = ai_extractor.extract_with_fallback(
                 str(json_file), 
                 str(py_file) if py_file.exists() else None
@@ -54,12 +49,13 @@ def extract_parameters(filename):
             markdown = ai_extractor.generate_markdown(params_data)
         
         elif method == 'intelligent':
-            # Rule-based JSON parsing
+            if not json_file.exists():
+                return jsonify({'error': True, 'message': f'JSON file not found: {base_name}.json'}), 404
             params_data = intelligent_extractor.extract_from_json(str(json_file))
             markdown = "# Parameters\n\n" + json.dumps(params_data['parameters'], indent=2)
         
         else:
-            # Legacy regex-based (fallback)
+            # AST-based extraction (default — fast, reliable, no LLM needed)
             if not py_file.exists():
                 return jsonify({
                     'error': True,
@@ -183,14 +179,23 @@ def regenerate_step(filename):
         api_logger.info(f"Regenerating {output_name} with updated parameters")
         step_file = pipeline.regenerate_from_updated_python(
             str(py_file), 
-            output_name
+            output_name,
+            open_freecad=False
         )
         
         api_logger.info(f"Successfully regenerated: {step_file}")
 
-        # Check for GLB
-        from core import config as cfg
-        glb_file = cfg.GLB_OUTPUT_DIR / f"{output_name}.glb"
+        # Check for GLB (optional — may not exist)
+        glb_url = None
+        try:
+            from core import config as cfg
+            glb_dir = getattr(cfg, 'GLB_OUTPUT_DIR', None)
+            if glb_dir:
+                glb_file = glb_dir / f"{output_name}.glb"
+                if glb_file.exists():
+                    glb_url = f'/outputs/glb/{output_name}.glb'
+        except Exception:
+            pass
         
         return jsonify({
             'success': True,
@@ -198,7 +203,7 @@ def regenerate_step(filename):
             'message': f'Regenerated with {len(parameters)} updated parameters',
             'py_file': str(py_file),
             'step_file': step_file,
-            'glb_url': f'/outputs/glb/{output_name}.glb' if glb_file.exists() else None,
+            'glb_url': glb_url,
             'updated_parameters': list(parameters.keys())
         }), 200
         

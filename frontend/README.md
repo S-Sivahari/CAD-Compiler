@@ -52,23 +52,33 @@ Modern web interface for SynthoCAD - AI-Powered CAD Generation Platform
 
 ### Installation
 
-1. **No build process required!** Simply open `index.html` in your browser
+**Option 1: Access via Flask Backend (Recommended)**
 
-2. **Or use a local server** (recommended):
+The Flask backend automatically serves the frontend. Just start the backend and open:
 
-   ```bash
-   # Using Python
-   cd frontend
-   python -m http.server 8000
-   # Open http://localhost:8000
+```bash
+cd backend
+python api/app.py
+# Open http://localhost:5000
+```
 
-   # Using Node.js
-   npx serve
-   # Open http://localhost:3000
+**Option 2: Separate Frontend Server (Development Only)**
 
-   # Using VS Code Live Server extension
-   # Right-click on index.html -> "Open with Live Server"
-   ```
+For frontend development with live editing:
+
+```bash
+# Using Python
+cd frontend
+python -m http.server 8000
+# Open http://localhost:8000 (API calls still go to :5000)
+
+# Using Node.js
+npx serve
+# Open http://localhost:3000
+
+# Using VS Code Live Server extension
+# Right-click on index.html -> "Open with Live Server"
+```
 
 ### Configuration
 

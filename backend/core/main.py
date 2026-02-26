@@ -18,6 +18,7 @@ from services.freecad_instance_generator import FreeCADInstanceGenerator
 from services.gemini_service import call_gemini
 from services.error_recovery_service import ErrorRecoveryService, RetryConfig, RetryableError
 from services.template_index import TemplateIndex
+from rag.provider import RAGProvider, RAGResult, NullRAGProvider
 from utils.errors import *
 from utils.logger import pipeline_logger
 from core import config
@@ -26,7 +27,7 @@ from core.schema_loader import build_generation_prompt
 
 class SynthoCadPipeline:
 
-    def __init__(self):
+    def __init__(self, rag_provider: Optional[RAGProvider] = None):
         self.prompt_validator = PromptValidator()
         self.generator = CadQueryGenerator
         self.param_extractor = ParameterExtractor()
@@ -34,6 +35,7 @@ class SynthoCadPipeline:
         self.freecad = FreeCADInstanceGenerator()
         self.logger = pipeline_logger
         self.template_index = TemplateIndex(config.TEMPLATES_DIR)
+        self.rag_provider = rag_provider or NullRAGProvider()
 
         self.error_recovery = ErrorRecoveryService(logger=pipeline_logger)
         self.retry_config = RetryConfig(
@@ -72,13 +74,43 @@ class SynthoCadPipeline:
 
         system_prompt = build_generation_prompt()
 
+        # ── Gather examples: keyword templates + RAG results ──────────
         templates = self.template_index.find_relevant_templates(prompt, max_results=3)
 
+        rag_results: list = []
+        if self.rag_provider.is_ready():
+            try:
+                rag_results = self.rag_provider.query(prompt, n_results=3)
+                self.logger.info(f"RAG returned {len(rag_results)} results")
+            except Exception as exc:
+                self.logger.warning(f"RAG query failed (non-fatal): {exc}")
+
+        # Merge & deduplicate (prefer RAG results when names overlap)
+        seen_names: set = set()
+        merged_examples: list = []
+
+        for rr in rag_results:
+            name = rr.json_data.get("final_name", "")
+            if name and name in seen_names:
+                continue
+            seen_names.add(name)
+            merged_examples.append(rr.json_data)
+
+        for t in templates:
+            name = t.get("final_name", "")
+            if name and name in seen_names:
+                continue
+            seen_names.add(name)
+            merged_examples.append(t)
+
+        # Cap at 5 examples to avoid token bloat
+        merged_examples = merged_examples[:5]
+
         examples_text = ""
-        if templates:
+        if merged_examples:
             examples_text = "\n\nREFERENCE EXAMPLES (use these as guides for correct structure and scaling):\n"
-            for i, t in enumerate(templates[:3], 1):
-                clean = {k: v for k, v in t.items() if not k.startswith("_")}
+            for i, ex in enumerate(merged_examples, 1):
+                clean = {k: v for k, v in ex.items() if not k.startswith("_")}
                 examples_text += f"\nExample {i}:\n{json.dumps(clean, indent=2)}\n"
 
         full_prompt = f"{system_prompt}{examples_text}\n\nUSER REQUEST: {prompt}\n\nGenerate the SCL JSON output:"
@@ -387,7 +419,7 @@ if __name__ == "__main__":
     with open(json_file_path, "r") as f:
         json_data = json.load(f)
 
-    pipeline = SynthoCadPipeline()
+    pipeline = SynthoCadPipeline(rag_provider=config.get_rag_provider())
     result = pipeline.process_from_json(json_data, open_freecad=False)
 
     if result["status"] == "success":

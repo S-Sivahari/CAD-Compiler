@@ -14,16 +14,63 @@ const state = {
     previewFile: null,          // Currently selected File object for preview
     previewImageUrls: [],       // [{view, label, url}] from last preview
     previewFeatures: null,      // features dict from last preview
+    lastGeneratedPrompt: null,  // prompt used for last generation (pencil icon)
 };
+
+/** Reset upload-related UI and state */
+function clearUploadState() {
+    state.previewFile = null;
+    state.previewImageUrls = [];
+    state.previewFeatures = null;
+    const dz = DOM.dropZone();
+    if (dz) { dz.classList.remove('has-file'); }
+    const dzt = DOM.dropZoneText();
+    if (dzt) { dzt.textContent = 'Drop .step file or click to browse'; }
+    const fi = DOM.stepFileInput();
+    if (fi) { fi.value = ''; }
+    const r3d = DOM.render3dBtn();
+    if (r3d) { r3d.disabled = true; }
+    const ue = DOM.uploadError();
+    if (ue) { ue.textContent = ''; }
+    // Reset step code viewer for uploads
+    const scc = document.getElementById('step-code-container');
+    if (scc) scc.style.display = 'none';
+}
+
+/** Reset generate-related UI and state */
+function clearGenerateState() {
+    state.currentModel = null;
+    state.parameters = [];
+    state.lastGeneratedPrompt = null;
+    DOM.promptInput().value = '';
+    const editBtn = DOM.promptEditBtn();
+    if (editBtn) editBtn.classList.add('hidden');
+    // Reset viewers
+    const jv = DOM.jsonViewer();
+    if (jv) jv.textContent = 'Generate a model to view JSON output';
+    const pv = DOM.pythonViewer();
+    if (pv) pv.textContent = 'Generate a model to view Python code';
+    const si = DOM.stepInfo();
+    if (si) si.innerHTML = '<p class="step-placeholder">Generate a model to view STEP file</p>';
+    const scc = document.getElementById('step-code-container');
+    if (scc) scc.style.display = 'none';
+    const pf = DOM.parametersForm();
+    if (pf) pf.innerHTML = '<p class="params-placeholder">Generate a model to edit parameters</p>';
+    DOM.regenerateBtn().classList.add('hidden');
+    // Deselect template
+    const list = DOM.templatesSelect();
+    if (list) list.querySelectorAll('.template-item').forEach(el => el.classList.remove('active'));
+}
 
 // ========================================
 // DOM References
 // ========================================
 const DOM = {
     promptInput: () => document.getElementById('prompt-input'),
+    promptEditBtn: () => document.getElementById('prompt-edit-btn'),
     generateBtn: () => document.getElementById('generate-btn'),
     errorMessage: () => document.getElementById('error-message'),
-    templatesSelect: () => document.getElementById('templates-select'),
+    templatesSelect: () => document.getElementById('templates-list'),
     regenerateBtn: () => document.getElementById('regenerate-btn'),
     loadingOverlay: () => document.getElementById('loading-overlay'),
     loadingMessage: () => document.getElementById('loading-message'),
@@ -41,13 +88,8 @@ const DOM = {
     dropZone: () => document.getElementById('drop-zone'),
     stepFileInput: () => document.getElementById('step-file-input'),
     dropZoneText: () => document.getElementById('drop-zone-text'),
-    previewBtn: () => document.getElementById('preview-btn'),
-    view3dBtn: () => document.getElementById('view3d-btn'),
-    previewError: () => document.getElementById('preview-error'),
-    editArea: () => document.getElementById('edit-area'),
-    editPromptInput: () => document.getElementById('edit-prompt-input'),
-    editBtn: () => document.getElementById('edit-btn'),
-    editError: () => document.getElementById('edit-error'),
+    render3dBtn: () => document.getElementById('render3d-btn'),
+    uploadError: () => document.getElementById('upload-error'),
     // Preview gallery
     previewPlaceholder: () => document.getElementById('preview-placeholder'),
     previewViewer: () => document.getElementById('preview-viewer'),
@@ -72,15 +114,33 @@ function setupEventListeners() {
     // Generate button
     DOM.generateBtn().addEventListener('click', handleGenerate);
 
-    // Enter key in prompt
+    // Enter key in prompt (Ctrl+Enter)
     DOM.promptInput().addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && e.ctrlKey) handleGenerate();
     });
 
-    // Templates dropdown
-    DOM.templatesSelect().addEventListener('change', handleTemplateSelect);
+    // Pencil icon — show modified state when prompt changes after generation
+    DOM.promptInput().addEventListener('input', () => {
+        const editBtn = DOM.promptEditBtn();
+        if (!editBtn || !state.currentModel) return;
+        const current = DOM.promptInput().value.trim();
+        if (current !== state.lastGeneratedPrompt) {
+            editBtn.classList.add('modified');
+        } else {
+            editBtn.classList.remove('modified');
+        }
+    });
 
-    // Regenerate button
+    // Pencil icon click — focus the textarea
+    const pencilBtn = DOM.promptEditBtn();
+    if (pencilBtn) {
+        pencilBtn.addEventListener('click', () => DOM.promptInput().focus());
+    }
+
+    // Templates list
+    // (event delegation handled inside loadTemplates)
+
+    // Regenerate button (parameters)
     DOM.regenerateBtn().addEventListener('click', handleRegenerate);
 
     // Visualize button (3D viewer)
@@ -88,15 +148,15 @@ function setupEventListeners() {
 
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+        tab.addEventListener('click', () => {
+            switchTab(tab.dataset.tab);
+        });
     });
 
-    // ── Upload / Preview ──────────────────────────────────────────────────
+    // ── Upload / Render 3D ──────────────────────────────────────────────────
     const dropZone = DOM.dropZone();
     const fileInput = DOM.stepFileInput();
 
-    // The file input already covers the entire drop zone (position:absolute, full size),
-    // so clicks propagate naturally — no extra click listener needed (that caused double dialog).
     fileInput.addEventListener('change', () => {
         const file = fileInput.files[0];
         if (file) selectStepFile(file);
@@ -115,27 +175,24 @@ function setupEventListeners() {
         if (file && (file.name.endsWith('.step') || file.name.endsWith('.stp'))) {
             selectStepFile(file);
         } else {
-            DOM.previewError().textContent = 'Only .step / .stp files are accepted.';
+            DOM.uploadError().textContent = 'Only .step / .stp files are accepted.';
         }
     });
 
-    // Preview button
-    DOM.previewBtn().addEventListener('click', handlePreview);
-
-    // View 3D button
-    DOM.view3dBtn().addEventListener('click', async () => {
-        if (!state.previewFile) return;
-        switchTab('freecad');
-        await stepViewer.loadStepFile(state.previewFile);
-    });
-
-    // Edit STEP button
-    DOM.editBtn().addEventListener('click', handleEditStep);
+    // Render 3D button
+    DOM.render3dBtn().addEventListener('click', handleRender3D);
 }
 
 // ========================================
 // Tab Management
 // ========================================
+/** Show only the tabs whose data-tab is in the given list */
+function setVisibleTabs(visibleList) {
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.style.display = visibleList.includes(tab.dataset.tab) ? '' : 'none';
+    });
+}
+
 function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(tab => {
         tab.classList.toggle('active', tab.dataset.tab === tabName);
@@ -239,13 +296,15 @@ async function loadParameters() {
         regenBtn.classList.remove('hidden');
         form.innerHTML = result.parameters.map((param, i) => `
             <div class="param-row">
-                <span class="param-name">${param.name}</span>
-                <span class="param-type">${param.type}</span>
+                <span class="param-name" title="${param.name}">${param.description || param.name}</span>
+                <span class="param-type">${param.unit || param.type}</span>
                 <input 
                     type="number" 
                     class="param-input" 
                     id="param-${i}"
                     value="${param.value}"
+                    min="${param.min != null ? param.min : ''}"
+                    max="${param.max != null ? param.max : ''}"
                     step="0.1"
                 />
             </div>
@@ -254,6 +313,131 @@ async function loadParameters() {
         form.innerHTML = `<p class="params-placeholder">Error: ${error.message}</p>`;
         regenBtn.classList.add('hidden');
     }
+}
+
+/**
+ * Read an uploaded STEP file client-side and show the raw text in the STEP tab.
+ */
+function loadUploadedStepContent(file) {
+    const infoEl = document.getElementById('step-info');
+    const codeContainer = document.getElementById('step-code-container');
+    const codeViewer = document.getElementById('step-code-viewer');
+
+    // Show file metadata
+    const sizeKB = (file.size / 1024).toFixed(1);
+    infoEl.innerHTML = `
+        <div class="step-details">
+            <div class="step-row">
+                <span class="step-label">Filename</span>
+                <span class="step-value">${file.name}</span>
+            </div>
+            <div class="step-row">
+                <span class="step-label">Size</span>
+                <span class="step-value">${sizeKB} KB</span>
+            </div>
+        </div>
+    `;
+
+    // Read and display raw STEP text
+    const reader = new FileReader();
+    reader.onload = () => {
+        codeViewer.textContent = reader.result;
+        codeContainer.style.display = '';
+    };
+    reader.onerror = () => {
+        codeViewer.textContent = 'Failed to read file.';
+        codeContainer.style.display = '';
+    };
+    reader.readAsText(file);
+}
+
+/**
+ * Display features from STEP analysis as read-only info in the parameters panel.
+ */
+function displayFeatures(features) {
+    const form = DOM.parametersForm();
+    const regenBtn = DOM.regenerateBtn();
+    regenBtn.classList.add('hidden');
+
+    if (!features || Object.keys(features).length === 0) {
+        form.innerHTML = '<p class="params-placeholder">No features detected</p>';
+        return;
+    }
+
+    let html = '';
+
+    // Bounding box
+    if (features.bounding_box) {
+        const bb = features.bounding_box;
+        html += '<div class="param-section-label">Bounding Box</div>';
+        [['x_mm', 'X'], ['y_mm', 'Y'], ['z_mm', 'Z']].forEach(([key, label]) => {
+            if (bb[key] != null) {
+                html += `<div class="param-row">
+                    <span class="param-name">${label} length</span>
+                    <span class="param-value-ro">${Number(bb[key]).toFixed(2)} mm</span>
+                </div>`;
+            }
+        });
+    }
+
+    // Face count
+    if (features.face_count) {
+        html += `<div class="param-row">
+            <span class="param-name">Total faces</span>
+            <span class="param-value-ro">${features.face_count}</span>
+        </div>`;
+    }
+
+    // Summary text
+    if (features.summary) {
+        html += '<div class="param-section-label">Summary</div>';
+        html += `<p class="feature-summary">${features.summary}</p>`;
+    }
+
+    // Cylinders
+    if (features.cylinders && features.cylinders.length > 0) {
+        html += `<div class="param-section-label">Cylinders (${features.cylinders.length})</div>`;
+        // Show unique radii
+        const uniqueRadii = [...new Set(features.cylinders.map(c => c.radius_mm))].sort((a, b) => a - b);
+        uniqueRadii.forEach(r => {
+            const count = features.cylinders.filter(c => c.radius_mm === r).length;
+            html += `<div class="param-row">
+                <span class="param-name">r=${Number(r).toFixed(2)}mm</span>
+                <span class="param-value-ro">×${count} face${count > 1 ? 's' : ''}</span>
+            </div>`;
+        });
+    }
+
+    // Cones
+    if (features.cones && features.cones.length > 0) {
+        html += `<div class="param-section-label">Cones (${features.cones.length})</div>`;
+        features.cones.slice(0, 5).forEach((c, i) => {
+            html += `<div class="param-row">
+                <span class="param-name">${c.id} apex r</span>
+                <span class="param-value-ro">${Number(c.apex_radius_mm).toFixed(2)} mm</span>
+            </div>`;
+        });
+    }
+
+    // Tori (fillets)
+    if (features.tori && features.tori.length > 0) {
+        html += `<div class="param-section-label">Fillets / Tori (${features.tori.length})</div>`;
+        const uniqueMinor = [...new Set(features.tori.map(t => t.minor_radius_mm))].sort((a, b) => a - b);
+        uniqueMinor.forEach(r => {
+            const count = features.tori.filter(t => t.minor_radius_mm === r).length;
+            html += `<div class="param-row">
+                <span class="param-name">fillet r=${Number(r).toFixed(2)}mm</span>
+                <span class="param-value-ro">×${count}</span>
+            </div>`;
+        });
+    }
+
+    // Planes
+    if (features.planes && features.planes.length > 0) {
+        html += `<div class="param-section-label">Planes (${features.planes.length})</div>`;
+    }
+
+    form.innerHTML = html || '<p class="params-placeholder">No extractable features</p>';
 }
 
 // ========================================
@@ -268,40 +452,37 @@ const PREDEFINED_TEMPLATES = [
 ];
 
 async function loadTemplates() {
-    const select = DOM.templatesSelect();
+    const list = DOM.templatesSelect();
+    list.innerHTML = '';
+
+    function renderList(templates) {
+        state.templates = templates;
+        templates.forEach(t => {
+            const item = document.createElement('div');
+            item.className = 'template-item';
+            item.textContent = t.name;
+            item.dataset.name = t.name;
+            item.addEventListener('click', () => {
+                list.querySelectorAll('.template-item').forEach(el => el.classList.remove('active'));
+                item.classList.add('active');
+                DOM.promptInput().value = t.prompt || `Create a ${t.name}`;
+            });
+            list.appendChild(item);
+        });
+    }
+
     try {
         const templates = await api.getTemplates();
         if (templates && templates.length > 0) {
-            state.templates = templates;
-            templates.forEach(t => {
-                const option = document.createElement('option');
-                option.value = t.name;
-                option.textContent = t.name;
-                select.appendChild(option);
-            });
+            renderList(templates);
             return;
         }
     } catch (error) {
         console.log('Backend templates not available, using predefined');
     }
-    state.templates = PREDEFINED_TEMPLATES;
-    PREDEFINED_TEMPLATES.forEach(t => {
-        const option = document.createElement('option');
-        option.value = t.name;
-        option.textContent = t.name;
-        select.appendChild(option);
-    });
+    renderList(PREDEFINED_TEMPLATES);
 }
 
-function handleTemplateSelect(e) {
-    const templateName = e.target.value;
-    if (!templateName) return;
-    const template = state.templates.find(t => t.name === templateName);
-    if (template) {
-        DOM.promptInput().value = template.prompt || `Create a ${template.name}`;
-    }
-    e.target.value = '';
-}
 
 // ========================================
 // Generation
@@ -315,6 +496,9 @@ async function handleGenerate() {
     state.generating = true;
     setGenerating(true);
     showLoading('Generating CAD model...');
+
+    // Clear any upload state first
+    clearUploadState();
 
     try {
         const validation = await api.validatePrompt(prompt);
@@ -338,10 +522,30 @@ async function handleGenerate() {
             loadParameters()
         ]);
 
+        // Show all tabs for generated models
+        setVisibleTabs(['viewer3d', 'preview', 'json', 'python', 'step']);
+
         // Auto-load the generated STEP into the 3D viewer
         const stepUrl = `http://localhost:5000/outputs/step/${stepFile}`;
-        switchTab('freecad');
+        switchTab('viewer3d');
         stepViewer.loadStepUrl(stepUrl);
+
+        // Generate preview images in background (non-blocking)
+        api.previewStepByName(stepFile).then(previewResult => {
+            if (previewResult && previewResult.image_urls) {
+                state.previewImageUrls = previewResult.image_urls;
+                state.previewFeatures = previewResult.features || null;
+                renderPreviewGallery(previewResult.image_urls);
+            }
+        }).catch(err => console.warn('Preview generation failed:', err));
+
+        // Show pencil icon (indicates prompt can be edited & regenerated)
+        state.lastGeneratedPrompt = prompt;
+        const editBtn = DOM.promptEditBtn();
+        if (editBtn) {
+            editBtn.classList.remove('hidden');
+            editBtn.classList.remove('modified');
+        }
 
         showToast('Model generated successfully', 'success');
     } catch (error) {
@@ -369,23 +573,52 @@ async function handleRegenerate() {
         state.parameters.forEach((param, i) => {
             const input = document.getElementById(`param-${i}`);
             const value = parseFloat(input.value);
-            if (!isNaN(value)) updates[param.name] = value;
+            if (!isNaN(value) && value !== param.value) updates[param.name] = value;
         });
+        if (Object.keys(updates).length === 0) {
+            showToast('No parameters were changed', 'info');
+            hideLoading();
+            return;
+        }
         const result = await api.updateAndRegenerate(filename, updates);
-        if (result.status === 'success') {
+        if (result.success) {
+            // Update step file reference
+            const stepFile = result.step_file
+                ? result.step_file.split(/[\\/]/).pop()
+                : state.currentModel.baseName + '.step';
             state.currentModel.step_file = result.step_file;
+
             if (result.glb_url) {
                 state.currentModel.glb_url = result.glb_url;
                 DOM.visualizeBtn().classList.remove('hidden');
             }
+
+            // Reload code tabs
             await Promise.all([
-                loadJsonContent(state.currentModel.baseName),
                 loadPythonContent(state.currentModel.baseName),
                 loadStepContent(state.currentModel.baseName)
             ]);
+
+            // Reload the 3D viewer with updated STEP (cache-bust)
+            const stepUrl = `http://localhost:5000/outputs/step/${stepFile}?t=${Date.now()}`;
+            stepViewer.loadStepUrl(stepUrl);
+
+            // Re-extract parameters (values updated in .py) and refresh the form
+            await loadParameters();
+
+            // Regenerate preview in background
+            api.previewStepByName(stepFile).then(prev => {
+                if (prev && prev.image_urls) {
+                    state.previewImageUrls = prev.image_urls;
+                    state.previewFeatures = prev.features || null;
+                    renderPreviewGallery(prev.image_urls);
+                }
+            }).catch(() => {});
+
+            switchTab('viewer3d');
             showToast('Model regenerated successfully', 'success');
         } else {
-            throw new Error('Regeneration failed');
+            throw new Error(result.message || 'Regeneration failed');
         }
     } catch (error) {
         showError(error.message);
@@ -419,45 +652,62 @@ function handleVisualize() {
 // ========================================
 // Upload & Preview
 // ========================================
+// Upload & Render 3D
+// ========================================
 
 function selectStepFile(file) {
     state.previewFile = file;
     DOM.dropZoneText().textContent = file.name;
     DOM.dropZone().classList.add('has-file');
-    DOM.previewBtn().disabled = false;
-    DOM.view3dBtn().disabled = false;
-    DOM.previewError().textContent = '';
+    DOM.render3dBtn().disabled = false;
+    DOM.uploadError().textContent = '';
 }
 
-async function handlePreview() {
+async function handleRender3D() {
     if (!state.previewFile) {
-        DOM.previewError().textContent = 'Please select a .step file first.';
+        DOM.uploadError().textContent = 'Please select a .step file first.';
         return;
     }
 
-    DOM.previewError().textContent = '';
-    showLoading('Analyzing & rendering 7 views…');
+    DOM.uploadError().textContent = '';
+    showLoading('Rendering 3D model & generating previews…');
+
+    // Clear any generate state first
+    clearGenerateState();
 
     try {
+        // Step 1: Load into 3D viewer
+        await stepViewer.loadStepFile(state.previewFile);
+        
+        // Step 2: Generate preview images in background
         const formData = new FormData();
         formData.append('file', state.previewFile);
-
+        
         const result = await api.previewStep(formData);
-
+        
         state.previewImageUrls = result.image_urls || [];
         state.previewFeatures = result.features || null;
-
-        // Show edit area (we have features now)
-        DOM.editArea().classList.remove('hidden');
-
-        // Switch to Preview tab and render gallery
-        switchTab('preview');
+        
+        // Render preview gallery
         renderPreviewGallery(result.image_urls);
-        showToast('Preview ready — 7 views rendered', 'success');
+
+        // Load STEP content into the STEP tab (client-side read)
+        loadUploadedStepContent(state.previewFile);
+
+        // Display extracted features as read-only parameters
+        displayFeatures(result.features);
+        
+        // Imported file — only show 3D viewer, preview and STEP tabs
+        setVisibleTabs(['viewer3d', 'preview', 'step']);
+
+        // Switch to 3D Viewer tab
+        switchTab('viewer3d');
+        
+        showToast('3D model loaded', 'success');
 
     } catch (error) {
-        DOM.previewError().textContent = `Preview failed: ${error.message}`;
-        showToast(`Preview error: ${error.message}`, 'error');
+        DOM.uploadError().textContent = `Render failed: ${error.message}`;
+        showToast(`Render error: ${error.message}`, 'error');
     } finally {
         hideLoading();
     }
@@ -474,7 +724,9 @@ function renderPreviewGallery(imageUrls) {
     DOM.previewViewer().classList.remove('hidden');
 
     // Reset pan and zoom whenever a new preview loads
-    _resetTransform();
+    if (typeof _resetTransform === 'function') {
+        _resetTransform();
+    }
 
     const BASE = 'http://localhost:5000';
     const strip = DOM.viewStrip();
@@ -612,56 +864,6 @@ function _wrapCenter() {
 function zoomIn() { const c = _wrapCenter(); _zoomToward(ZOOM_STEP * 2, c.x, c.y); }
 function zoomOut() { const c = _wrapCenter(); _zoomToward(-ZOOM_STEP * 2, c.x, c.y); }
 function zoomReset() { _resetTransform(); }
-
-// ========================================
-// Edit STEP
-// ========================================
-async function handleEditStep() {
-    if (!state.previewFile) {
-        DOM.editError().textContent = 'No STEP file loaded.';
-        return;
-    }
-    const prompt = DOM.editPromptInput().value.trim();
-    if (!prompt) {
-        DOM.editError().textContent = 'Please enter an edit prompt.';
-        return;
-    }
-
-    DOM.editError().textContent = '';
-    showLoading('Editing STEP file…');
-
-    try {
-        const formData = new FormData();
-        formData.append('file', state.previewFile);
-        formData.append('prompt', prompt);
-
-        const result = await api.editStep(formData);
-
-        showToast('STEP edited successfully', 'success');
-
-        // If a step_url is returned, refresh the file download area
-        if (result.step_url) {
-            const container = DOM.stepInfo();
-            container.innerHTML = `
-                <div class="step-details">
-                    <div class="step-row">
-                        <span class="step-label">Edited File</span>
-                        <span class="step-value">${result.step_file || 'generated'}</span>
-                    </div>
-                </div>
-                <a class="download-btn" href="http://localhost:5000${result.step_url}" download>
-                    Download Edited STEP
-                </a>
-            `;
-            switchTab('step');
-        }
-    } catch (error) {
-        DOM.editError().textContent = `Edit failed: ${error.message}`;
-        showToast(`Edit error: ${error.message}`, 'error');
-    } finally {
-        hideLoading();
-    }
-}
 
 // ========================================
 // Download

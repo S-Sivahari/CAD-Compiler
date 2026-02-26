@@ -641,3 +641,20 @@ class TemplateIndex:
                     if data and self._is_scl_format(data):
                         results.append(data)
         return results
+
+    def get_template_names(self) -> set:
+        """Return a set of all known template ``final_name`` values.
+
+        Useful for deduplication when merging keyword results with RAG
+        results in the pipeline.
+        """
+        names = set()
+        for template_path, meta in self.index.items():
+            full_path = self.templates_dir / template_path
+            if full_path.exists():
+                data = self._load_template(full_path)
+                if data:
+                    name = data.get("final_name", "")
+                    if name:
+                        names.add(name)
+        return names

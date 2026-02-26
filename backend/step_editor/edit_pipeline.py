@@ -116,7 +116,8 @@ def edit_step(step_path: str, user_prompt: str, open_freecad: bool = False) -> D
 
     # 4. Generate the new STEP via existing pipeline
     logger.info("[EditPipeline] Step 3: Generating new STEP file...")
-    pipeline = SynthoCadPipeline()
+    from core import config as _cfg
+    pipeline = SynthoCadPipeline(rag_provider=_cfg.get_rag_provider())
     result = pipeline.process_from_json(scl_json, open_freecad=open_freecad)
 
     # 5. Attach analysis features to result

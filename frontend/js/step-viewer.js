@@ -21,6 +21,8 @@ const stepViewer = (() => {
     let selectedMesh = null;        // currently highlighted mesh
     let selectedOrigMat = null;     // its original material (or array)
     let _selMat = null;             // lazily created on first init()
+    let _pointerDownPos = null;     // track pointer position for click vs drag
+    const CLICK_THRESHOLD = 4;      // max pixels to still count as a click
 
     const STATUS = {
         idle: 'Drop or generate a STEP file to view in 3D',
@@ -92,7 +94,8 @@ const stepViewer = (() => {
             shininess: 80,
             side: THREE.DoubleSide,
         });
-        canvas.addEventListener('click', _onCanvasClick);
+        canvas.addEventListener('pointerdown', _onPointerDown);
+        canvas.addEventListener('pointerup', _onPointerUp);
 
         // Start render loop
         _renderLoop();
@@ -150,6 +153,16 @@ const stepViewer = (() => {
                 }
             }
         });
+        // Keep the selection highlight material in sync
+        if (_selMat) _selMat.wireframe = isWireframe;
+        // Keep stored original material in sync so deselect doesn't revert wireframe state
+        if (selectedOrigMat) {
+            if (Array.isArray(selectedOrigMat)) {
+                selectedOrigMat.forEach(mat => { mat.wireframe = isWireframe; });
+            } else {
+                selectedOrigMat.wireframe = isWireframe;
+            }
+        }
         const btn = document.getElementById('step3d-btn-wire');
         if (btn) btn.classList.toggle('active', isWireframe);
     }
@@ -159,7 +172,8 @@ const stepViewer = (() => {
         _clearMeshes();
         if (renderer) {
             const canvas = renderer.domElement;
-            canvas.removeEventListener('click', _onCanvasClick);
+            canvas.removeEventListener('pointerdown', _onPointerDown);
+            canvas.removeEventListener('pointerup', _onPointerUp);
             renderer.dispose();
             renderer = null;
         }
@@ -420,7 +434,24 @@ const stepViewer = (() => {
 
     // ── Face picking ──────────────────────────────────────────────────────────
 
-    function _onCanvasClick(event) {
+    function _onPointerDown(event) {
+        _pointerDownPos = { x: event.clientX, y: event.clientY };
+    }
+
+    function _onPointerUp(event) {
+        if (!_pointerDownPos) return;
+        const dx = event.clientX - _pointerDownPos.x;
+        const dy = event.clientY - _pointerDownPos.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        _pointerDownPos = null;
+
+        // Only treat as a "click" if the pointer barely moved (not an orbit drag)
+        if (dist > CLICK_THRESHOLD) return;
+
+        _doFacePick(event);
+    }
+
+    function _doFacePick(event) {
         if (!renderer || !camera || currentMeshes.length === 0) return;
 
         const canvas = renderer.domElement;
@@ -434,7 +465,6 @@ const stepViewer = (() => {
         const hits = raycaster.intersectObjects(currentMeshes, false);
 
         if (hits.length === 0) {
-            // Clicked background — deselect
             _deselectFace();
             _hideFaceTooltip();
             return;
@@ -443,22 +473,18 @@ const stepViewer = (() => {
         const hit = hits[0];
         const mesh = hit.object;
 
-        // If clicking the already-selected face, deselect it
         if (mesh === selectedMesh) {
             _deselectFace();
             _hideFaceTooltip();
             return;
         }
 
-        // Deselect previous
         _deselectFace();
 
-        // Highlight new selection
         selectedMesh = mesh;
         selectedOrigMat = mesh.material;
         mesh.material = _selMat;
 
-        // Show tooltip near the click point
         _showFaceTooltip(event.clientX, event.clientY, mesh);
     }
 

@@ -13,6 +13,9 @@ venv/
 ENV/
 
 data_set/
+
+data_set_images/
+gencad_images/
 templates/minimal_json
 outputs/py/*.py
 outputs/step/*.step
@@ -37,7 +40,7 @@ outputs/previews
 .env.local
 *.log
 
-.DS_Store
+.DS_Store0
 Thumbs.db
 *.swp
 *.swo

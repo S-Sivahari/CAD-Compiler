@@ -198,6 +198,59 @@ def preview_step():
     }), 200
 
 
+@bp.route("/preview-by-name", methods=["POST"])
+def preview_step_by_name():
+    """
+    Generate preview images for a STEP file already on disk (e.g. after generation).
+
+    JSON Body:
+        { "filename": "Cylinder.step" }
+
+    Returns the same payload as /preview (features, image_urls, instructions).
+    """
+    data = request.get_json(silent=True) or {}
+    filename = data.get("filename", "")
+
+    if not filename or not filename.lower().endswith(".step"):
+        return jsonify({"error": True, "message": "filename is required and must end with .step"}), 400
+
+    step_path = config.STEP_OUTPUT_DIR / filename
+    if not step_path.exists():
+        return jsonify({"error": True, "message": f"STEP file not found: {filename}"}), 404
+
+    try:
+        step_stem = step_path.stem
+
+        features = step_analyzer.analyze(str(step_path))
+        view_paths = step_renderer.render_multiview(str(step_path), features, str(config.PREVIEWS_DIR))
+
+    except Exception as e:
+        logger.error(f"Preview-by-name failed: {e}")
+        return jsonify({"error": True, "message": str(e)}), 500
+
+    VIEW_LABELS = {
+        "isometric": "Isometric", "top": "Top", "bottom": "Bottom",
+        "front": "Front", "back": "Back", "left": "Left", "right": "Right",
+    }
+    image_urls = []
+    for view_name, img_path in view_paths.items():
+        fname = Path(img_path).name
+        image_urls.append({
+            "view":  view_name,
+            "label": VIEW_LABELS.get(view_name, view_name.capitalize()),
+            "url":   f"/outputs/previews/{step_stem}/{fname}",
+        })
+
+    instructions = _build_instructions(features)
+
+    return jsonify({
+        "status":       "success",
+        "features":     features,
+        "image_urls":   image_urls,
+        "instructions": instructions,
+    }), 200
+
+
 def _build_instructions(features: dict) -> str:
     """Build a human-readable guide for using feature IDs in the edit prompt."""
     lines = ["Use these feature IDs in your edit prompt:"]

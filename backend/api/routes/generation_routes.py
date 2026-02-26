@@ -8,11 +8,12 @@ from validators.prompt_validator import PromptValidator
 from core.main import SynthoCadPipeline
 from utils.logger import api_logger
 from utils.errors import PromptValidationError, JSONValidationError, CodeGenerationError, SynthoCadError
+from core import config
 
 
 bp = Blueprint('generation', __name__)
 prompt_validator = PromptValidator()
-pipeline = SynthoCadPipeline()  # Initialize pipeline once
+pipeline = SynthoCadPipeline(rag_provider=config.get_rag_provider())
 
 
 @bp.route('/validate-prompt', methods=['POST'])
