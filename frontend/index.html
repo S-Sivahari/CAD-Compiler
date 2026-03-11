@@ -92,10 +92,27 @@
                         <label class="section-label">EDIT STEP</label>
                         <textarea id="edit-prompt-input" class="prompt-textarea"
                             placeholder="Describe the edit, e.g. change radius of f0 to 8mm" rows="3"></textarea>
+                        <div class="llm-toggle-row">
+                            <span class="llm-toggle-label">AI Provider</span>
+                            <div class="mode-tabs llm-provider-tabs">
+                                <button id="provider-gemini-btn" class="mode-tab active" onclick="setLLMProvider('gemini')">Gemini</button>
+                                <button id="provider-qwen-btn" class="mode-tab" onclick="setLLMProvider('ollama')">Qwen (Local)</button>
+                            </div>
+                        </div>
                         <div class="prompt-btn-row">
                             <button id="edit-btn" class="generate-btn">Edit STEP</button>
                         </div>
                         <div id="edit-error" class="error-message"></div>
+
+                        <!-- Named Points Section -->
+                        <div class="named-points-section">
+                            <div class="named-points-header">
+                                <label class="section-label" style="margin:0">NAMED POINTS</label>
+                                <span class="named-points-hint">Use ⊕ Point in viewer, then click a point below to insert into prompt</span>
+                            </div>
+                            <div id="named-points-empty" class="named-points-empty">No points saved yet — enable Point-Pick in the 3D viewer</div>
+                            <div id="named-points-list" class="named-points-list"></div>
+                        </div>
                     </div>
 
                 </div><!-- /mode-section-edit -->
@@ -132,9 +149,20 @@
                                     title="Fit to view">⊡ Fit</button>
                                 <button class="step3d-btn" id="step3d-btn-wire" onclick="stepViewer.toggleWireframe()"
                                     title="Toggle wireframe">⬡ Wire</button>
+                                <button class="step3d-btn" id="step3d-btn-pick" onclick="togglePointPickMode()"
+                                    title="Pick a point on the model surface">⊕ Point</button>
                             </div>
                             <!-- Face-click tooltip -->
                             <div id="step3d-face-tip" class="step3d-face-tip" style="display:none;"></div>
+                            <!-- Point-name input bar (appears after clicking in point-pick mode) -->
+                            <div id="point-name-bar" class="point-name-bar hidden">
+                                <span class="point-name-bar-coords" id="point-name-coords"></span>
+                                <input id="point-name-input" class="point-name-bar-input"
+                                       placeholder="Name this point…"
+                                       onkeydown="if(event.key==='Enter')saveNamedPoint()" />
+                                <button class="point-name-bar-save" onclick="saveNamedPoint()">Save</button>
+                                <button class="point-name-bar-cancel" onclick="_hidePointNameBar()">&#x2715;</button>
+                            </div>
                         </div>
                         <button id="visualize-btn" class="visualize-btn hidden">Visualize Model</button>
                     </div>

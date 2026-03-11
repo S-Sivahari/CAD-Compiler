@@ -44,6 +44,7 @@ def analyze(step_path: str) -> Dict[str, Any]:
 
     try:
         model = cq.importers.importStep(step_path)
+        
     except Exception as e:
         raise ValueError(f"Failed to import STEP file '{step_path}': {e}")
 
@@ -187,18 +188,28 @@ def analyze(step_path: str) -> Dict[str, Any]:
 
     # -----------------------------------------------------------------
     # Topology-aware block recognition
+    # Skip for large models: ShapeRecognizer builds an O(F²) adjacency
+    # graph and re-imports the STEP file, which is prohibitively slow
+    # and memory-intensive on assemblies with many faces.
     # -----------------------------------------------------------------
+    _RECOGNIZER_FACE_LIMIT = 150
     blocks = []
-    try:
-        blocks = _recognizer.recognize(step_path)
-        if blocks:
-            summary_parts.append(
-                f"Recognised {len(blocks)} block(s): "
-                + ", ".join(b["summary"] for b in blocks)
-                + "."
-            )
-    except Exception as e:
-        logger.warning(f"Shape recognition failed: {e}")
+    if len(faces) > _RECOGNIZER_FACE_LIMIT:
+        logger.info(
+            f"Skipping ShapeRecognizer for large model "
+            f"({len(faces)} faces > {_RECOGNIZER_FACE_LIMIT} threshold)."
+        )
+    else:
+        try:
+            blocks = _recognizer.recognize(step_path)
+            if blocks:
+                summary_parts.append(
+                    f"Recognised {len(blocks)} block(s): "
+                    + ", ".join(b["summary"] for b in blocks)
+                    + "."
+                )
+        except Exception as e:
+            logger.warning(f"Shape recognition failed: {e}")
 
     result = {
         "cylinders": cylinders,

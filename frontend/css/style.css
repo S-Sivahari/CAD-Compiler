@@ -191,6 +191,33 @@ body {
     color: var(--white);
 }
 
+/* LLM provider toggle (inside edit area) */
+.llm-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 4px;
+}
+
+.llm-toggle-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-gray);
+    white-space: nowrap;
+}
+
+.llm-provider-tabs {
+    flex: 1;
+    margin-bottom: 0 !important;
+}
+
+.llm-provider-tabs .mode-tab {
+    font-size: 10px;
+    padding: 4px 0;
+}
+
 
 .prompt-textarea {
     width: 100%;
@@ -1833,3 +1860,182 @@ body {
     transition: opacity 0.12s;
 }
 .face-group-dot:hover { opacity: 1; }
+
+/* ========================================
+   Point-pick mode — ⊕ Point button active
+   ======================================== */
+#step3d-btn-pick.active {
+    background: rgba(14, 96, 110, 0.92);
+    color: #22d3ee;
+    border-color: rgba(34, 211, 238, 0.45);
+}
+
+/* ========================================
+   Point name bar (overlay at bottom of viewer)
+   ======================================== */
+.point-name-bar {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 35;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(14, 18, 24, 0.94);
+    border: 1px solid rgba(34, 211, 238, 0.50);
+    border-radius: 8px;
+    padding: 7px 12px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
+    animation: tipFadeIn 0.13s ease;
+    white-space: nowrap;
+}
+.point-name-bar.hidden { display: none; }
+
+.point-name-bar-coords {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #22d3ee;
+    opacity: 0.85;
+    letter-spacing: 0.2px;
+}
+
+.point-name-bar-input {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 5px;
+    color: #e2e8f0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 4px 8px;
+    width: 140px;
+    outline: none;
+    transition: border-color 0.15s;
+}
+.point-name-bar-input:focus {
+    border-color: rgba(34, 211, 238, 0.55);
+}
+
+.point-name-bar-save {
+    padding: 4px 12px;
+    background: rgba(34, 211, 238, 0.18);
+    color: #22d3ee;
+    border: 1px solid rgba(34, 211, 238, 0.35);
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.point-name-bar-save:hover { background: rgba(34, 211, 238, 0.30); }
+
+.point-name-bar-cancel {
+    padding: 3px 7px;
+    background: transparent;
+    color: #6b7280;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+.point-name-bar-cancel:hover { color: #f87171; border-color: rgba(248,113,113,0.3); }
+
+/* ========================================
+   Named Points section (inside edit area)
+   ======================================== */
+.named-points-section {
+    margin-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 10px;
+}
+
+.named-points-header {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 8px;
+}
+
+.named-points-hint {
+    font-size: 10px;
+    color: #4b5563;
+    line-height: 1.4;
+}
+
+.named-points-empty {
+    font-size: 11px;
+    color: #4b5563;
+    padding: 6px 2px;
+    font-style: italic;
+}
+.named-points-empty.hidden { display: none; }
+
+.named-points-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.named-point-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(34, 211, 238, 0.05);
+    border: 1px solid rgba(34, 211, 238, 0.15);
+    border-radius: 5px;
+    padding: 5px 8px;
+    transition: background 0.12s;
+}
+.named-point-item:hover {
+    background: rgba(34, 211, 238, 0.10);
+}
+
+.named-point-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22d3ee;
+    flex-shrink: 0;
+    box-shadow: 0 0 4px rgba(34, 211, 238, 0.6);
+}
+
+.named-point-name {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #22d3ee;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+    flex-shrink: 0;
+    transition: color 0.12s;
+}
+.named-point-name:hover {
+    color: #67e8f9;
+    text-decoration: underline;
+}
+
+.named-point-coords {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: #6b7280;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.named-point-del {
+    background: none;
+    border: none;
+    color: #4b5563;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0 2px;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: color 0.12s;
+}
+.named-point-del:hover { color: #f87171; }

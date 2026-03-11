@@ -31,6 +31,12 @@ const stepViewer = (() => {
     // External callback fired whenever a face is clicked: fn(faceId)
     let _faceClickCb = null;
 
+    // ── Point Pick State ─────────────────────────────────────────────────────
+    let _pointPickMode = false;
+    let _pointPickCb = null;        // fn([x,y,z]) called when surface is clicked
+    let _pendingPointMarker = null; // dot group for the just-clicked-not-yet-named point
+    let _namedPointMarkers = new Map(); // name → THREE.Group (permanent dot + label)
+
     // ── OCP Feature Index ────────────────────────────────────────────────────
     // Populated via setFaceFeatures(); maps face-id → {surfType, label, details, block}
     let _faceIndex = {};            // { 'f0': { surfType, label, details, block } }
@@ -221,6 +227,7 @@ const stepViewer = (() => {
 
     function _clearMeshes() {
         clearAllGroupHighlights();
+        clearAllPointMarkers();
         _deselectFace();    // restore material before disposing
         if (scene) {
             const toRemove = [];
@@ -491,6 +498,22 @@ const stepViewer = (() => {
         raycaster.setFromCamera(mouse, camera);
         const hits = raycaster.intersectObjects(currentMeshes, false);
 
+        // ── Point-pick mode: capture surface intersection coords ──────────────
+        if (_pointPickMode) {
+            if (hits.length === 0) return;
+            const hit = hits[0];
+            const pt = hit.point;
+            _removePendingMarker();
+            _pendingPointMarker = _makePointMarkerGroup([pt.x, pt.y, pt.z], null);
+            scene.add(_pendingPointMarker);
+            if (_pointPickCb) _pointPickCb([
+                parseFloat(pt.x.toFixed(4)),
+                parseFloat(pt.y.toFixed(4)),
+                parseFloat(pt.z.toFixed(4)),
+            ]);
+            return;  // do not perform face selection
+        }
+
         if (hits.length === 0) {
             _deselectFace();
             _hideFaceTooltip();
@@ -584,11 +607,131 @@ const stepViewer = (() => {
         _faceClickCb = fn;
     }
 
+    // ── Point pick public API ─────────────────────────────────────────────────
+
+    /** Enable / disable point-pick mode. While active, clicks capture surface coords. */
+    function enablePointPick(active) {
+        _pointPickMode = active;
+        if (!active) _removePendingMarker();
+    }
+
+    /** Register a callback fn([x,y,z]) called every time the user clicks on the model surface. */
+    function setPointPickCallback(fn) {
+        _pointPickCb = fn;
+    }
+
+    /** Place a permanent dot + label marker at xyz. */
+    function addNamedPointMarker(name, xyz) {
+        removeNamedPointMarker(name);   // replace if already exists
+        const group = _makePointMarkerGroup(xyz, name);
+        scene.add(group);
+        _namedPointMarkers.set(name, group);
+    }
+
+    /** Remove a named dot marker from the scene. */
+    function removeNamedPointMarker(name) {
+        const g = _namedPointMarkers.get(name);
+        if (!g) return;
+        scene.remove(g);
+        _disposeMarkerGroup(g);
+        _namedPointMarkers.delete(name);
+    }
+
+    /** Remove all point markers (named + pending). */
+    function clearAllPointMarkers() {
+        _namedPointMarkers.forEach(g => {
+            scene.remove(g);
+            _disposeMarkerGroup(g);
+        });
+        _namedPointMarkers.clear();
+        _removePendingMarker();
+    }
+
     function _deselectFace() {
         if (!selectedMesh) return;
         selectedMesh.material = selectedOrigMat;
         selectedMesh = null;
         selectedOrigMat = null;
+    }
+
+    // ── Point marker helpers ──────────────────────────────────────────────────
+
+    /**
+     * Create a THREE.Group containing:
+     *  - a screen-space dot (THREE.Points, fixed pixel size)
+     *  - if name is given, a canvas-text Sprite label beside the dot
+     */
+    function _makePointMarkerGroup(xyz, name) {
+        const group = new THREE.Group();
+        group.userData.isPointMarker = true;
+
+        // Screen-space dot — always 8 px wide regardless of zoom
+        const geom = new THREE.BufferGeometry();
+        geom.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0], 3));
+        const dotMat = new THREE.PointsMaterial({
+            color: name ? 0x22d3ee : 0x67e8f9,  // solid cyan / lighter pending
+            size: name ? 8 : 6,
+            sizeAttenuation: false,
+            depthTest: false,
+        });
+        const dot = new THREE.Points(geom, dotMat);
+        group.add(dot);
+
+        // Label sprite (named points only)
+        if (name) {
+            const sprite = _makeTextSprite(name);
+            // Offset the label slightly up+right; scale relative to model size
+            let off = 4;
+            if (currentMeshes.length > 0) {
+                const box = new THREE.Box3();
+                currentMeshes.forEach(m => box.expandByObject(m));
+                const sz = new THREE.Vector3();
+                box.getSize(sz);
+                off = Math.max(2, Math.min(20, sz.length() * 0.03));
+            }
+            sprite.position.set(off, off * 0.6, 0);
+            group.add(sprite);
+        }
+
+        group.position.set(xyz[0], xyz[1], xyz[2]);
+        return group;
+    }
+
+    /** Render a name string onto a canvas and return a THREE.Sprite. */
+    function _makeTextSprite(text) {
+        const cw = 128, ch = 28;
+        const canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, cw, ch);
+        ctx.font = 'bold 13px monospace';
+        ctx.fillStyle = '#22d3ee';
+        ctx.fillText(text, 3, 19);
+        const tex = new THREE.CanvasTexture(canvas);
+        const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
+        const sprite = new THREE.Sprite(mat);
+        // aspect-correct: cw/ch gives natural width, scale by a small world factor
+        sprite.scale.set((cw / ch) * 6, 6, 1);
+        return sprite;
+    }
+
+    /** Dispose all Three.js objects inside a marker group. */
+    function _disposeMarkerGroup(group) {
+        group.traverse(child => {
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+                if (child.material.map) child.material.map.dispose();
+                child.material.dispose();
+            }
+        });
+    }
+
+    function _removePendingMarker() {
+        if (_pendingPointMarker) {
+            scene.remove(_pendingPointMarker);
+            _disposeMarkerGroup(_pendingPointMarker);
+            _pendingPointMarker = null;
+        }
     }
 
     function _showFaceTooltip(clientX, clientY, mesh) {
@@ -761,5 +904,8 @@ const stepViewer = (() => {
         init, loadStepFile, loadStepUrl, resetView, toggleWireframe, dispose, setFaceFeatures,
         // Group-selection integration
         setFaceClickCallback, setGroupFaceSelected, clearAllGroupHighlights,
+        // Point-pick integration
+        enablePointPick, setPointPickCallback,
+        addNamedPointMarker, removeNamedPointMarker, clearAllPointMarkers,
     };
 })();

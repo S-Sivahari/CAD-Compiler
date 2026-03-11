@@ -20,6 +20,11 @@ const state = {
     faceGroups: {},             // { groupName: { faces: ['f0','f2'], color: '#...' } }
     selectedFaces: new Set(),   // face IDs currently selected in group-mode
     groupMode: false,           // whether selection mode is active
+    llmProvider: 'gemini',      // 'gemini' | 'ollama' (Qwen)
+    // ── Named Points ──────────────────────────────────────────────────
+    namedPoints: {},            // { name: [x, y, z] } — user-saved surface coordinates
+    pointPickMode: false,       // whether point-pick mode is active
+    pendingPoint: null,         // [x, y, z] of the last clicked-but-not-yet-named point
 };
 
 // Colour palette cycled for successive groups
@@ -88,6 +93,10 @@ async function initApp() {
     // Register face-click callback so 3D viewer clicks feed into group selection
     stepViewer.setFaceClickCallback((faceId) => {
         if (state.groupMode) _toggleFaceSelection(faceId);
+    });
+    // Register point-pick callback
+    stepViewer.setPointPickCallback((xyz) => {
+        _onPointPicked(xyz);
     });
 }
 
@@ -446,6 +455,114 @@ function renderOcpParameters(features) {
 // Face Groups
 // ========================================
 
+/** Switch the active LLM provider and update toggle button states. */
+function setLLMProvider(provider) {
+    state.llmProvider = provider;
+    document.getElementById('provider-gemini-btn').classList.toggle('active', provider === 'gemini');
+    document.getElementById('provider-qwen-btn').classList.toggle('active', provider === 'ollama');
+}
+
+// ========================================
+// Named Points
+// ========================================
+
+/** Toggle point-pick mode on/off. */
+function togglePointPickMode() {
+    state.pointPickMode = !state.pointPickMode;
+    stepViewer.enablePointPick(state.pointPickMode);
+    const btn = document.getElementById('step3d-btn-pick');
+    if (btn) btn.classList.toggle('active', state.pointPickMode);
+    if (state.pointPickMode) {
+        showToast('Point-pick ON — click any surface to drop a point', 'info');
+    } else {
+        state.pendingPoint = null;
+        _hidePointNameBar();
+    }
+}
+
+/** Called by the stepViewer point-pick callback with the clicked surface coords. */
+function _onPointPicked(xyz) {
+    state.pendingPoint = xyz;
+    _showPointNameBar(xyz);
+}
+
+function _showPointNameBar(xyz) {
+    const bar = document.getElementById('point-name-bar');
+    if (!bar) return;
+    const coordEl = document.getElementById('point-name-coords');
+    if (coordEl) coordEl.textContent = `[${xyz.map(v => v.toFixed(2)).join(', ')}]`;
+    bar.classList.remove('hidden');
+    const inp = document.getElementById('point-name-input');
+    if (inp) { inp.value = ''; inp.focus(); }
+}
+
+function _hidePointNameBar() {
+    const bar = document.getElementById('point-name-bar');
+    if (bar) bar.classList.add('hidden');
+}
+
+/** Save the pending point under the given name. */
+function saveNamedPoint() {
+    const inp = document.getElementById('point-name-input');
+    const raw = inp ? inp.value.trim() : '';
+    if (!raw) { showToast('Enter a name for the point', 'warning'); if (inp) inp.focus(); return; }
+    if (!state.pendingPoint) { showToast('No point selected on the model', 'warning'); return; }
+    const name = raw.replace(/\s+/g, '_');
+    state.namedPoints[name] = state.pendingPoint;
+    stepViewer.addNamedPointMarker(name, state.pendingPoint);
+    state.pendingPoint = null;
+    _hidePointNameBar();
+    renderNamedPointsList();
+    const xyz = state.namedPoints[name];
+    showToast(`Point "${name}" saved at [${xyz.map(v => v.toFixed(1)).join(', ')}]`, 'success');
+}
+
+/** Delete a named point. */
+function deleteNamedPoint(name) {
+    delete state.namedPoints[name];
+    stepViewer.removeNamedPointMarker(name);
+    renderNamedPointsList();
+}
+
+/**
+ * Insert a @name=[x,y,z] tag into the edit prompt at cursor position.
+ * This allows prompts like "create a hole at @bolt_hole_1".
+ */
+function insertPointIntoPrompt(name) {
+    const xyz = state.namedPoints[name];
+    if (!xyz) return;
+    const input = DOM.editPromptInput();
+    if (!input) return;
+    const tag = `@${name}=[${xyz.map(v => v.toFixed(2)).join(',')}]`;
+    const pos = input.selectionStart || input.value.length;
+    input.value = input.value.substring(0, pos) + tag + input.value.substring(pos);
+    input.selectionStart = input.selectionEnd = pos + tag.length;
+    input.focus();
+}
+
+/** Render the named points list in the edit area. */
+function renderNamedPointsList() {
+    const list = document.getElementById('named-points-list');
+    const emptyMsg = document.getElementById('named-points-empty');
+    if (!list) return;
+    const names = Object.keys(state.namedPoints);
+    if (emptyMsg) emptyMsg.classList.toggle('hidden', names.length > 0);
+    list.innerHTML = '';
+    names.forEach(name => {
+        const xyz = state.namedPoints[name];
+        const item = document.createElement('div');
+        item.className = 'named-point-item';
+        item.innerHTML = `
+            <span class="named-point-dot"></span>
+            <button class="named-point-name" title="Insert into edit prompt"
+                    onclick="insertPointIntoPrompt('${name}')">${name}</button>
+            <span class="named-point-coords">[${xyz.map(v => v.toFixed(1)).join(', ')}]</span>
+            <button class="named-point-del" onclick="deleteNamedPoint('${name}')" title="Remove">&#x2715;</button>
+        `;
+        list.appendChild(item);
+    });
+}
+
 /** Toggle group-selection mode on/off. */
 function toggleGroupMode() {
     state.groupMode = !state.groupMode;
@@ -679,6 +796,34 @@ function _injectGroupContext(prompt) {
     );
     const ctx = `[Face Groups — use these names in your prompt]\n${lines.join('\n')}\n\n`;
     return ctx + prompt;
+}
+
+/**
+ * Prepends a named-points coordinate table so the AI can resolve any point
+ * name the user wrote in their prompt into exact [x, y, z] coordinates.
+ * Also expands any @name=[...] tags already in the prompt (inserted via the
+ * "Insert" button) to plain coordinate triples so the backend sees raw numbers.
+ */
+function _injectPointContext(prompt) {
+    // Replace @name=[x,y,z] tags with just [x,y,z] so the LLM sees coords directly
+    let resolved = prompt.replace(/@([\w]+)=\[([^\]]+)\]/g, (_, pname, coords) => `[${coords}]`);
+
+    // Also auto-expand bare point names that appear in the prompt
+    // e.g. "create a hole at p1" becomes "create a hole at [x, y, z]"
+    const entries = Object.entries(state.namedPoints);
+    entries.forEach(([name, xyz]) => {
+        const re = new RegExp(`\\b${name}\\b`, 'g');
+        resolved = resolved.replace(re, `[${xyz.map(v => v.toFixed(3)).join(', ')}]`);
+    });
+
+    // Prepend a context block listing all named points regardless of whether
+    // the user referenced them by name — gives the LLM full positional context.
+    if (entries.length === 0) return resolved;
+    const lines = entries.map(([name, xyz]) =>
+        `  • ${name}: [${xyz.map(v => v.toFixed(3)).join(', ')}]`
+    );
+    const ctx = `[Named Points — use coordinates for location/position references]\n${lines.join('\n')}\n\n`;
+    return ctx + resolved;
 }
 
 // ========================================
@@ -1195,8 +1340,9 @@ async function handleEditStep() {
         return;
     }
 
-    // Prepend any defined face-group context so the AI can resolve group names
-    const enrichedPrompt = _injectGroupContext(prompt);
+    // Prepend face-group context AND named-point coordinates so the AI can
+    // resolve group names and point names to exact geometry references.
+    const enrichedPrompt = _injectPointContext(_injectGroupContext(prompt));
 
     DOM.editError().textContent = '';
     showLoading('Editing STEP file…');
@@ -1205,6 +1351,7 @@ async function handleEditStep() {
         const formData = new FormData();
         formData.append('file', state.previewFile);
         formData.append('prompt', enrichedPrompt);
+        formData.append('provider', state.llmProvider);
 
         const result = await api.editStep(formData);
 

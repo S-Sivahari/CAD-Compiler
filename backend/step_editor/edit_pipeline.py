@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 # ─── Main Entry Point ──────────────────────────────────────────────────────────
 
-def edit_step(step_path: str, user_prompt: str, open_freecad: bool = False) -> Dict[str, Any]:
+def edit_step(step_path: str, user_prompt: str, open_freecad: bool = False, provider: str = 'gemini') -> Dict[str, Any]:
     """
     Run the lossless STEP editing pipeline.
 
@@ -66,6 +66,7 @@ def edit_step(step_path: str, user_prompt: str, open_freecad: bool = False) -> D
             step_path,
             user_prompt,
             pre_analyzed_features=features,   # skip double-analysis
+            provider=provider,
         )
     except Exception as e:
         logger.error(f"[EditPipeline] BREP edit failed: {e}")

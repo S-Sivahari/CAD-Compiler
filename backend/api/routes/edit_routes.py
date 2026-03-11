@@ -66,8 +66,9 @@ def edit_from_step():
         return jsonify({"error": True, "message": f"Failed to save upload: {str(e)}"}), 500
 
     # --- Run edit pipeline ---
-    logger.info(f"Running edit pipeline: prompt='{prompt}', file={step_path}")
-    result = edit_pipeline.edit_step(step_path, prompt)
+    provider = request.form.get('provider', 'gemini')
+    logger.info(f"Running edit pipeline: prompt='{prompt}', provider={provider}, file={step_path}")
+    result = edit_pipeline.edit_step(step_path, prompt, provider=provider)
 
     # --- Cleanup upload ---
     try:
@@ -121,8 +122,9 @@ def edit_brep():
 
     # Execute B-Rep semantic editing
     from step_editor import step_executor
+    provider = request.form.get('provider', 'gemini')
     try:
-        result = step_executor.execute_edit_from_prompt(step_path, prompt)
+        result = step_executor.execute_edit_from_prompt(step_path, prompt, provider=provider)
     except Exception as e:
         logger.error(f"B-Rep execution failed: {e}")
         try: os.remove(step_path)
