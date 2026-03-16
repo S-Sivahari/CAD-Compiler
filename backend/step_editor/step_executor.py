@@ -265,7 +265,7 @@ def _get_action_from_llm(prompt: str, features: dict, provider: str = 'gemini') 
         _provider_label = 'Qwen (Ollama)'
     else:
         from services.gemini_service import call_gemini as _call_llm
-        _kwargs = {}
+        _kwargs = {'temperature': 0.0, 'json_mode': True}
         _provider_label = 'Gemini'
 
     context_str = json.dumps(features, indent=2)
@@ -311,8 +311,29 @@ def _get_action_from_llm(prompt: str, features: dict, provider: str = 'gemini') 
     {{"action": "create_cone", "location": [x, y, z], "axis": [0, 0, 1], "base_radius": 10.0, "top_radius": 0.0, "height": 15.0, "is_hole": false}}
     "top_radius": 0.0 = sharp tip; >0 = frustum (truncated cone). Set "is_hole": true to cut.
     
-    If the user mentions multiple faces / operations, return a list of JSON objects!
-    Output exactly the raw JSON array (or object). Do not output markdown, no conversational text.
+    MULTI-OPERATION EXAMPLES — when the prompt mentions more than one change, always return
+    ALL operations as a single JSON array in execution order:
+
+    Example A — resize two faces:
+    [{{"action": "resize_hole", "face_id": "f3", "new_radius": 5.0}},
+     {{"action": "resize_hole", "face_id": "f9", "new_radius": 2.5}}]
+
+    Example B — resize then reposition:
+    [{{"action": "resize_hole", "face_id": "f3", "new_radius": 6.0}},
+     {{"action": "reposition", "face_id": "f3", "new_location": [10.0, 15.0, 0.0]}}]
+
+    Example C — delete a feature, create a new cylinder, add a conical hole:
+    [{{"action": "defeature", "face_id": "f12"}},
+     {{"action": "create_cylinder", "location": [0, 0, 5], "axis": [0, 0, 1], "radius": 8.0, "height": 20.0, "is_hole": false}},
+     {{"action": "create_cone", "location": [0, 0, 25], "axis": [0, 0, 1], "base_radius": 8.0, "top_radius": 0.0, "height": 10.0, "is_hole": true}}]
+
+    Example D — move a boss and extrude a face:
+    [{{"action": "reposition", "face_id": "f7", "new_location": [20.0, 0.0, 0.0]}},
+     {{"action": "extrude_face", "face_id": "f4", "distance": 5.0}}]
+
+    CRITICAL: If the user describes N distinct changes, return EXACTLY N action objects in the array.
+    Never collapse multiple requested operations into one. Never omit any operation the user stated.
+    Output ONLY the raw JSON array. No markdown, no explanation, no prose.
     """
     
     try:

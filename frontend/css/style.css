@@ -26,9 +26,8 @@
     --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Consolas', monospace;
 
     --header-height: 60px;
-    --left-width: 30%;
-    --center-width: 45%;
-    --right-width: 25%;
+    --sidebar-width: 32%;
+    --center-width: 68%;
 }
 
 html,
@@ -39,6 +38,18 @@ body {
     line-height: 1.5;
     color: var(--dark-gray);
     background: var(--white);
+}
+
+/* Global scrollbar hiding (keep scrolling functional) */
+* {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
 }
 
 /* App Container */
@@ -83,7 +94,7 @@ body {
 }
 
 /* ========================================
-   Main Layout - 3 Column: 30%-45%-25%
+   Main Layout - Unified Side Panel + Viewer
    ======================================== */
 .main {
     display: flex;
@@ -91,43 +102,70 @@ body {
     overflow: hidden;
 }
 
-/* Left Column - 30% */
+/* Unified Side Panel */
 .left-column {
-    width: var(--left-width);
+    width: var(--sidebar-width);
     display: flex;
     flex-direction: column;
     border-right: 1px solid var(--border-gray);
     background: var(--off-white);
+    overflow: hidden;
 }
 
-/* Center Column - 40% */
+/* Viewer Area */
 .center-column {
     width: var(--center-width);
     display: flex;
     flex-direction: column;
     background: var(--white);
-    border-right: 1px solid var(--border-gray);
+    position: relative;
+    overflow: hidden;
 }
 
-/* ========================================
-   Right Column - Parameters (25%)
-   ======================================== */
-.right-column {
-    width: var(--right-width);
+/* Sidepanel segmented layout */
+.sidepanel-tabs {
     display: flex;
-    flex-direction: column;
-    background: var(--off-white);
-}
-
-.right-params-header {
-    padding: 16px 16px 8px;
+    padding: 12px 16px 8px;
+    gap: 8px;
+    border-bottom: 1px solid var(--border-gray);
+    background: var(--white);
     flex-shrink: 0;
 }
 
-.right-params-body {
+.sidepanel-tab {
     flex: 1;
-    padding: 0 16px 16px;
+    border: 1px solid var(--border-gray);
+    background: var(--off-white);
+    color: var(--dark-gray);
+    padding: 8px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    cursor: pointer;
+}
+
+.sidepanel-tab.active {
+    background: var(--dark-gray);
+    border-color: var(--dark-gray);
+    color: var(--white);
+}
+
+.sidepanel-section {
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+}
+
+.right-params-header {
+    padding: 14px 16px 8px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border-gray);
+    background: var(--white);
+}
+
+.right-params-body {
+    padding: 0 16px 16px;
     display: flex;
     flex-direction: column;
 }
@@ -834,9 +872,10 @@ body {
 
 /* Mode sections — switchable panels inside left column */
 .left-mode-tabs {
-    padding: 12px 20px;
+    padding: 10px 12px 8px;
     flex-shrink: 0;
     border-bottom: 1px solid var(--border-gray);
+    background: var(--white);
 }
 
 .left-mode-tabs .mode-tabs {
@@ -849,6 +888,7 @@ body {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+    gap: 8px;
 }
 
 /* Templates — select element replaces the old list */
@@ -869,21 +909,356 @@ body {
     border-color: var(--dark-gray);
 }
 
+/* Edit-mode template toolkit */
+.edit-template-section {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-gray);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.edit-template-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.edit-template-summary {
+    font-size: 11px;
+    color: var(--text-gray);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.edit-template-layout {
+    display: grid;
+    grid-template-columns: minmax(120px, 34%) 1fr;
+    gap: 8px;
+    min-height: 190px;
+    max-height: 300px;
+}
+
+.edit-template-tree,
+.edit-template-grid {
+    border: 1px solid var(--border-gray);
+    background: var(--white);
+    overflow: auto;
+}
+
+.edit-template-tree {
+    padding: 6px;
+}
+
+.edit-template-empty {
+    padding: 10px;
+    font-size: 12px;
+    color: var(--text-gray);
+}
+
+.edit-template-category {
+    width: 100%;
+    text-align: left;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    color: var(--dark-gray);
+    padding: 6px 8px;
+    cursor: pointer;
+}
+
+.edit-template-category:hover,
+.edit-template-category.active {
+    background: var(--light-gray);
+}
+
+.edit-template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    align-content: start;
+    padding: 8px;
+}
+
+.edit-template-card {
+    border: 1px solid var(--border-gray);
+    background: var(--off-white);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px;
+}
+
+.edit-template-card:hover,
+.edit-template-card.active {
+    border-color: var(--dark-gray);
+    background: var(--white);
+}
+
+.edit-template-card.disabled {
+    opacity: 0.6;
+}
+
+.edit-template-thumb-wrap {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border: 1px solid var(--border-gray);
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.edit-template-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.edit-template-no-thumb {
+    font-size: 11px;
+    color: var(--text-gray);
+}
+
+.edit-template-name {
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--dark-gray);
+}
+
+.edit-template-meta {
+    font-size: 11px;
+    color: var(--text-gray);
+}
+
 /* Upload section inside edit-mode panel — remove the bottom-pushing auto margin */
 .upload-section-edit {
     margin-top: 0 !important;
     border-top: none;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border-gray);
 }
 
-/* Edit STEP section (shown after preview loads) */
-.edit-area-section {
-    padding: 0 20px 20px;
+/* Edit panel scrollbar hiding (keep scroll functionality) */
+#mode-section-edit {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+#mode-section-edit::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+#mode-section-edit .edit-template-tree,
+#mode-section-edit .edit-template-grid {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+#mode-section-edit .edit-template-tree::-webkit-scrollbar,
+#mode-section-edit .edit-template-grid::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+/* Compact toggleable edit drawer */
+.edit-dock {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    z-index: 36;
     display: flex;
     flex-direction: column;
     gap: 6px;
-    border-top: 1px solid var(--border-gray);
-    padding-top: 16px;
-    margin-top: 4px;
+    width: min(340px, calc(100% - 20px));
+    align-items: flex-end;
+}
+
+.edit-dock.hidden {
+    display: none;
+}
+
+.edit-dock-toggle {
+    align-self: flex-end;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(14, 18, 24, 0.92);
+    color: #e5e7eb;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 6px 11px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(6px);
+}
+
+.edit-dock-toggle-arrow {
+    font-size: 10px;
+    transition: transform 0.15s ease;
+}
+
+.edit-dock-toggle.expanded .edit-dock-toggle-arrow {
+    transform: rotate(180deg);
+}
+
+.edit-area-section {
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    background: rgba(14, 18, 24, 0.90);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+    color: #e5e7eb;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: min(44vh, 330px);
+    overflow-y: auto;
+    width: 100%;
+}
+
+.edit-area-section.collapsed {
+    display: none;
+}
+
+.edit-area-section .section-label,
+.edit-area-section .llm-toggle-label,
+.edit-area-section .named-points-hint,
+.edit-area-section .named-points-empty {
+    color: #cbd5e1;
+}
+
+.edit-dock-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.edit-dock-quick-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.edit-dock-action {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 9px;
+    cursor: pointer;
+    border-radius: 7px;
+    line-height: 1.1;
+}
+
+.edit-dock-action:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.35);
+}
+
+.edit-dock-action.active {
+    background: rgba(34, 211, 238, 0.20);
+    border-color: rgba(34, 211, 238, 0.55);
+    color: #67e8f9;
+}
+
+.prompt-textarea.compact {
+    min-height: 92px;
+    padding: 8px 10px;
+    font-size: 13px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.96);
+    resize: none;
+}
+
+.edit-area-section #edit-error {
+    min-height: 0;
+    margin-top: 0;
+    line-height: 1.2;
+}
+
+.edit-area-section #edit-error:empty {
+    display: none;
+}
+
+.edit-dock-bottom-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.llm-toggle-row.compact {
+    margin: 0;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+}
+
+.llm-provider-tabs.compact {
+    max-width: 200px;
+    min-width: 170px;
+}
+
+.llm-provider-tabs.compact .mode-tab {
+    padding: 3px 0;
+    font-size: 10px;
+}
+
+.prompt-btn-row.compact {
+    margin-top: 0;
+}
+
+.prompt-btn-row.compact .generate-btn {
+    padding: 8px 10px;
+    border-radius: 7px;
+    white-space: nowrap;
+    font-size: 14px;
+}
+
+.named-points-details {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    margin-top: 2px;
+    padding-top: 6px;
+}
+
+.named-points-summary {
+    cursor: pointer;
+    font-size: 11px;
+    color: #cbd5e1;
+    list-style: none;
+}
+
+.named-points-summary::-webkit-details-marker {
+    display: none;
+}
+
+.named-points-summary::before {
+    content: '▸';
+    margin-right: 8px;
+    font-size: 12px;
+}
+
+.named-points-details[open] .named-points-summary::before {
+    content: '▾';
+}
+
+.named-points-details .named-points-section {
+    margin-top: 8px;
+    border-top: none;
+    padding-top: 0;
 }
 
 /* ========================================

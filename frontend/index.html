@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SynthoCAD</title>
-    <link rel="stylesheet" href="css/style.css?v=10">
+    <link rel="stylesheet" href="css/style.css?v=21">
 
     <!-- Three.js r128 + OrbitControls via CDN (r128 is the last version with stable global THREE.OrbitControls) -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -24,21 +24,27 @@
             </div>
         </header>
 
-        <!-- Main Layout: 3 Columns (30% - 40% - 30%) -->
+        <!-- Main Layout: Unified Side Panel + Viewer -->
         <main class="main">
-            <!-- Left Column: Input Controls (30%) -->
+            <!-- Unified Side Panel -->
             <aside class="left-column">
-
-                <!-- Mode Tabs (always visible at top) -->
-                <div class="left-mode-tabs">
-                    <div class="mode-tabs">
-                        <button id="mode-prompt-btn" class="mode-tab active">Prompt</button>
-                        <button id="mode-edit-btn" class="mode-tab">Edit</button>
-                    </div>
+                <div class="sidepanel-tabs" role="tablist" aria-label="Side panel sections">
+                    <button id="sidepanel-workflow-btn" class="sidepanel-tab active" type="button">Workflow</button>
+                    <button id="sidepanel-params-btn" class="sidepanel-tab" type="button">Parameters</button>
                 </div>
 
-                <!-- ── Prompt Mode ─────────────────────────────── -->
-                <div id="mode-section-prompt" class="mode-section">
+                <div id="sidepanel-workflow" class="sidepanel-section">
+
+                    <!-- Mode Tabs (always visible at top) -->
+                    <div class="left-mode-tabs">
+                        <div class="mode-tabs">
+                            <button id="mode-prompt-btn" class="mode-tab active">Prompt</button>
+                            <button id="mode-edit-btn" class="mode-tab">Edit</button>
+                        </div>
+                    </div>
+
+                    <!-- ── Prompt Mode ─────────────────────────────── -->
+                    <div id="mode-section-prompt" class="mode-section">
 
                     <!-- Section A: Prompt Input -->
                     <section class="input-section">
@@ -53,18 +59,26 @@
                         <div id="error-message" class="error-message"></div>
                     </section>
 
-                    <!-- Section B: Templates -->
-                    <section class="templates-section">
-                        <label class="section-label">TEMPLATES</label>
-                        <select id="templates-select" class="templates-select">
-                            <option value="">Quick load a template…</option>
-                        </select>
+                    <!-- Section B: Template Toolkit (Prompt) -->
+                    <section class="edit-template-section prompt-template-section">
+                        <div class="edit-template-header">
+                            <label class="section-label">TEMPLATE TOOLKIT</label>
+                            <span id="prompt-template-summary" class="edit-template-summary">Loading templates…</span>
+                        </div>
+                        <div class="edit-template-layout">
+                            <div id="prompt-template-tree" class="edit-template-tree">
+                                <p class="edit-template-empty">Loading categories…</p>
+                            </div>
+                            <div id="prompt-template-grid" class="edit-template-grid">
+                                <p class="edit-template-empty">Loading templates…</p>
+                            </div>
+                        </div>
                     </section>
 
-                </div><!-- /mode-section-prompt -->
+                    </div><!-- /mode-section-prompt -->
 
-                <!-- ── Edit Mode ───────────────────────────────── -->
-                <div id="mode-section-edit" class="mode-section hidden">
+                    <!-- ── Edit Mode ───────────────────────────────── -->
+                    <div id="mode-section-edit" class="mode-section hidden">
 
                     <!-- Section C: Upload STEP -->
                     <section class="upload-section upload-section-edit">
@@ -87,35 +101,70 @@
                         <div id="preview-error" class="error-message"></div>
                     </section>
 
-                    <!-- Section D: Edit STEP prompt (revealed after preview) -->
-                    <div id="edit-area" class="edit-area-section hidden">
-                        <label class="section-label">EDIT STEP</label>
-                        <textarea id="edit-prompt-input" class="prompt-textarea"
-                            placeholder="Describe the edit, e.g. change radius of f0 to 8mm" rows="3"></textarea>
-                        <div class="llm-toggle-row">
-                            <span class="llm-toggle-label">AI Provider</span>
-                            <div class="mode-tabs llm-provider-tabs">
-                                <button id="provider-gemini-btn" class="mode-tab active" onclick="setLLMProvider('gemini')">Gemini</button>
-                                <button id="provider-qwen-btn" class="mode-tab" onclick="setLLMProvider('ollama')">Qwen (Local)</button>
+                    <!-- Section B2: Template Toolkit (Edit) -->
+                    <section class="edit-template-section">
+                        <div class="edit-template-header">
+                            <label class="section-label">TEMPLATE TOOLKIT</label>
+                            <span id="edit-template-summary" class="edit-template-summary">Loading templates…</span>
+                        </div>
+                        <div class="edit-template-layout">
+                            <div id="edit-template-tree" class="edit-template-tree">
+                                <p class="edit-template-empty">Loading categories…</p>
+                            </div>
+                            <div id="edit-template-grid" class="edit-template-grid">
+                                <p class="edit-template-empty">Loading templates…</p>
                             </div>
                         </div>
-                        <div class="prompt-btn-row">
-                            <button id="edit-btn" class="generate-btn">Edit STEP</button>
-                        </div>
-                        <div id="edit-error" class="error-message"></div>
+                    </section>
 
-                        <!-- Named Points Section -->
-                        <div class="named-points-section">
-                            <div class="named-points-header">
-                                <label class="section-label" style="margin:0">NAMED POINTS</label>
-                                <span class="named-points-hint">Use ⊕ Point in viewer, then click a point below to insert into prompt</span>
-                            </div>
-                            <div id="named-points-empty" class="named-points-empty">No points saved yet — enable Point-Pick in the 3D viewer</div>
-                            <div id="named-points-list" class="named-points-list"></div>
-                        </div>
+                    </div><!-- /mode-section-edit -->
+                </div><!-- /sidepanel-workflow -->
+
+                <div id="sidepanel-params" class="sidepanel-section hidden">
+                    <div class="right-params-header">
+                        <label class="section-label">PARAMETERS</label>
                     </div>
 
-                </div><!-- /mode-section-edit -->
+                    <!-- ── Face Groups Panel ───────────────────────────────── -->
+                    <div class="groups-panel" id="groups-panel">
+                        <div class="groups-panel-header">
+                            <label class="section-label">FACE GROUPS</label>
+                            <button id="group-mode-btn" class="group-mode-btn" onclick="toggleGroupMode()" title="Enter selection mode to create groups">
+                                ⊕ Select
+                            </button>
+                        </div>
+
+                        <!-- Selection-mode toolbar (revealed when active) -->
+                        <div id="group-mode-bar" class="group-mode-bar hidden">
+                            <div class="group-sel-row">
+                                <span class="group-sel-info">
+                                    <span id="group-sel-count">0</span> face(s) selected
+                                </span>
+                                <button class="group-sel-clear" onclick="clearFaceSelection()" title="Clear selection">✕ Clear</button>
+                            </div>
+                            <div class="group-create-row">
+                                <input id="group-name-input" class="group-name-input" type="text"
+                                    placeholder="e.g. holes, bosses, shafts…" maxlength="30"
+                                    onkeydown="if(event.key==='Enter') createGroupFromSelection()">
+                                <button class="group-create-btn" onclick="createGroupFromSelection()">Save</button>
+                            </div>
+                        </div>
+
+                        <!-- Existing groups list -->
+                        <div id="groups-list" class="groups-list">
+                            <p class="groups-empty-msg" id="groups-empty-msg">
+                                No groups yet — click <strong>⊕ Select</strong>, pick faces&nbsp;in the panel below, then save a group.
+                            </p>
+                        </div>
+                    </div><!-- /groups-panel -->
+
+                    <div class="right-params-body">
+                        <div id="parameters-form" class="parameters-form">
+                            <p class="params-placeholder">Generate a model to edit parameters</p>
+                        </div>
+                        <button id="regenerate-btn" class="regenerate-btn hidden">Regenerate Model</button>
+                    </div>
+                </div><!-- /sidepanel-params -->
 
             </aside>
 
@@ -211,54 +260,55 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Toggleable compact interaction drawer -->
+                <div id="edit-dock" class="edit-dock hidden">
+                    <button id="edit-dock-toggle" class="edit-dock-toggle" type="button" title="Open or collapse edit controls">
+                        <span id="edit-dock-toggle-text">Open Edit Controls</span>
+                        <span id="edit-dock-toggle-arrow" class="edit-dock-toggle-arrow">▲</span>
+                    </button>
+
+                    <div id="edit-area" class="edit-area-section compact collapsed">
+                        <div class="edit-dock-top-row">
+                            <label class="section-label" style="margin:0">EDIT STEP</label>
+                            <div class="edit-dock-quick-actions">
+                                <button id="edit-dock-group-btn" class="edit-dock-action" onclick="openGroupSelectionWorkflow()" title="Open group selection in Parameters">Group Select</button>
+                                <button id="edit-dock-point-btn" class="edit-dock-action" onclick="togglePointPickMode()" title="Pick a point from the 3D model">Point Pick</button>
+                            </div>
+                        </div>
+
+                        <textarea id="edit-prompt-input" class="prompt-textarea compact"
+                            placeholder="Describe the edit, e.g. change radius of f0 to 8mm" rows="2"></textarea>
+
+                        <div class="edit-dock-bottom-row">
+                            <div class="llm-toggle-row compact">
+                                <span class="llm-toggle-label">AI</span>
+                                <div class="mode-tabs llm-provider-tabs compact">
+                                    <button id="provider-gemini-btn" class="mode-tab active" onclick="setLLMProvider('gemini')">Gemini</button>
+                                    <button id="provider-qwen-btn" class="mode-tab" onclick="setLLMProvider('ollama')">Qwen</button>
+                                </div>
+                            </div>
+                            <div class="prompt-btn-row compact">
+                                <button id="edit-btn" class="generate-btn">Apply Edit</button>
+                            </div>
+                        </div>
+
+                        <div id="edit-error" class="error-message"></div>
+
+                        <details class="named-points-details">
+                            <summary class="named-points-summary">Named Points</summary>
+                            <div class="named-points-section">
+                                <div class="named-points-header">
+                                    <span class="named-points-hint">Use ⊕ Point in viewer, then click a point below to insert into prompt</span>
+                                </div>
+                                <div id="named-points-empty" class="named-points-empty">No points saved yet — enable Point-Pick in the 3D viewer</div>
+                                <div id="named-points-list" class="named-points-list"></div>
+                            </div>
+                        </details>
+                    </div>
+                </div>
             </section>
 
-            <!-- Right Column: Parameters (25%) -->
-            <aside class="right-column">
-                <div class="right-params-header">
-                    <label class="section-label">PARAMETERS</label>
-                </div>
-
-                <!-- ── Face Groups Panel ───────────────────────────────── -->
-                <div class="groups-panel" id="groups-panel">
-                    <div class="groups-panel-header">
-                        <label class="section-label">FACE GROUPS</label>
-                        <button id="group-mode-btn" class="group-mode-btn" onclick="toggleGroupMode()" title="Enter selection mode to create groups">
-                            ⊕ Select
-                        </button>
-                    </div>
-
-                    <!-- Selection-mode toolbar (revealed when active) -->
-                    <div id="group-mode-bar" class="group-mode-bar hidden">
-                        <div class="group-sel-row">
-                            <span class="group-sel-info">
-                                <span id="group-sel-count">0</span> face(s) selected
-                            </span>
-                            <button class="group-sel-clear" onclick="clearFaceSelection()" title="Clear selection">✕ Clear</button>
-                        </div>
-                        <div class="group-create-row">
-                            <input id="group-name-input" class="group-name-input" type="text"
-                                placeholder="e.g. holes, bosses, shafts…" maxlength="30"
-                                onkeydown="if(event.key==='Enter') createGroupFromSelection()">
-                            <button class="group-create-btn" onclick="createGroupFromSelection()">Save</button>
-                        </div>
-                    </div>
-
-                    <!-- Existing groups list -->
-                    <div id="groups-list" class="groups-list">
-                        <p class="groups-empty-msg" id="groups-empty-msg">
-                            No groups yet — click <strong>⊕ Select</strong>, pick faces&nbsp;in the panel below, then save a group.
-                        </p>
-                    </div>
-                </div><!-- /groups-panel -->
-
-                <div class="right-params-body">
-                    <div id="parameters-form" class="parameters-form">
-                        <p class="params-placeholder">Generate a model to edit parameters</p>
-                    </div>
-                    <button id="regenerate-btn" class="regenerate-btn hidden">Regenerate Model</button>
-                </div>
-            </aside>
         </main>
 
         <!-- Loading Overlay -->
@@ -293,9 +343,9 @@
 
     </div><!-- /.app -->
 
-    <script src="js/api.js?v=10"></script>
-    <script src="js/step-viewer.js?v=10"></script>
-    <script src="js/app.js?v=10"></script>
+    <script src="js/api.js?v=21"></script>
+    <script src="js/step-viewer.js?v=21"></script>
+    <script src="js/app.js?v=21"></script>
 </body>
 
 </html>

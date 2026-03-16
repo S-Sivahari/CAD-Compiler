@@ -47,14 +47,17 @@ def _extract_text_from_response(resp_json: dict) -> str:
     return str(resp_json)
 
 
-def call_gemini(prompt: str, model: Optional[str] = None, max_tokens: int = 8192, temperature: float = 0.1) -> str:
+def call_gemini(prompt: str, model: Optional[str] = None, max_tokens: int = 8192,
+                temperature: float = 0.1, json_mode: bool = False) -> str:
     """
     Call Google Gemini REST API with automatic retry and error recovery.
-    
-    Wraps the internal API call with retry logic for transient failures.
+
+    Args:
+        json_mode: When True, sets responseMimeType to application/json so Gemini
+                   is constrained to output valid JSON. Use for all structured
+                   generation calls (SCL JSON, plausibility checks, etc.).
     """
     if ERROR_RECOVERY_ENABLED:
-        # Use error recovery service with retry logic
         error_recovery = ErrorRecoveryService()
         retry_config = RetryConfig(
             max_attempts=getattr(config, 'RETRY_MAX_ATTEMPTS', 3),
@@ -62,7 +65,6 @@ def call_gemini(prompt: str, model: Optional[str] = None, max_tokens: int = 8192
             max_delay=getattr(config, 'RETRY_MAX_DELAY', 60.0),
             exponential_base=getattr(config, 'RETRY_EXPONENTIAL_BASE', 2.0)
         )
-        
         return error_recovery.execute_with_retry(
             _call_gemini_internal,
             config=retry_config,
@@ -70,14 +72,15 @@ def call_gemini(prompt: str, model: Optional[str] = None, max_tokens: int = 8192
             prompt=prompt,
             model=model,
             max_tokens=max_tokens,
-            temperature=temperature
+            temperature=temperature,
+            json_mode=json_mode,
         )
     else:
-        # Fallback to direct call without error recovery
-        return _call_gemini_internal(prompt, model, max_tokens, temperature)
+        return _call_gemini_internal(prompt, model, max_tokens, temperature, json_mode=json_mode)
 
 
-def _call_gemini_internal(prompt: str, model: Optional[str] = None, max_tokens: int = 8192, temperature: float = 0.1) -> str:
+def _call_gemini_internal(prompt: str, model: Optional[str] = None, max_tokens: int = 8192,
+                          temperature: float = 0.1, json_mode: bool = False) -> str:
     """Internal Gemini API call (without retry wrapper)."""
     
     # Get API key
@@ -99,6 +102,8 @@ def _call_gemini_internal(prompt: str, model: Optional[str] = None, max_tokens: 
     gen_config = {"temperature": float(temperature)}
     if max_tokens is not None:
         gen_config["maxOutputTokens"] = int(max_tokens)
+    if json_mode:
+        gen_config["responseMimeType"] = "application/json"
     
     body = {
         "contents": [{"parts": [{"text": prompt}]}],

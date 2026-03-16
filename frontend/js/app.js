@@ -9,6 +9,13 @@
 const state = {
     currentModel: null,
     templates: [],
+    promptTemplates: [],
+    selectedPromptTemplate: null,
+    selectedPromptCategory: '',
+    selectedPromptTemplateId: '',
+    editTemplates: [],
+    selectedEditCategory: '',
+    selectedEditTemplateId: '',
     parameters: [],
     generating: false,
     previewFile: null,          // Currently selected File object for preview
@@ -25,6 +32,7 @@ const state = {
     namedPoints: {},            // { name: [x, y, z] } — user-saved surface coordinates
     pointPickMode: false,       // whether point-pick mode is active
     pendingPoint: null,         // [x, y, z] of the last clicked-but-not-yet-named point
+    editDockExpanded: false,    // compact bottom drawer expanded/collapsed
 };
 
 // Colour palette cycled for successive groups
@@ -40,7 +48,12 @@ const DOM = {
     promptInput: () => document.getElementById('prompt-input'),
     generateBtn: () => document.getElementById('generate-btn'),
     errorMessage: () => document.getElementById('error-message'),
-    templatesSelect: () => document.getElementById('templates-select'),
+    promptTemplateTree: () => document.getElementById('prompt-template-tree'),
+    promptTemplateGrid: () => document.getElementById('prompt-template-grid'),
+    promptTemplateSummary: () => document.getElementById('prompt-template-summary'),
+    editTemplateTree: () => document.getElementById('edit-template-tree'),
+    editTemplateGrid: () => document.getElementById('edit-template-grid'),
+    editTemplateSummary: () => document.getElementById('edit-template-summary'),
     regenerateBtn: () => document.getElementById('regenerate-btn'),
     loadingOverlay: () => document.getElementById('loading-overlay'),
     loadingMessage: () => document.getElementById('loading-message'),
@@ -69,6 +82,10 @@ const DOM = {
     view3dBtn: () => document.getElementById('view3d-btn'),
     previewError: () => document.getElementById('preview-error'),
     editArea: () => document.getElementById('edit-area'),
+    editDock: () => document.getElementById('edit-dock'),
+    editDockToggle: () => document.getElementById('edit-dock-toggle'),
+    editDockToggleText: () => document.getElementById('edit-dock-toggle-text'),
+    editDockPointBtn: () => document.getElementById('edit-dock-point-btn'),
     editPromptInput: () => document.getElementById('edit-prompt-input'),
     editBtn: () => document.getElementById('edit-btn'),
     editError: () => document.getElementById('edit-error'),
@@ -87,7 +104,9 @@ document.addEventListener('DOMContentLoaded', initApp);
 
 async function initApp() {
     setupEventListeners();
-    await loadTemplates();
+    await loadPromptTemplateToolkit();
+    await loadEditTemplateToolkit();
+    syncEditDockVisibility();
     // Initialise the Three.js viewer (non-blocking — WASM loads in background)
     stepViewer.init();
     // Register face-click callback so 3D viewer clicks feed into group selection
@@ -98,6 +117,40 @@ async function initApp() {
     stepViewer.setPointPickCallback((xyz) => {
         _onPointPicked(xyz);
     });
+}
+
+function setSidepanelView(tab = 'workflow') {
+    const sideWorkflowBtn = document.getElementById('sidepanel-workflow-btn');
+    const sideParamsBtn = document.getElementById('sidepanel-params-btn');
+    const sideWorkflow = document.getElementById('sidepanel-workflow');
+    const sideParams = document.getElementById('sidepanel-params');
+    if (!sideWorkflowBtn || !sideParamsBtn || !sideWorkflow || !sideParams) return;
+
+    const showWorkflow = tab !== 'params';
+    sideWorkflowBtn.classList.toggle('active', showWorkflow);
+    sideParamsBtn.classList.toggle('active', !showWorkflow);
+    sideWorkflow.classList.toggle('hidden', !showWorkflow);
+    sideParams.classList.toggle('hidden', showWorkflow);
+}
+
+function syncEditDockVisibility() {
+    const editArea = DOM.editArea();
+    const editDock = DOM.editDock();
+    if (!editArea || !editDock) return;
+    const editSection = document.getElementById('mode-section-edit');
+    const editModeActive = !!editSection && !editSection.classList.contains('hidden');
+    const hasEditableModel = !!(state.previewFile || state.currentModel);
+    const shouldShow = editModeActive && hasEditableModel;
+
+    editDock.classList.toggle('hidden', !shouldShow);
+    editArea.classList.toggle('collapsed', !state.editDockExpanded);
+
+    const toggleBtn = DOM.editDockToggle();
+    const toggleText = DOM.editDockToggleText();
+    if (toggleBtn && toggleText) {
+        toggleBtn.classList.toggle('expanded', state.editDockExpanded);
+        toggleText.textContent = state.editDockExpanded ? 'Hide Edit Controls' : 'Open Edit Controls';
+    }
 }
 
 function setupEventListeners() {
@@ -121,8 +174,49 @@ function setupEventListeners() {
         }
     });
 
-    // Templates dropdown
-    DOM.templatesSelect().addEventListener('change', handleTemplateSelect);
+    const promptTemplateTree = DOM.promptTemplateTree();
+    if (promptTemplateTree) {
+        promptTemplateTree.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-category-path]');
+            if (!btn) return;
+            handlePromptTemplateCategorySelect(btn.dataset.categoryPath || '');
+        });
+    }
+
+    const promptTemplateGrid = DOM.promptTemplateGrid();
+    if (promptTemplateGrid) {
+        promptTemplateGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('[data-template-id]');
+            if (!card) return;
+            handlePromptTemplateSelect(card.dataset.templateId || '');
+        });
+    }
+
+    const editDockToggle = DOM.editDockToggle();
+    if (editDockToggle) {
+        editDockToggle.addEventListener('click', () => {
+            state.editDockExpanded = !state.editDockExpanded;
+            syncEditDockVisibility();
+        });
+    }
+
+    const editTemplateTree = DOM.editTemplateTree();
+    if (editTemplateTree) {
+        editTemplateTree.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-category-path]');
+            if (!btn) return;
+            handleEditTemplateCategorySelect(btn.dataset.categoryPath || '');
+        });
+    }
+
+    const editTemplateGrid = DOM.editTemplateGrid();
+    if (editTemplateGrid) {
+        editTemplateGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('[data-template-id]');
+            if (!card) return;
+            handleEditTemplateLoad(card.dataset.templateId || '');
+        });
+    }
 
     // Regenerate button
     DOM.regenerateBtn().addEventListener('click', handleRegenerate);
@@ -141,18 +235,30 @@ function setupEventListeners() {
     const modeSectionPrompt = document.getElementById('mode-section-prompt');
     const modeSectionEdit   = document.getElementById('mode-section-edit');
 
+    const sideWorkflowBtn = document.getElementById('sidepanel-workflow-btn');
+    const sideParamsBtn = document.getElementById('sidepanel-params-btn');
+
+    if (sideWorkflowBtn && sideParamsBtn) {
+        sideWorkflowBtn.addEventListener('click', () => setSidepanelView('workflow'));
+        sideParamsBtn.addEventListener('click', () => setSidepanelView('params'));
+    }
+
     if (modePromptBtn && modeEditBtn) {
         modePromptBtn.addEventListener('click', () => {
             modePromptBtn.classList.add('active');
             modeEditBtn.classList.remove('active');
             if (modeSectionPrompt) modeSectionPrompt.classList.remove('hidden');
             if (modeSectionEdit)   modeSectionEdit.classList.add('hidden');
+            setSidepanelView('workflow');
+            syncEditDockVisibility();
         });
         modeEditBtn.addEventListener('click', () => {
             modeEditBtn.classList.add('active');
             modePromptBtn.classList.remove('active');
             if (modeSectionEdit)   modeSectionEdit.classList.remove('hidden');
             if (modeSectionPrompt) modeSectionPrompt.classList.add('hidden');
+            setSidepanelView('workflow');
+            syncEditDockVisibility();
         });
     }
 
@@ -472,6 +578,8 @@ function togglePointPickMode() {
     stepViewer.enablePointPick(state.pointPickMode);
     const btn = document.getElementById('step3d-btn-pick');
     if (btn) btn.classList.toggle('active', state.pointPickMode);
+    const dockBtn = DOM.editDockPointBtn();
+    if (dockBtn) dockBtn.classList.toggle('active', state.pointPickMode);
     if (state.pointPickMode) {
         showToast('Point-pick ON — click any surface to drop a point', 'info');
     } else {
@@ -570,6 +678,7 @@ function toggleGroupMode() {
     const bar = DOM.groupModeBar();
 
     if (state.groupMode) {
+        setSidepanelView('params');
         btn.textContent = '✓ Done';
         btn.classList.add('active');
         bar.classList.remove('hidden');
@@ -582,6 +691,11 @@ function toggleGroupMode() {
     }
 
     _applyGroupModeToForm();
+}
+
+function openGroupSelectionWorkflow() {
+    setSidepanelView('params');
+    if (!state.groupMode) toggleGroupMode();
 }
 
 /** Add/remove group-mode class on the parameters form and restore selected state. */
@@ -829,55 +943,390 @@ function _injectPointContext(prompt) {
 // ========================================
 // Templates
 // ========================================
-const PREDEFINED_TEMPLATES = [
-    { name: 'Cylinder', prompt: 'Create a cylinder with diameter 20mm and height 50mm' },
-    { name: 'Bolt', prompt: 'Create an M8 hex bolt with thread length 25mm and head height 5mm' },
-    { name: 'Nut', prompt: 'Create an M8 hex nut with height 6.5mm' },
-    { name: 'Gear', prompt: 'Create a spur gear with 24 teeth, module 2mm, and thickness 10mm' },
-    { name: 'Plate with Holes', prompt: 'Create a rectangular plate 100mm x 60mm x 5mm with 4 corner holes of 6mm diameter' }
-];
+async function loadPromptTemplateToolkit() {
+    const treeEl = DOM.promptTemplateTree();
+    const gridEl = DOM.promptTemplateGrid();
+    const summaryEl = DOM.promptTemplateSummary();
+    if (!treeEl || !gridEl || !summaryEl) return;
 
-async function loadTemplates() {
-    const select = DOM.templatesSelect();
     try {
-        const templates = await api.getTemplates();
-        if (templates && templates.length > 0) {
-            state.templates = templates;
-            templates.forEach(t => {
-                const option = document.createElement('option');
-                option.value = t.name;
-                option.textContent = t.name;
-                select.appendChild(option);
-            });
-            return;
+        const response = await api.getTemplateCatalog('prompt');
+        const catalogTemplates = response?.catalog?.templates || [];
+
+        state.promptTemplates = catalogTemplates.map(_normalizeEditTemplate);
+        state.templates = state.promptTemplates;
+
+        if (state.promptTemplates.length === 0) {
+            const fallback = await api.getTemplates();
+            state.promptTemplates = fallback.map(_normalizeEditTemplate);
+            state.templates = state.promptTemplates;
         }
+
+        const categories = [...new Set(
+            state.promptTemplates
+                .map(t => t.categoryText)
+                .filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b));
+
+        state.selectedPromptCategory = categories[0] || '';
+
+        const readyCount = state.promptTemplates.filter(t => t.buildStatus === 'ready').length;
+        summaryEl.textContent = `${readyCount}/${state.promptTemplates.length} ready`;
+
+        renderPromptTemplateCategoryTree();
+        renderPromptTemplateGrid();
     } catch (error) {
-        console.log('Backend templates not available, using predefined');
+        console.error('Failed to load prompt template toolkit:', error);
+        summaryEl.textContent = 'Templates unavailable';
+        treeEl.innerHTML = '<p class="edit-template-empty">Could not load template categories.</p>';
+        gridEl.innerHTML = '<p class="edit-template-empty">Could not load templates from backend.</p>';
     }
-    state.templates = PREDEFINED_TEMPLATES;
-    PREDEFINED_TEMPLATES.forEach(t => {
-        const option = document.createElement('option');
-        option.value = t.name;
-        option.textContent = t.name;
-        select.appendChild(option);
+}
+
+function renderPromptTemplateCategoryTree() {
+    const treeEl = DOM.promptTemplateTree();
+    if (!treeEl) return;
+
+    if (!state.promptTemplates.length) {
+        treeEl.innerHTML = '<p class="edit-template-empty">No template categories found.</p>';
+        return;
+    }
+
+    const categories = [...new Set(
+        state.promptTemplates
+            .map(t => t.categoryText)
+            .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
+
+    treeEl.innerHTML = '';
+
+    categories.forEach((category) => {
+        const depth = category.split('/').length - 1;
+        const button = document.createElement('button');
+        button.className = `edit-template-category${state.selectedPromptCategory === category ? ' active' : ''}`;
+        button.style.paddingLeft = `${8 + depth * 14}px`;
+        button.dataset.categoryPath = category;
+        button.textContent = category.split('/').pop() || category;
+        button.title = category;
+        treeEl.appendChild(button);
     });
 }
 
-function handleTemplateSelect(e) {
-    const templateName = e.target.value;
-    if (!templateName) return;
-    const template = state.templates.find(t => t.name === templateName);
-    if (template) {
-        DOM.promptInput().value = template.prompt || `Create a ${template.name}`;
+function renderPromptTemplateGrid() {
+    const gridEl = DOM.promptTemplateGrid();
+    if (!gridEl) return;
+
+    const selected = state.selectedPromptCategory;
+    const templates = state.promptTemplates
+        .filter(t => !selected || t.categoryText === selected || t.categoryText.startsWith(`${selected}/`))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+    if (templates.length === 0) {
+        gridEl.innerHTML = '<p class="edit-template-empty">No templates in this category.</p>';
+        return;
     }
-    e.target.value = '';
+
+    gridEl.innerHTML = '';
+    const BASE = 'http://localhost:5000';
+
+    templates.forEach((template) => {
+        const card = document.createElement('div');
+        card.className = `edit-template-card${state.selectedPromptTemplateId === template.templateId ? ' active' : ''}`;
+        card.dataset.templateId = template.templateId;
+        card.title = `Use ${template.name} for generation`;
+
+        const thumbWrap = document.createElement('div');
+        thumbWrap.className = 'edit-template-thumb-wrap';
+
+        if (template.thumbnailUrl) {
+            const img = document.createElement('img');
+            img.className = 'edit-template-thumb';
+            img.src = `${BASE}${template.thumbnailUrl}`;
+            img.alt = template.name;
+            img.loading = 'lazy';
+            img.onerror = () => {
+                img.remove();
+                const fallback = document.createElement('span');
+                fallback.className = 'edit-template-no-thumb';
+                fallback.textContent = 'No preview';
+                thumbWrap.appendChild(fallback);
+            };
+            thumbWrap.appendChild(img);
+        } else {
+            const fallback = document.createElement('span');
+            fallback.className = 'edit-template-no-thumb';
+            fallback.textContent = 'No preview';
+            thumbWrap.appendChild(fallback);
+        }
+
+        const name = document.createElement('div');
+        name.className = 'edit-template-name';
+        name.textContent = template.name;
+
+        const meta = document.createElement('div');
+        meta.className = 'edit-template-meta';
+        meta.textContent = template.categoryText || 'general';
+
+        card.appendChild(thumbWrap);
+        card.appendChild(name);
+        card.appendChild(meta);
+        gridEl.appendChild(card);
+    });
+}
+
+function handlePromptTemplateCategorySelect(categoryPath) {
+    state.selectedPromptCategory = categoryPath;
+    renderPromptTemplateCategoryTree();
+    renderPromptTemplateGrid();
+}
+
+function handlePromptTemplateSelect(templateId) {
+    const template = state.promptTemplates.find(t => t.templateId === templateId);
+    if (!template) return;
+
+    state.selectedPromptTemplate = {
+        ...template,
+        category: template.categoryText,
+    };
+    state.selectedPromptTemplateId = template.templateId;
+
+    const promptInput = DOM.promptInput();
+    const defaultPrompt = template.description || `Create a ${template.name}`;
+    promptInput.value = defaultPrompt;
+
+    renderPromptTemplateGrid();
+}
+
+function buildGenerationPrompt() {
+    const userPrompt = DOM.promptInput().value.trim();
+    const selectedTemplate = state.selectedPromptTemplate;
+    if (!selectedTemplate) return userPrompt;
+
+    const templateName = selectedTemplate.name || 'Unnamed template';
+    const category = selectedTemplate.category || 'general';
+    const description = selectedTemplate.description || '';
+
+    const templateContext = [
+        '[Template Context]',
+        `Template: ${templateName}`,
+        `Category: ${category}`,
+        description ? `Description: ${description}` : null,
+        '',
+    ].filter(Boolean).join('\n');
+
+    return `${templateContext}\n${userPrompt}`.trim();
+}
+
+function _normalizeEditTemplate(item) {
+    const categoryPath = Array.isArray(item.category_path)
+        ? item.category_path
+        : (typeof item.category === 'string' && item.category ? item.category.split('/') : []);
+    return {
+        templateId: item.template_id || item.id || '',
+        name: item.name || 'Unnamed template',
+        categoryPath,
+        categoryText: categoryPath.join('/'),
+        thumbnailUrl: item.thumbnail_url || '',
+        stepUrl: item.step_url || '',
+        buildStatus: item.build_status || 'pending',
+        description: item.description || '',
+    };
+}
+
+async function loadEditTemplateToolkit() {
+    const treeEl = DOM.editTemplateTree();
+    const gridEl = DOM.editTemplateGrid();
+    const summaryEl = DOM.editTemplateSummary();
+    if (!treeEl || !gridEl || !summaryEl) return;
+
+    try {
+        const response = await api.getTemplateCatalog('edit');
+        const catalogTemplates = response?.catalog?.templates || [];
+
+        state.editTemplates = catalogTemplates.map(_normalizeEditTemplate);
+        if (state.editTemplates.length === 0) {
+            const fallback = await api.getTemplates();
+            state.editTemplates = fallback.map(_normalizeEditTemplate);
+        }
+
+        const categories = [...new Set(
+            state.editTemplates
+                .map(t => t.categoryText)
+                .filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b));
+
+        state.selectedEditCategory = categories[0] || '';
+
+        const readyCount = state.editTemplates.filter(t => t.buildStatus === 'ready').length;
+        summaryEl.textContent = `${readyCount}/${state.editTemplates.length} ready`;
+
+        renderEditTemplateCategoryTree();
+        renderEditTemplateGrid();
+    } catch (error) {
+        console.error('Failed to load edit template toolkit:', error);
+        summaryEl.textContent = 'Templates unavailable';
+        treeEl.innerHTML = '<p class="edit-template-empty">Could not load template categories.</p>';
+        gridEl.innerHTML = '<p class="edit-template-empty">Could not load templates from backend.</p>';
+    }
+}
+
+function renderEditTemplateCategoryTree() {
+    const treeEl = DOM.editTemplateTree();
+    if (!treeEl) return;
+
+    if (!state.editTemplates.length) {
+        treeEl.innerHTML = '<p class="edit-template-empty">No template categories found.</p>';
+        return;
+    }
+
+    const categories = [...new Set(
+        state.editTemplates
+            .map(t => t.categoryText)
+            .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
+
+    treeEl.innerHTML = '';
+
+    categories.forEach((category) => {
+        const depth = category.split('/').length - 1;
+        const button = document.createElement('button');
+        button.className = `edit-template-category${state.selectedEditCategory === category ? ' active' : ''}`;
+        button.style.paddingLeft = `${8 + depth * 14}px`;
+        button.dataset.categoryPath = category;
+        button.textContent = category.split('/').pop() || category;
+        button.title = category;
+        treeEl.appendChild(button);
+    });
+}
+
+function renderEditTemplateGrid() {
+    const gridEl = DOM.editTemplateGrid();
+    if (!gridEl) return;
+
+    const selected = state.selectedEditCategory;
+    const templates = state.editTemplates
+        .filter(t => !selected || t.categoryText === selected || t.categoryText.startsWith(`${selected}/`))
+        .sort((a, b) => {
+            if (a.buildStatus === b.buildStatus) return a.name.localeCompare(b.name);
+            if (a.buildStatus === 'ready') return -1;
+            if (b.buildStatus === 'ready') return 1;
+            return a.name.localeCompare(b.name);
+        });
+
+    if (templates.length === 0) {
+        gridEl.innerHTML = '<p class="edit-template-empty">No templates in this category.</p>';
+        return;
+    }
+
+    gridEl.innerHTML = '';
+    const BASE = 'http://localhost:5000';
+
+    templates.forEach((template) => {
+        const card = document.createElement('div');
+        const isReady = template.buildStatus === 'ready';
+        card.className = `edit-template-card${!isReady ? ' disabled' : ''}${state.selectedEditTemplateId === template.templateId ? ' active' : ''}`;
+        card.dataset.templateId = template.templateId;
+        card.title = isReady ? `Load ${template.name} in Edit mode` : `Template not ready (${template.buildStatus})`;
+
+        const thumbWrap = document.createElement('div');
+        thumbWrap.className = 'edit-template-thumb-wrap';
+
+        if (template.thumbnailUrl) {
+            const img = document.createElement('img');
+            img.className = 'edit-template-thumb';
+            img.src = `${BASE}${template.thumbnailUrl}`;
+            img.alt = template.name;
+            img.loading = 'lazy';
+            img.onerror = () => {
+                img.remove();
+                const fallback = document.createElement('span');
+                fallback.className = 'edit-template-no-thumb';
+                fallback.textContent = 'No preview';
+                thumbWrap.appendChild(fallback);
+            };
+            thumbWrap.appendChild(img);
+        } else {
+            const fallback = document.createElement('span');
+            fallback.className = 'edit-template-no-thumb';
+            fallback.textContent = 'No preview';
+            thumbWrap.appendChild(fallback);
+        }
+
+        const name = document.createElement('div');
+        name.className = 'edit-template-name';
+        name.textContent = template.name;
+
+        const meta = document.createElement('div');
+        meta.className = 'edit-template-meta';
+        meta.textContent = template.buildStatus;
+
+        card.appendChild(thumbWrap);
+        card.appendChild(name);
+        card.appendChild(meta);
+        gridEl.appendChild(card);
+    });
+}
+
+function handleEditTemplateCategorySelect(categoryPath) {
+    state.selectedEditCategory = categoryPath;
+    renderEditTemplateCategoryTree();
+    renderEditTemplateGrid();
+}
+
+async function handleEditTemplateLoad(templateId) {
+    const template = state.editTemplates.find(t => t.templateId === templateId);
+    if (!template) return;
+
+    if (template.buildStatus !== 'ready' || !template.stepUrl) {
+        showToast(`Template "${template.name}" is not ready yet`, 'warning');
+        return;
+    }
+
+    const modePromptBtn = document.getElementById('mode-prompt-btn');
+    const modeEditBtn = document.getElementById('mode-edit-btn');
+    const modeSectionPrompt = document.getElementById('mode-section-prompt');
+    const modeSectionEdit = document.getElementById('mode-section-edit');
+    if (modeEditBtn && modePromptBtn && modeSectionEdit && modeSectionPrompt) {
+        modeEditBtn.classList.add('active');
+        modePromptBtn.classList.remove('active');
+        modeSectionEdit.classList.remove('hidden');
+        modeSectionPrompt.classList.add('hidden');
+    }
+    setSidepanelView('workflow');
+    syncEditDockVisibility();
+
+    const BASE = 'http://localhost:5000';
+    const stepUrl = `${BASE}${template.stepUrl}`;
+    const fileName = `${template.templateId.split('/').pop()}.step`;
+
+    showLoading(`Loading template "${template.name}"...`);
+    try {
+        const loaded = await _autoLoadStepForEditing(stepUrl, fileName);
+        if (!loaded) throw new Error('Unable to fetch template STEP file');
+
+        switchTab('viewer3d');
+        stepViewer.loadStepUrl(stepUrl);
+        addToHistoryFromUrl(fileName, stepUrl);
+
+        await loadParameters();
+        if (state.ocpFeatures) stepViewer.setFaceFeatures(state.ocpFeatures);
+
+        state.selectedEditTemplateId = template.templateId;
+        renderEditTemplateGrid();
+        showToast(`Template "${template.name}" loaded in Edit mode`, 'success');
+    } catch (error) {
+        DOM.editError().textContent = `Template load failed: ${error.message}`;
+        showToast(`Template load failed: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
 }
 
 // ========================================
 // Generation
 // ========================================
 async function handleGenerate() {
-    const prompt = DOM.promptInput().value.trim();
+    const prompt = buildGenerationPrompt();
     if (!prompt) { showError('Please enter a design description'); return; }
     if (state.generating) { showError('Generation already in progress'); return; }
 
@@ -915,6 +1364,10 @@ async function handleGenerate() {
         switchTab('viewer3d');
         stepViewer.loadStepUrl(stepUrl);
         addToHistoryFromUrl(stepFile, stepUrl);
+
+        // Silently register the generated file for the edit pipeline
+        // so the user can switch to Edit tab and edit immediately.
+        _autoLoadStepForEditing(stepUrl, stepFile);
 
         showToast('Model generated successfully', 'success');
     } catch (error) {
@@ -1135,8 +1588,36 @@ function selectStepFile(file) {
     DOM.previewBtn().disabled = false;
     DOM.view3dBtn().disabled = false;
     DOM.previewError().textContent = '';
+    state.editDockExpanded = true;
+    // Show edit dock when Edit mode is active
+    syncEditDockVisibility();
     // Auto-populate the Parameters panel as soon as a file is chosen
     loadParameters().catch(() => {});
+}
+
+/**
+ * Fetch a server-side STEP URL as a File object and register it as
+ * state.previewFile so it can be sent to the edit pipeline without
+ * the user manually re-uploading it.  Non-fatal — silently skips on error.
+ */
+async function _autoLoadStepForEditing(stepUrl, filename) {
+    try {
+        const resp = await fetch(stepUrl);
+        if (!resp.ok) return false;
+        const blob = await resp.blob();
+        const file = new File([blob], filename, { type: 'application/octet-stream' });
+        state.previewFile = file;
+        // Update the upload drop-zone so the Edit tab reflects the active file
+        DOM.dropZoneText().textContent = filename;
+        DOM.dropZone().classList.add('has-file');
+        DOM.previewBtn().disabled = false;
+        DOM.view3dBtn().disabled = false;
+        state.editDockExpanded = true;
+        syncEditDockVisibility();
+        return true;
+    } catch (_) {
+        return false;
+    }
 }
 
 async function handlePreview() {
@@ -1158,7 +1639,8 @@ async function handlePreview() {
         state.previewFeatures = result.features || null;
 
         // Show edit area (we have features now)
-        DOM.editArea().classList.remove('hidden');
+        state.editDockExpanded = true;
+        syncEditDockVisibility();
 
         // Switch to Preview tab and render gallery
         switchTab('preview');
@@ -1326,6 +1808,11 @@ function zoomIn() { const c = _wrapCenter(); _zoomToward(ZOOM_STEP * 2, c.x, c.y
 function zoomOut() { const c = _wrapCenter(); _zoomToward(-ZOOM_STEP * 2, c.x, c.y); }
 function zoomReset() { _resetTransform(); }
 
+function isTemplatePlacementCommand(prompt) {
+    if (!prompt) return false;
+    return /\b(add|place|insert)\b.+\bat\s*\[\s*-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?\s*\]/i.test(prompt);
+}
+
 // ========================================
 // Edit STEP
 // ========================================
@@ -1350,10 +1837,18 @@ async function handleEditStep() {
     try {
         const formData = new FormData();
         formData.append('file', state.previewFile);
-        formData.append('prompt', enrichedPrompt);
         formData.append('provider', state.llmProvider);
 
-        const result = await api.editStep(formData);
+        const isTemplateCmd = isTemplatePlacementCommand(prompt);
+        let result;
+        if (isTemplateCmd) {
+            formData.append('command', prompt);
+            updateLoading('Applying template placement command…');
+            result = await api.templateCommand(formData);
+        } else {
+            formData.append('prompt', enrichedPrompt);
+            result = await api.editStep(formData);
+        }
 
         // ── Lossless BREP path: result has step_file but no py_file / json_file ──
         // Only load what actually exists; skip JSON/Python tabs for BREP edits.
@@ -1382,7 +1877,11 @@ async function handleEditStep() {
             stepViewer.loadStepUrl(stepUrl);
             addToHistoryFromUrl(stepFilename, stepUrl);
 
-            showToast('STEP edited — model updated', 'success');
+            // Update previewFile to the freshly-edited STEP so the next
+            // edit operates on the latest version without a manual re-upload.
+            _autoLoadStepForEditing(stepUrl, stepFilename);
+
+            showToast(isTemplateCmd ? 'Template placement applied — model updated' : 'STEP edited — model updated', 'success');
         } else {
             showToast('Edit complete (no step_url returned)', 'warning');
         }

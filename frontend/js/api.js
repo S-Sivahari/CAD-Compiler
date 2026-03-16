@@ -182,6 +182,28 @@ class SynthoCADAPI {
         }
     }
 
+    async templateCommand(formData) {
+        /**
+         * Apply a template onto an uploaded STEP using a command like:
+         * "Add air scoop intake at [10,20,30]".
+         */
+        const url = `${this.baseUrl}/edit/template-command`;
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.message || data.error || `HTTP ${response.status}`);
+            }
+            return data;
+        } catch (error) {
+            console.error('templateCommand failed:', error);
+            throw error;
+        }
+    }
+
     async listGeneratedFiles() {
         return this.request(`/parameters/list-files`, {
             method: 'GET'
@@ -312,6 +334,18 @@ class SynthoCADAPI {
             method: 'GET'
         });
         return response.templates || [];
+    }
+
+    async getTemplateCatalog(mode = 'edit') {
+        return this.request(`/templates/catalog?mode=${encodeURIComponent(mode)}`, {
+            method: 'GET'
+        });
+    }
+
+    async getTemplatesByCategory(categoryPath) {
+        return this.request(`/templates/by-category/${encodeURIComponent(categoryPath)}`, {
+            method: 'GET'
+        });
     }
 
     async getTemplate(name) {
