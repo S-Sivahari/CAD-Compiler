@@ -49,6 +49,13 @@ class SynthoCADAPI {
         });
     }
 
+    async generateFromBrep(prompt) {
+        return this.request('/generate/brep', {
+            method: 'POST',
+            body: JSON.stringify({ prompt })
+        });
+    }
+
     async generateFromJSON(jsonData, outputName = null) {
         return this.request('/generate/from-json', {
             method: 'POST',

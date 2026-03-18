@@ -88,6 +88,10 @@ LLM_PROVIDER = "gemini"  # Options: "gemini", "ollama"
 OLLAMA_LLM_MODEL = "qwen2.5:7b"  # Recommended for CPU: qwen2.5:7b, llama3.1:8b
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
+# B-Rep generation can require long structured outputs.
+# Gemini 2.5 Flash supports much larger outputs; keep this high to avoid truncation.
+BREP_GEMINI_MAX_OUTPUT_TOKENS = 65000
+
 # Retry/Error Recovery Configuration
 RETRY_ENABLED = True
 RETRY_MAX_ATTEMPTS = 3  # Maximum retry attempts for LLM calls

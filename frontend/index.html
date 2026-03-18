@@ -40,6 +40,7 @@
                         <div class="mode-tabs">
                             <button id="mode-prompt-btn" class="mode-tab active">Prompt</button>
                             <button id="mode-edit-btn" class="mode-tab">Edit</button>
+                            <button id="mode-brep-btn" class="mode-tab">B-Rep Gen</button>
                         </div>
                     </div>
 
@@ -118,6 +119,31 @@
                     </section>
 
                     </div><!-- /mode-section-edit -->
+
+                    <!-- ── B-Rep Gen Mode ───────────────────────────────── -->
+                    <div id="mode-section-brep" class="mode-section hidden">
+                        <section class="input-section">
+                            <div class="prompt-wrapper">
+                                <textarea id="brep-prompt-input" class="prompt-textarea"
+                                    placeholder="Generate a CAD model iteratively via B-Rep operations..." rows="3"></textarea>
+                            </div>
+                            <div class="prompt-btn-row">
+                                <button id="brep-generate-btn" class="generate-btn">Construct B-Rep</button>
+                            </div>
+                            <div id="brep-error-message" class="error-message"></div>
+                        </section>
+                        
+                        <section class="brep-timeline-section">
+                            <div class="groups-panel-header">
+                                <label class="section-label">B-REP TIMELINE</label>
+                            </div>
+                            <div id="brep-timeline-list" class="groups-list">
+                                <p class="groups-empty-msg" id="brep-timeline-empty-msg">
+                                    No operations generated yet. Type a prompt above to start the sequence.
+                                </p>
+                            </div>
+                        </section>
+                    </div><!-- /mode-section-brep -->
                 </div><!-- /sidepanel-workflow -->
 
                 <div id="sidepanel-params" class="sidepanel-section hidden">

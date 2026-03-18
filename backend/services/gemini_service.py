@@ -38,16 +38,19 @@ def _extract_text_from_response(resp_json: dict) -> str:
             if "content" in first and isinstance(first["content"], dict):
                 content = first["content"]
                 if "parts" in content and content["parts"]:
-                    part = content["parts"][0]
-                    if isinstance(part, dict) and "text" in part:
-                        return part["text"]
+                    text_parts = []
+                    for part in content["parts"]:
+                        if isinstance(part, dict) and "text" in part and isinstance(part["text"], str):
+                            text_parts.append(part["text"])
+                    if text_parts:
+                        return "".join(text_parts)
             if "text" in first:
                 return first["text"]
     
     return str(resp_json)
 
 
-def call_gemini(prompt: str, model: Optional[str] = None, max_tokens: int = 8192,
+def call_gemini(prompt: str, model: Optional[str] = None, max_tokens: Optional[int] = None,
                 temperature: float = 0.1, json_mode: bool = False) -> str:
     """
     Call Google Gemini REST API with automatic retry and error recovery.
@@ -79,7 +82,7 @@ def call_gemini(prompt: str, model: Optional[str] = None, max_tokens: int = 8192
         return _call_gemini_internal(prompt, model, max_tokens, temperature, json_mode=json_mode)
 
 
-def _call_gemini_internal(prompt: str, model: Optional[str] = None, max_tokens: int = 8192,
+def _call_gemini_internal(prompt: str, model: Optional[str] = None, max_tokens: Optional[int] = None,
                           temperature: float = 0.1, json_mode: bool = False) -> str:
     """Internal Gemini API call (without retry wrapper)."""
     

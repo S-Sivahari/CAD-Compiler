@@ -95,6 +95,12 @@ const DOM = {
     viewStrip: () => document.getElementById('view-strip'),
     viewMainImg: () => document.getElementById('view-main-img'),
     viewMainLabel: () => document.getElementById('view-main-label'),
+    
+    // B-Rep Gen
+    brepPromptInput: () => document.getElementById('brep-prompt-input'),
+    brepGenerateBtn: () => document.getElementById('brep-generate-btn'),
+    brepErrorMessage: () => document.getElementById('brep-error-message'),
+    brepTimelineList: () => document.getElementById('brep-timeline-list'),
 };
 
 // ========================================
@@ -156,6 +162,19 @@ function syncEditDockVisibility() {
 function setupEventListeners() {
     // Generate button
     DOM.generateBtn().addEventListener('click', handleGenerate);
+
+    // B-Rep Generate button
+    if (DOM.brepGenerateBtn()) {
+        DOM.brepGenerateBtn().addEventListener('click', handleBrepGenerate);
+    }
+    if (DOM.brepPromptInput()) {
+        DOM.brepPromptInput().addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                e.preventDefault();
+                handleBrepGenerate();
+            }
+        });
+    }
 
     // Enter key in prompt — only fire when Prompt mode is active
     DOM.promptInput().addEventListener('keydown', (e) => {
@@ -232,8 +251,10 @@ function setupEventListeners() {
     // ── Mode tab switching ────────────────────────────────────────────────
     const modePromptBtn = document.getElementById('mode-prompt-btn');
     const modeEditBtn   = document.getElementById('mode-edit-btn');
+    const modeBrepBtn   = document.getElementById('mode-brep-btn');
     const modeSectionPrompt = document.getElementById('mode-section-prompt');
     const modeSectionEdit   = document.getElementById('mode-section-edit');
+    const modeSectionBrep   = document.getElementById('mode-section-brep');
 
     const sideWorkflowBtn = document.getElementById('sidepanel-workflow-btn');
     const sideParamsBtn = document.getElementById('sidepanel-params-btn');
@@ -243,24 +264,22 @@ function setupEventListeners() {
         sideParamsBtn.addEventListener('click', () => setSidepanelView('params'));
     }
 
-    if (modePromptBtn && modeEditBtn) {
-        modePromptBtn.addEventListener('click', () => {
-            modePromptBtn.classList.add('active');
-            modeEditBtn.classList.remove('active');
-            if (modeSectionPrompt) modeSectionPrompt.classList.remove('hidden');
-            if (modeSectionEdit)   modeSectionEdit.classList.add('hidden');
-            setSidepanelView('workflow');
-            syncEditDockVisibility();
-        });
-        modeEditBtn.addEventListener('click', () => {
-            modeEditBtn.classList.add('active');
-            modePromptBtn.classList.remove('active');
-            if (modeSectionEdit)   modeSectionEdit.classList.remove('hidden');
-            if (modeSectionPrompt) modeSectionPrompt.classList.add('hidden');
-            setSidepanelView('workflow');
-            syncEditDockVisibility();
-        });
+    function _switchMode(mode) {
+        if (modePromptBtn) modePromptBtn.classList.toggle('active', mode === 'prompt');
+        if (modeEditBtn)   modeEditBtn.classList.toggle('active', mode === 'edit');
+        if (modeBrepBtn)   modeBrepBtn.classList.toggle('active', mode === 'brep');
+        
+        if (modeSectionPrompt) modeSectionPrompt.classList.toggle('hidden', mode !== 'prompt');
+        if (modeSectionEdit)   modeSectionEdit.classList.toggle('hidden', mode !== 'edit');
+        if (modeSectionBrep)   modeSectionBrep.classList.toggle('hidden', mode !== 'brep');
+        
+        setSidepanelView('workflow');
+        syncEditDockVisibility();
     }
+
+    if (modePromptBtn) modePromptBtn.addEventListener('click', () => _switchMode('prompt'));
+    if (modeEditBtn)   modeEditBtn.addEventListener('click', () => _switchMode('edit'));
+    if (modeBrepBtn)   modeBrepBtn.addEventListener('click', () => _switchMode('brep'));
 
     // ── Upload / Preview ──────────────────────────────────────────────────
     const dropZone = DOM.dropZone();
@@ -1326,50 +1345,111 @@ async function handleEditTemplateLoad(templateId) {
 // Generation
 // ========================================
 async function handleGenerate() {
-    const prompt = buildGenerationPrompt();
-    if (!prompt) { showError('Please enter a design description'); return; }
+        const prompt = buildGenerationPrompt();
+        if (!prompt) { showError('Please enter a design description'); return; }
+        if (state.generating) { showError('Generation already in progress'); return; }
+
+        clearError();
+        state.generating = true;
+        setGenerating(true);
+        showLoading('Generating CAD model...');
+
+        try {
+            const validation = await api.validatePrompt(prompt);
+            if (!validation.valid) throw new Error(validation.error || 'Invalid prompt');
+
+            updateLoading('Calling LLM...');
+            const result = await api.generateFromPrompt(prompt);
+
+            const stepFile = extractFilename(result.step_file);
+            state.currentModel = { ...result, baseName: stepFile.replace('.step', '') };
+
+            // Show Visualize button if GLB is available
+            if (result.glb_url) {
+                DOM.visualizeBtn().classList.remove('hidden');
+            }
+
+            await Promise.all([
+                loadJsonContent(state.currentModel.baseName),
+                loadPythonContent(state.currentModel.baseName),
+                loadStepContent(state.currentModel.baseName),
+                loadParameters()
+            ]);
+            // Feed features to the 3D viewer tooltip engine (loadParameters sets state.ocpFeatures)
+            if (state.ocpFeatures) stepViewer.setFaceFeatures(state.ocpFeatures);
+
+            // Auto-load the generated STEP into the 3D viewer
+            const stepUrl = `http://localhost:5000/outputs/step/${stepFile}`;
+            switchTab('viewer3d');
+            stepViewer.loadStepUrl(stepUrl);
+            addToHistoryFromUrl(stepFile, stepUrl);
+
+            // Silently register the generated file for the edit pipeline
+            // so the user can switch to Edit tab and edit immediately.
+            _autoLoadStepForEditing(stepUrl, stepFile);
+
+            showToast('Model generated successfully', 'success');
+        } catch (error) {
+            showError(error.message);
+            showToast(`Error: ${error.message}`, 'error');
+        } finally {
+            state.generating = false;
+            setGenerating(false);
+            hideLoading();
+        }
+    }
+
+async function handleBrepGenerate() {
+    const promptInput = DOM.brepPromptInput();
+    if (!promptInput) return;
+    
+    const prompt = promptInput.value.trim();
+    if (!prompt) { showError('Please enter a B-Rep design description'); return; }
     if (state.generating) { showError('Generation already in progress'); return; }
 
     clearError();
     state.generating = true;
     setGenerating(true);
-    showLoading('Generating CAD model...');
+    showLoading('Generating B-Rep model pipeline (this may take up to a minute)...');
 
     try {
-        const validation = await api.validatePrompt(prompt);
-        if (!validation.valid) throw new Error(validation.error || 'Invalid prompt');
-
-        updateLoading('Calling LLM...');
-        const result = await api.generateFromPrompt(prompt);
-
-        const stepFile = extractFilename(result.step_file);
-        state.currentModel = { ...result, baseName: stepFile.replace('.step', '') };
-
-        // Show Visualize button if GLB is available
-        if (result.glb_url) {
-            DOM.visualizeBtn().classList.remove('hidden');
+        const result = await api.generateFromBrep(prompt);
+        
+        if (result.error) {
+           throw new Error(result.error);
         }
 
-        await Promise.all([
-            loadJsonContent(state.currentModel.baseName),
-            loadPythonContent(state.currentModel.baseName),
-            loadStepContent(state.currentModel.baseName),
-            loadParameters()
-        ]);
-        // Feed features to the 3D viewer tooltip engine (loadParameters sets state.ocpFeatures)
-        if (state.ocpFeatures) stepViewer.setFaceFeatures(state.ocpFeatures);
+        const stepFileUrl = result.final_step_url;
+        if (!stepFileUrl) throw new Error("No STEP file URL returned by BREP API.");
+        
+        const fileName = stepFileUrl.substring(stepFileUrl.lastIndexOf('/') + 1) || "brep_model.step";
+        const fullStepUrl = stepFileUrl.startsWith('http') ? stepFileUrl : `http://localhost:5000${stepFileUrl}`;
 
         // Auto-load the generated STEP into the 3D viewer
-        const stepUrl = `http://localhost:5000/outputs/step/${stepFile}`;
         switchTab('viewer3d');
-        stepViewer.loadStepUrl(stepUrl);
-        addToHistoryFromUrl(stepFile, stepUrl);
+        stepViewer.loadStepUrl(fullStepUrl);
+        addToHistoryFromUrl(fileName, fullStepUrl);
 
-        // Silently register the generated file for the edit pipeline
-        // so the user can switch to Edit tab and edit immediately.
-        _autoLoadStepForEditing(stepUrl, stepFile);
+        const stepFileName = result.final_step_file ? result.final_step_file.substring(result.final_step_file.lastIndexOf('\\') + 1) : fileName;
+        _autoLoadStepForEditing(fullStepUrl, stepFileName);
 
-        showToast('Model generated successfully', 'success');
+        // Populate timeline if we have the sequence details
+        const timelineListId = 'brep-timeline-list';
+        const timelineEl = document.getElementById(timelineListId);
+        if (timelineEl && result.sequence) {
+             timelineEl.innerHTML = '';
+             result.sequence.forEach((op, idx) => {
+                 const li = document.createElement('li');
+                 let desc = op.type || "operation";
+                 if (op.params) {
+                     desc += ` (${JSON.stringify(op.params)})`;
+                 }
+                 li.textContent = `Step ${idx + 1}: ${desc}`;
+                 timelineEl.appendChild(li);
+             });
+        }
+
+        showToast('B-Rep pipeline generated successfully', 'success');
     } catch (error) {
         showError(error.message);
         showToast(`Error: ${error.message}`, 'error');
@@ -1379,6 +1459,7 @@ async function handleGenerate() {
         hideLoading();
     }
 }
+
 
 // ========================================
 // Regeneration

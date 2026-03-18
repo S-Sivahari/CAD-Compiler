@@ -160,3 +160,27 @@ def generate_from_json():
                 'message': str(e)
             }
         }), 500
+
+
+from core.brep_generator import BRepGenerator
+brep_generator = BRepGenerator()
+
+@bp.route('/brep', methods=['POST'])
+def generate_from_brep():
+    try:
+        data = request.get_json()
+        prompt = data.get('prompt', '')
+        if not prompt:
+            return jsonify({'status': 'error', 'error': 'Prompt is required'}), 400
+        
+        api_logger.info(f'Starting B-Rep generation from prompt: {prompt[:100]}...')
+        result = brep_generator.run_generation_loop(prompt)
+        
+        if result['status'] == 'success':
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 400
+    except Exception as e:
+        api_logger.error(f'B-Rep Generation error: {str(e)}')
+        return jsonify({'status': 'error', 'error': str(e)}), 500
+
