@@ -31,7 +31,7 @@ backend/chroma_db
 backend/scripts/batches
 backend/scripts/local_descriptions
 backend/scripts/dataset_extractor
-templates/txt
+templates/
 batches.zip
 
 data
