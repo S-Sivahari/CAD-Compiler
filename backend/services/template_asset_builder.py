@@ -25,6 +25,25 @@ def _status_entry(status: str, stage: Optional[str] = None, message: Optional[st
     }
 
 
+def _import_json_validator():
+    """Import local json validator, guarding against site-package shadowing."""
+    try:
+        from validators.json_validator import repair_json, validate_json_detailed
+        return repair_json, validate_json_detailed
+    except Exception as first_error:
+        backend_path = str(config.BACKEND_DIR)
+        if backend_path not in sys.path:
+            sys.path.insert(0, backend_path)
+
+        try:
+            from validators.json_validator import repair_json, validate_json_detailed
+            return repair_json, validate_json_detailed
+        except Exception as second_error:
+            raise ImportError(
+                f"json validator import failed: {first_error}; retry failed: {second_error}"
+            )
+
+
 def _rectangle_to_lines(rect: Dict[str, Any]) -> Dict[str, Any]:
     width = float(rect.get('X', rect.get('width', 0.0)))
     height = float(rect.get('Y', rect.get('height', 0.0)))
@@ -109,7 +128,7 @@ def _normalize_template_primitives(data: Dict[str, Any]) -> Dict[str, Any]:
 def _build_one_template(template: Dict[str, Any]) -> Dict[str, Any]:
     try:
         try:
-            from validators.json_validator import repair_json, validate_json_detailed
+            repair_json, validate_json_detailed = _import_json_validator()
         except Exception as e:
             return _status_entry('failed', 'dependency', f"json validator import failed: {e}")
 
@@ -161,12 +180,21 @@ def _build_one_template(template: Dict[str, Any]) -> Dict[str, Any]:
             step_path.parent.mkdir(parents=True, exist_ok=True)
             produced.replace(step_path)
 
-        step_renderer.render(str(step_path), str(thumb_path))
+        rendered_thumb = Path(step_renderer.render(str(step_path), str(thumb_path))).resolve()
+        if not rendered_thumb.exists():
+            return _status_entry('failed', 'execution', 'Thumbnail file was not produced')
+
+        try:
+            thumb_rel = rendered_thumb.relative_to(config.BASE_DIR).as_posix()
+            thumb_url = f"/{thumb_rel}"
+        except Exception:
+            thumb_url = template.get('thumbnail_url', '')
 
         return {
             'status': 'ready',
             'error': None,
             'last_built_at': _utc_now(),
+            'thumbnail_url': thumb_url,
         }
     except subprocess.TimeoutExpired:
         return _status_entry('failed', 'execution', f'Execution timeout ({config.EXECUTION_TIMEOUT}s)')
@@ -217,6 +245,8 @@ def build_template_assets(
         current['error'] = result.get('error')
         if result.get('last_built_at'):
             current['last_built_at'] = result['last_built_at']
+        if result.get('thumbnail_url'):
+            current['thumbnail_url'] = result['thumbnail_url']
 
         if result['status'] == 'ready':
             built += 1

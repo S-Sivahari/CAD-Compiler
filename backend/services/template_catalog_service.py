@@ -153,6 +153,10 @@ def _thumb_path_for_template_id(template_id: str) -> Path:
     return config.PREVIEWS_DIR / 'templates' / f"{template_id}.png"
 
 
+def _thumb_svg_path_for_template_id(template_id: str) -> Path:
+    return config.PREVIEWS_DIR / 'templates' / f"{template_id}.svg"
+
+
 def discover_templates() -> List[Dict[str, Any]]:
     templates_dir = config.TEMPLATES_DIR
     templates_dir.mkdir(parents=True, exist_ok=True)
@@ -166,7 +170,20 @@ def discover_templates() -> List[Dict[str, Any]]:
 
         category_path = rel_under_templates.split('/')[:-1]
         step_path = _step_path_for_template_id(template_id)
-        thumb_path = _thumb_path_for_template_id(template_id)
+        thumb_png_path = _thumb_path_for_template_id(template_id)
+        thumb_svg_path = _thumb_svg_path_for_template_id(template_id)
+
+        if thumb_png_path.exists():
+            thumbnail_rel_path = thumb_png_path.relative_to(config.BASE_DIR).as_posix()
+            thumbnail_url = f"/{thumbnail_rel_path}"
+            has_thumbnail = True
+        elif thumb_svg_path.exists():
+            thumbnail_rel_path = thumb_svg_path.relative_to(config.BASE_DIR).as_posix()
+            thumbnail_url = f"/{thumbnail_rel_path}"
+            has_thumbnail = True
+        else:
+            thumbnail_url = f"/outputs/previews/templates/{template_id}.png"
+            has_thumbnail = False
 
         name = json_file.stem.replace('_', ' ').title()
         description = ''
@@ -188,8 +205,8 @@ def discover_templates() -> List[Dict[str, Any]]:
             'relative_json_path': rel_json,
             'relative_step_path': step_path.relative_to(config.BASE_DIR).as_posix(),
             'step_url': f"/outputs/step/templates/{template_id}.step",
-            'thumbnail_url': f"/outputs/previews/templates/{template_id}.png",
-            'build_status': 'ready' if step_path.exists() and thumb_path.exists() else 'pending',
+            'thumbnail_url': thumbnail_url,
+            'build_status': 'ready' if step_path.exists() and has_thumbnail else 'pending',
             'last_built_at': None,
             'checksum': _file_sha256(json_file),
             'description': description,

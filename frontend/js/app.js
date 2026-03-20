@@ -8,14 +8,27 @@
 // ========================================
 const state = {
     currentModel: null,
-    templates: [],
-    promptTemplates: [],
-    selectedPromptTemplate: null,
+
+    // Unified template system
+    allTemplates: [],              // All templates (generation + prebuilt)
+    currentTemplates: [],          // Currently displayed templates
+    templateMode: 'prebuilt',      // prebuilt-only in unified toolkit
+    selectedCategory: '',
+    selectedTemplateId: '',
     selectedPromptCategory: '',
     selectedPromptTemplateId: '',
-    editTemplates: [],
+    selectedPromptTemplate: null,
     selectedEditCategory: '',
     selectedEditTemplateId: '',
+    promptTemplates: [],
+    editTemplates: [],
+
+    // Legacy - keep for backward compatibility during transition
+    templates: [],
+
+    // Workflow phase (replaces mode system)
+    workflowPhase: 'initial',      // 'initial' | 'generated' | 'editing'
+
     parameters: [],
     generating: false,
     previewFile: null,          // Currently selected File object for preview
@@ -46,14 +59,14 @@ const GROUP_COLORS = [
 // ========================================
 const DOM = {
     promptInput: () => document.getElementById('prompt-input'),
-    generateBtn: () => document.getElementById('generate-btn'),
+    generateBtn: () => document.getElementById('smart-action-btn') || document.getElementById('generate-btn'),
     errorMessage: () => document.getElementById('error-message'),
-    promptTemplateTree: () => document.getElementById('prompt-template-tree'),
-    promptTemplateGrid: () => document.getElementById('prompt-template-grid'),
-    promptTemplateSummary: () => document.getElementById('prompt-template-summary'),
-    editTemplateTree: () => document.getElementById('edit-template-tree'),
-    editTemplateGrid: () => document.getElementById('edit-template-grid'),
-    editTemplateSummary: () => document.getElementById('edit-template-summary'),
+    promptTemplateTree: () => document.getElementById('template-tree') || document.getElementById('prompt-template-tree'),
+    promptTemplateGrid: () => document.getElementById('template-grid') || document.getElementById('prompt-template-grid'),
+    promptTemplateSummary: () => document.getElementById('template-summary') || document.getElementById('prompt-template-summary'),
+    editTemplateTree: () => document.getElementById('template-tree') || document.getElementById('edit-template-tree'),
+    editTemplateGrid: () => document.getElementById('template-grid') || document.getElementById('edit-template-grid'),
+    editTemplateSummary: () => document.getElementById('template-summary') || document.getElementById('edit-template-summary'),
     regenerateBtn: () => document.getElementById('regenerate-btn'),
     loadingOverlay: () => document.getElementById('loading-overlay'),
     loadingMessage: () => document.getElementById('loading-message'),
@@ -75,9 +88,11 @@ const DOM = {
     groupsList: () => document.getElementById('groups-list'),
     groupsEmptyMsg: () => document.getElementById('groups-empty-msg'),
     // Upload / Preview
-    dropZone: () => document.getElementById('drop-zone'),
+    uploadStepBtn: () => document.getElementById('upload-step-btn'),
     stepFileInput: () => document.getElementById('step-file-input'),
-    dropZoneText: () => document.getElementById('drop-zone-text'),
+    fileInfoDisplay: () => document.getElementById('file-info-display'),
+    uploadedFileName: () => document.getElementById('uploaded-file-name'),
+    removeFileBtn: () => document.getElementById('remove-file-btn'),
     previewBtn: () => document.getElementById('preview-btn'),
     view3dBtn: () => document.getElementById('view3d-btn'),
     previewError: () => document.getElementById('preview-error'),
@@ -86,6 +101,7 @@ const DOM = {
     editDockToggle: () => document.getElementById('edit-dock-toggle'),
     editDockToggleText: () => document.getElementById('edit-dock-toggle-text'),
     editDockPointBtn: () => document.getElementById('edit-dock-point-btn'),
+    llmProviderSelect: () => document.getElementById('llm-provider-select'),
     editPromptInput: () => document.getElementById('edit-prompt-input'),
     editBtn: () => document.getElementById('edit-btn'),
     editError: () => document.getElementById('edit-error'),
@@ -99,6 +115,7 @@ const DOM = {
     // B-Rep Gen
     brepPromptInput: () => document.getElementById('brep-prompt-input'),
     brepGenerateBtn: () => document.getElementById('brep-generate-btn'),
+    brepEditBtn: () => document.getElementById('brep-edit-btn'),
     brepErrorMessage: () => document.getElementById('brep-error-message'),
     brepTimelineList: () => document.getElementById('brep-timeline-list'),
 };
@@ -110,8 +127,14 @@ document.addEventListener('DOMContentLoaded', initApp);
 
 async function initApp() {
     setupEventListeners();
-    await loadPromptTemplateToolkit();
-    await loadEditTemplateToolkit();
+
+    // Load unified template toolkit (replaces separate loading)
+    await loadUnifiedTemplateToolkit();
+
+    // Initialize workflow phase
+    state.workflowPhase = 'initial';
+    updateSmartActionButton();
+
     syncEditDockVisibility();
     // Initialise the Three.js viewer (non-blocking — WASM loads in background)
     stepViewer.init();
@@ -123,6 +146,18 @@ async function initApp() {
     stepViewer.setPointPickCallback((xyz) => {
         _onPointPicked(xyz);
     });
+
+    // Make 3D viewer a drop zone for template cards
+    const step3dContainer = document.getElementById('step3d-container');
+    const editDock = DOM.editDock();
+    if (step3dContainer && editDock && editDock.parentElement !== step3dContainer) {
+        step3dContainer.appendChild(editDock);
+    }
+    if (step3dContainer) {
+        step3dContainer.addEventListener('dragover', handleViewerDragOver);
+        step3dContainer.addEventListener('dragleave', handleViewerDragLeave);
+        step3dContainer.addEventListener('drop', handleViewerDrop);
+    }
 }
 
 function setSidepanelView(tab = 'workflow') {
@@ -130,26 +165,37 @@ function setSidepanelView(tab = 'workflow') {
     const sideParamsBtn = document.getElementById('sidepanel-params-btn');
     const sideWorkflow = document.getElementById('sidepanel-workflow');
     const sideParams = document.getElementById('sidepanel-params');
-    if (!sideWorkflowBtn || !sideParamsBtn || !sideWorkflow || !sideParams) return;
 
     const showWorkflow = tab !== 'params';
-    sideWorkflowBtn.classList.toggle('active', showWorkflow);
-    sideParamsBtn.classList.toggle('active', !showWorkflow);
-    sideWorkflow.classList.toggle('hidden', !showWorkflow);
-    sideParams.classList.toggle('hidden', showWorkflow);
+    if (sideWorkflowBtn) sideWorkflowBtn.classList.toggle('active', showWorkflow);
+    if (sideParamsBtn) sideParamsBtn.classList.toggle('active', !showWorkflow);
+
+    // Workflow controls remain in the left column even when focusing params.
+    if (sideWorkflow) sideWorkflow.classList.remove('hidden');
+
+    // Parameters rail now lives beside the 3D viewer and should remain visible.
+    if (sideParams) sideParams.classList.remove('hidden');
+
+    if (tab === 'params') {
+        switchTab('viewer3d');
+    }
 }
 
 function syncEditDockVisibility() {
     const editArea = DOM.editArea();
     const editDock = DOM.editDock();
     if (!editArea || !editDock) return;
-    const editSection = document.getElementById('mode-section-edit');
-    const editModeActive = !!editSection && !editSection.classList.contains('hidden');
-    const hasEditableModel = !!(state.previewFile || state.currentModel);
-    const shouldShow = editModeActive && hasEditableModel;
 
-    editDock.classList.toggle('hidden', !shouldShow);
+    // Show edit dock if ANY model exists (generated or uploaded)
+    const hasEditableModel = !!(state.previewFile || state.currentModel);
+
+    editDock.classList.toggle('hidden', !hasEditableModel);
     editArea.classList.toggle('collapsed', !state.editDockExpanded);
+
+    const brepEditBtn = DOM.brepEditBtn();
+    if (brepEditBtn) {
+        brepEditBtn.disabled = !hasEditableModel;
+    }
 
     const toggleBtn = DOM.editDockToggle();
     const toggleText = DOM.editDockToggleText();
@@ -160,12 +206,46 @@ function syncEditDockVisibility() {
 }
 
 function setupEventListeners() {
-    // Generate button
-    DOM.generateBtn().addEventListener('click', handleGenerate);
+    // Smart action button - will be updated dynamically by updateSmartActionButton()
+    updateSmartActionButton();
+
+    // Template mode internal tabs
+    const genBtn = document.getElementById('template-mode-generation-btn');
+    const prebuiltBtn = document.getElementById('template-mode-prebuilt-btn');
+    if (genBtn) genBtn.addEventListener('click', () => switchTemplateMode('generation'));
+    if (prebuiltBtn) prebuiltBtn.addEventListener('click', () => switchTemplateMode('prebuilt'));
+
+    // Unified template category tree
+    const templateTree = document.getElementById('template-tree');
+    if (templateTree) {
+        templateTree.addEventListener('click', (e) => {
+            const categoryBtn = e.target.closest('.template-category');
+            if (categoryBtn) {
+                handleTemplateCategorySelect(categoryBtn.dataset.categoryPath);
+            }
+        });
+    }
+
+    // Unified template grid
+    const templateGrid = document.getElementById('template-grid');
+    if (templateGrid) {
+        templateGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.template-card');
+            if (card && !card.classList.contains('disabled')) {
+                handleTemplateSelect(card.dataset.templateId);
+            }
+        });
+    }
+
+    // File upload
+    setupFileUpload();
 
     // B-Rep Generate button
     if (DOM.brepGenerateBtn()) {
         DOM.brepGenerateBtn().addEventListener('click', handleBrepGenerate);
+    }
+    if (DOM.brepEditBtn()) {
+        DOM.brepEditBtn().addEventListener('click', openBrepEditWorkflow);
     }
     if (DOM.brepPromptInput()) {
         DOM.brepPromptInput().addEventListener('keydown', (e) => {
@@ -176,12 +256,13 @@ function setupEventListeners() {
         });
     }
 
-    // Enter key in prompt — only fire when Prompt mode is active
+    // Enter key in prompt for generation
     DOM.promptInput().addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && e.ctrlKey) {
-            const editSection = document.getElementById('mode-section-edit');
-            if (editSection && !editSection.classList.contains('hidden')) return; // edit mode active
-            handleGenerate();
+            e.preventDefault();
+            if (state.workflowPhase === 'initial') {
+                handleGenerate();
+            }
         }
     });
 
@@ -193,47 +274,20 @@ function setupEventListeners() {
         }
     });
 
-    const promptTemplateTree = DOM.promptTemplateTree();
-    if (promptTemplateTree) {
-        promptTemplateTree.addEventListener('click', (e) => {
-            const btn = e.target.closest('[data-category-path]');
-            if (!btn) return;
-            handlePromptTemplateCategorySelect(btn.dataset.categoryPath || '');
+    const llmProviderSelect = DOM.llmProviderSelect();
+    if (llmProviderSelect) {
+        llmProviderSelect.value = state.llmProvider;
+        llmProviderSelect.addEventListener('change', (e) => {
+            setLLMProvider(e.target.value);
         });
     }
 
-    const promptTemplateGrid = DOM.promptTemplateGrid();
-    if (promptTemplateGrid) {
-        promptTemplateGrid.addEventListener('click', (e) => {
-            const card = e.target.closest('[data-template-id]');
-            if (!card) return;
-            handlePromptTemplateSelect(card.dataset.templateId || '');
-        });
-    }
-
+    // Edit dock toggle
     const editDockToggle = DOM.editDockToggle();
     if (editDockToggle) {
         editDockToggle.addEventListener('click', () => {
             state.editDockExpanded = !state.editDockExpanded;
             syncEditDockVisibility();
-        });
-    }
-
-    const editTemplateTree = DOM.editTemplateTree();
-    if (editTemplateTree) {
-        editTemplateTree.addEventListener('click', (e) => {
-            const btn = e.target.closest('[data-category-path]');
-            if (!btn) return;
-            handleEditTemplateCategorySelect(btn.dataset.categoryPath || '');
-        });
-    }
-
-    const editTemplateGrid = DOM.editTemplateGrid();
-    if (editTemplateGrid) {
-        editTemplateGrid.addEventListener('click', (e) => {
-            const card = e.target.closest('[data-template-id]');
-            if (!card) return;
-            handleEditTemplateLoad(card.dataset.templateId || '');
         });
     }
 
@@ -249,11 +303,9 @@ function setupEventListeners() {
     });
 
     // ── Mode tab switching ────────────────────────────────────────────────
-    const modePromptBtn = document.getElementById('mode-prompt-btn');
-    const modeEditBtn   = document.getElementById('mode-edit-btn');
+    const modeWorkflowBtn = document.getElementById('mode-workflow-btn');
     const modeBrepBtn   = document.getElementById('mode-brep-btn');
-    const modeSectionPrompt = document.getElementById('mode-section-prompt');
-    const modeSectionEdit   = document.getElementById('mode-section-edit');
+    const modeSectionWorkflow = document.getElementById('mode-section-workflow');
     const modeSectionBrep   = document.getElementById('mode-section-brep');
 
     const sideWorkflowBtn = document.getElementById('sidepanel-workflow-btn');
@@ -265,66 +317,124 @@ function setupEventListeners() {
     }
 
     function _switchMode(mode) {
-        if (modePromptBtn) modePromptBtn.classList.toggle('active', mode === 'prompt');
-        if (modeEditBtn)   modeEditBtn.classList.toggle('active', mode === 'edit');
-        if (modeBrepBtn)   modeBrepBtn.classList.toggle('active', mode === 'brep');
-        
-        if (modeSectionPrompt) modeSectionPrompt.classList.toggle('hidden', mode !== 'prompt');
-        if (modeSectionEdit)   modeSectionEdit.classList.toggle('hidden', mode !== 'edit');
-        if (modeSectionBrep)   modeSectionBrep.classList.toggle('hidden', mode !== 'brep');
-        
+        if (mode === 'workflow') {
+            modeWorkflowBtn?.classList.add('active');
+            modeBrepBtn?.classList.remove('active');
+            modeSectionWorkflow?.classList.remove('hidden');
+            modeSectionBrep?.classList.add('hidden');
+        } else if (mode === 'brep') {
+            modeBrepBtn?.classList.add('active');
+            modeWorkflowBtn?.classList.remove('active');
+            modeSectionBrep?.classList.remove('hidden');
+            modeSectionWorkflow?.classList.add('hidden');
+        }
+
         setSidepanelView('workflow');
         syncEditDockVisibility();
     }
 
-    if (modePromptBtn) modePromptBtn.addEventListener('click', () => _switchMode('prompt'));
-    if (modeEditBtn)   modeEditBtn.addEventListener('click', () => _switchMode('edit'));
+    if (modeWorkflowBtn) modeWorkflowBtn.addEventListener('click', () => _switchMode('workflow'));
     if (modeBrepBtn)   modeBrepBtn.addEventListener('click', () => _switchMode('brep'));
 
-    // ── Upload / Preview ──────────────────────────────────────────────────
-    const dropZone = DOM.dropZone();
-    const fileInput = DOM.stepFileInput();
+    // Upload / Preview
+    const previewBtn = DOM.previewBtn();
+    if (previewBtn) previewBtn.addEventListener('click', handlePreview);
 
-    // The file input already covers the entire drop zone (position:absolute, full size),
-    // so clicks propagate naturally — no extra click listener needed (that caused double dialog).
-    fileInput.addEventListener('change', () => {
-        const file = fileInput.files[0];
-        if (file) selectStepFile(file);
-    });
-
-    // Drag & Drop
-    dropZone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropZone.classList.add('drag-over');
-    });
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.classList.remove('drag-over');
-        const file = e.dataTransfer.files[0];
-        if (file && (file.name.endsWith('.step') || file.name.endsWith('.stp'))) {
-            selectStepFile(file);
-        } else {
-            DOM.previewError().textContent = 'Only .step / .stp files are accepted.';
-        }
-    });
-
-    // Preview button
-    DOM.previewBtn().addEventListener('click', handlePreview);
-
-    // View 3D button
-    DOM.view3dBtn().addEventListener('click', async () => {
-        if (!state.previewFile) return;
-        switchTab('viewer3d');
-        await stepViewer.loadStepFile(state.previewFile);
-        addToHistory(state.previewFile);
-        // Auto-load parameters & feed face features to the 3D viewer
-        await loadParameters();
-        if (state.ocpFeatures) stepViewer.setFaceFeatures(state.ocpFeatures);
-    });
+    const view3dBtn = DOM.view3dBtn();
+    if (view3dBtn) {
+        view3dBtn.addEventListener('click', async () => {
+            if (!state.previewFile) return;
+            switchTab('viewer3d');
+            await stepViewer.loadStepFile(state.previewFile);
+            addToHistory(state.previewFile);
+            await loadParameters();
+            if (state.ocpFeatures) stepViewer.setFaceFeatures(state.ocpFeatures);
+        });
+    }
 
     // Edit STEP button
-    DOM.editBtn().addEventListener('click', handleEditStep);
+    if (DOM.editBtn()) DOM.editBtn().addEventListener('click', handleEditStep);
+}
+
+function _setSelectedFileUI(file) {
+    const info = DOM.fileInfoDisplay();
+    const name = DOM.uploadedFileName();
+    if (!info || !name) return;
+
+    if (file) {
+        name.textContent = file.name;
+        info.classList.remove('hidden');
+    } else {
+        name.textContent = '';
+        info.classList.add('hidden');
+    }
+}
+
+function setupFileUpload() {
+    const uploadBtn = DOM.uploadStepBtn();
+    const fileInput = DOM.stepFileInput();
+    const removeBtn = DOM.removeFileBtn();
+    const uploadControls = document.querySelector('.upload-controls');
+
+    if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files && fileInput.files[0];
+            if (!file) return;
+            if (!(file.name.endsWith('.step') || file.name.endsWith('.stp'))) {
+                if (DOM.previewError()) DOM.previewError().textContent = 'Only .step / .stp files are accepted.';
+                fileInput.value = '';
+                return;
+            }
+            selectStepFile(file);
+        });
+    }
+
+    if (uploadControls) {
+        uploadControls.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            uploadControls.classList.add('drag-over');
+        });
+
+        uploadControls.addEventListener('dragleave', (event) => {
+            if (!uploadControls.contains(event.relatedTarget)) {
+                uploadControls.classList.remove('drag-over');
+            }
+        });
+
+        uploadControls.addEventListener('drop', (event) => {
+            event.preventDefault();
+            uploadControls.classList.remove('drag-over');
+
+            const file = event.dataTransfer?.files?.[0];
+            if (!file) return;
+
+            if (!(file.name.endsWith('.step') || file.name.endsWith('.stp'))) {
+                if (DOM.previewError()) DOM.previewError().textContent = 'Only .step / .stp files are accepted.';
+                return;
+            }
+
+            selectStepFile(file);
+        });
+    }
+
+    if (removeBtn) {
+        removeBtn.addEventListener('click', () => {
+            state.previewFile = null;
+            state.previewImageUrls = [];
+            state.previewFeatures = null;
+            _setSelectedFileUI(null);
+            if (fileInput) fileInput.value = '';
+            if (DOM.previewBtn()) DOM.previewBtn().disabled = true;
+            if (DOM.view3dBtn()) DOM.view3dBtn().disabled = true;
+            if (DOM.previewError()) DOM.previewError().textContent = '';
+            if (DOM.editError()) DOM.editError().textContent = '';
+            state.editDockExpanded = false;
+            syncEditDockVisibility();
+            updateSmartActionButton();
+            loadParameters().catch(() => {});
+        });
+    }
 }
 
 // ========================================
@@ -468,6 +578,198 @@ async function loadParameters() {
     }
 }
 
+async function loadUnifiedTemplateToolkit() {
+    await loadEditTemplateToolkit();
+    switchTemplateMode('prebuilt');
+}
+
+function _formatTemplateLabel(value) {
+    if (!value) return '';
+    return String(value)
+        .split('/')
+        .map((segment) => segment
+            .split(/[_\-\s]+/)
+            .filter(Boolean)
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ')
+        )
+        .join(' / ');
+}
+
+function _renderUnifiedTemplateCategoryTree() {
+    const treeEl = document.getElementById('template-tree');
+    if (!treeEl) return;
+
+    if (!state.currentTemplates.length) {
+        treeEl.innerHTML = '<p class="template-empty">No template categories found.</p>';
+        return;
+    }
+
+    const categories = [...new Set(
+        state.currentTemplates
+            .map(t => t.categoryText)
+            .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
+
+    treeEl.innerHTML = '';
+    categories.forEach((category) => {
+        const depth = category.split('/').length - 1;
+        const button = document.createElement('button');
+        button.className = `template-category${state.selectedCategory === category ? ' active' : ''}`;
+        button.style.paddingLeft = `${8 + depth * 14}px`;
+        button.dataset.categoryPath = category;
+        button.textContent = _formatTemplateLabel(category.split('/').pop() || category);
+        button.title = _formatTemplateLabel(category);
+        treeEl.appendChild(button);
+    });
+}
+
+function _renderUnifiedTemplateGrid() {
+    const gridEl = document.getElementById('template-grid');
+    if (!gridEl) return;
+
+    const selected = state.selectedCategory;
+    const templates = state.currentTemplates
+        .filter(t => !selected || t.categoryText === selected || t.categoryText.startsWith(`${selected}/`))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+    if (!templates.length) {
+        gridEl.innerHTML = '<p class="template-empty">No templates in this category.</p>';
+        return;
+    }
+
+    gridEl.innerHTML = '';
+    const BASE = 'http://localhost:5000';
+
+    templates.forEach((template) => {
+        const isReady = template.buildStatus === 'ready';
+        const hasStep = !!template.stepUrl;
+        const card = document.createElement('div');
+        card.className = [
+            'template-card',
+            state.selectedTemplateId === template.templateId ? 'active' : '',
+            !hasStep ? 'disabled' : '',
+        ].filter(Boolean).join(' ');
+        card.dataset.templateId = template.templateId;
+        card.title = _formatTemplateLabel(template.name);
+
+        // Enable template drag-and-drop into the 3D viewer when a STEP is available.
+        if (hasStep) {
+            card.draggable = true;
+            card.addEventListener('dragstart', handleTemplateDragStart);
+            card.addEventListener('dragend', handleTemplateDragEnd);
+        }
+
+        const thumbWrap = document.createElement('div');
+        thumbWrap.className = 'edit-template-thumb-wrap';
+
+        if (template.thumbnailUrl) {
+            const img = document.createElement('img');
+            img.className = 'edit-template-thumb';
+            img.src = template.thumbnailUrl.startsWith('http') ? template.thumbnailUrl : `${BASE}${template.thumbnailUrl}`;
+            img.alt = template.name;
+            img.loading = 'lazy';
+            img.onerror = () => {
+                img.remove();
+                const fallback = document.createElement('span');
+                fallback.className = 'edit-template-no-thumb';
+                fallback.textContent = 'No preview';
+                thumbWrap.appendChild(fallback);
+            };
+            thumbWrap.appendChild(img);
+        } else {
+            const fallback = document.createElement('span');
+            fallback.className = 'edit-template-no-thumb';
+            fallback.textContent = 'No preview';
+            thumbWrap.appendChild(fallback);
+        }
+
+        const name = document.createElement('div');
+        name.className = 'edit-template-name';
+        name.textContent = _formatTemplateLabel(template.name);
+
+        const meta = document.createElement('div');
+        meta.className = 'edit-template-meta';
+        meta.textContent = `${_formatTemplateLabel(template.categoryText || 'general')} • ${template.buildStatus}`;
+
+        card.appendChild(thumbWrap);
+        card.appendChild(name);
+        card.appendChild(meta);
+        gridEl.appendChild(card);
+    });
+}
+
+function switchTemplateMode(mode) {
+    const normalizedMode = 'prebuilt';
+    state.templateMode = normalizedMode;
+    state.currentTemplates = state.editTemplates || [];
+
+    const genBtn = document.getElementById('template-mode-generation-btn');
+    const prebuiltBtn = document.getElementById('template-mode-prebuilt-btn');
+    if (genBtn) genBtn.classList.toggle('active', normalizedMode === 'generation');
+    if (prebuiltBtn) prebuiltBtn.classList.toggle('active', normalizedMode === 'prebuilt');
+
+    const summaryEl = document.getElementById('template-summary');
+    const readyCount = state.currentTemplates.filter(t => t.buildStatus === 'ready').length;
+    if (summaryEl) summaryEl.textContent = `${readyCount}/${state.currentTemplates.length} models ready`;
+
+    const categories = [...new Set(
+        state.currentTemplates
+            .map(t => t.categoryText)
+            .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b));
+
+    if (!categories.includes(state.selectedCategory)) {
+        state.selectedCategory = categories[0] || '';
+    }
+    if (state.selectedTemplateId && !state.currentTemplates.some(t => t.templateId === state.selectedTemplateId)) {
+        state.selectedTemplateId = '';
+    }
+
+    _renderUnifiedTemplateCategoryTree();
+    _renderUnifiedTemplateGrid();
+}
+
+function handleTemplateCategorySelect(categoryPath) {
+    state.selectedCategory = categoryPath || '';
+    _renderUnifiedTemplateCategoryTree();
+    _renderUnifiedTemplateGrid();
+}
+
+async function handleTemplateSelect(templateId) {
+    const template = state.currentTemplates.find(t => t.templateId === templateId);
+    if (!template) return;
+
+    state.selectedTemplateId = template.templateId;
+    _renderUnifiedTemplateGrid();
+
+    if (!template.stepUrl) {
+        showToast(`Template "${template.name}" is not ready yet`, 'warning');
+        return;
+    }
+
+    await loadTemplateIntoViewer({
+        templateId: template.templateId,
+        name: template.name,
+        stepUrl: template.stepUrl,
+        categoryText: template.categoryText,
+    });
+    state.workflowPhase = 'editing';
+    updateSmartActionButton();
+}
+
+function updateSmartActionButton() {
+    const btn = document.getElementById('smart-action-btn');
+    if (!btn) return;
+
+    const canEdit = !!(state.previewFile || state.currentModel);
+    const action = canEdit && state.workflowPhase !== 'initial' ? 'edit' : 'generate';
+
+    btn.disabled = !!state.generating;
+    btn.textContent = action === 'edit' ? 'Apply Edit' : 'Generate Model';
+    btn.onclick = action === 'edit' ? handleEditStep : handleGenerate;
+}
+
 function renderOcpParameters(features) {
     const form = DOM.parametersForm();
     let html = '';
@@ -582,9 +884,11 @@ function renderOcpParameters(features) {
 
 /** Switch the active LLM provider and update toggle button states. */
 function setLLMProvider(provider) {
-    state.llmProvider = provider;
-    document.getElementById('provider-gemini-btn').classList.toggle('active', provider === 'gemini');
-    document.getElementById('provider-qwen-btn').classList.toggle('active', provider === 'ollama');
+    state.llmProvider = provider === 'ollama' ? 'ollama' : 'gemini';
+    const llmProviderSelect = DOM.llmProviderSelect();
+    if (llmProviderSelect && llmProviderSelect.value !== state.llmProvider) {
+        llmProviderSelect.value = state.llmProvider;
+    }
 }
 
 // ========================================
@@ -697,6 +1001,7 @@ function toggleGroupMode() {
     const bar = DOM.groupModeBar();
 
     if (state.groupMode) {
+        switchTab('viewer3d');
         setSidepanelView('params');
         btn.textContent = '✓ Done';
         btn.classList.add('active');
@@ -713,6 +1018,7 @@ function toggleGroupMode() {
 }
 
 function openGroupSelectionWorkflow() {
+    switchTab('viewer3d');
     setSidepanelView('params');
     if (!state.groupMode) toggleGroupMode();
 }
@@ -1054,13 +1360,20 @@ function renderPromptTemplateGrid() {
         card.dataset.templateId = template.templateId;
         card.title = `Use ${template.name} for generation`;
 
+        // NEW: Make ready templates with STEP files draggable
+        if (template.stepUrl) {
+            card.draggable = true;
+            card.addEventListener('dragstart', handleTemplateDragStart);
+            card.addEventListener('dragend', handleTemplateDragEnd);
+        }
+
         const thumbWrap = document.createElement('div');
         thumbWrap.className = 'edit-template-thumb-wrap';
 
         if (template.thumbnailUrl) {
             const img = document.createElement('img');
             img.className = 'edit-template-thumb';
-            img.src = `${BASE}${template.thumbnailUrl}`;
+            img.src = template.thumbnailUrl.startsWith('http') ? template.thumbnailUrl : `${BASE}${template.thumbnailUrl}`;
             img.alt = template.name;
             img.loading = 'lazy';
             img.onerror = () => {
@@ -1145,8 +1458,8 @@ function _normalizeEditTemplate(item) {
         name: item.name || 'Unnamed template',
         categoryPath,
         categoryText: categoryPath.join('/'),
-        thumbnailUrl: item.thumbnail_url || '',
-        stepUrl: item.step_url || '',
+        thumbnailUrl: item.thumbnail_url || item.thumbnailUrl || item.preview_url || item.image_url || '',
+        stepUrl: item.step_url || item.stepUrl || item.step || '',
         buildStatus: item.build_status || 'pending',
         description: item.description || '',
     };
@@ -1247,13 +1560,20 @@ function renderEditTemplateGrid() {
         card.dataset.templateId = template.templateId;
         card.title = isReady ? `Load ${template.name} in Edit mode` : `Template not ready (${template.buildStatus})`;
 
+        // NEW: Make ready templates draggable
+        if (template.stepUrl) {
+            card.draggable = true;
+            card.addEventListener('dragstart', handleTemplateDragStart);
+            card.addEventListener('dragend', handleTemplateDragEnd);
+        }
+
         const thumbWrap = document.createElement('div');
         thumbWrap.className = 'edit-template-thumb-wrap';
 
         if (template.thumbnailUrl) {
             const img = document.createElement('img');
             img.className = 'edit-template-thumb';
-            img.src = `${BASE}${template.thumbnailUrl}`;
+            img.src = template.thumbnailUrl.startsWith('http') ? template.thumbnailUrl : `${BASE}${template.thumbnailUrl}`;
             img.alt = template.name;
             img.loading = 'lazy';
             img.onerror = () => {
@@ -1296,21 +1616,11 @@ async function handleEditTemplateLoad(templateId) {
     const template = state.editTemplates.find(t => t.templateId === templateId);
     if (!template) return;
 
-    if (template.buildStatus !== 'ready' || !template.stepUrl) {
+    if (!template.stepUrl) {
         showToast(`Template "${template.name}" is not ready yet`, 'warning');
         return;
     }
 
-    const modePromptBtn = document.getElementById('mode-prompt-btn');
-    const modeEditBtn = document.getElementById('mode-edit-btn');
-    const modeSectionPrompt = document.getElementById('mode-section-prompt');
-    const modeSectionEdit = document.getElementById('mode-section-edit');
-    if (modeEditBtn && modePromptBtn && modeSectionEdit && modeSectionPrompt) {
-        modeEditBtn.classList.add('active');
-        modePromptBtn.classList.remove('active');
-        modeSectionEdit.classList.remove('hidden');
-        modeSectionPrompt.classList.add('hidden');
-    }
     setSidepanelView('workflow');
     syncEditDockVisibility();
 
@@ -1331,11 +1641,169 @@ async function handleEditTemplateLoad(templateId) {
         if (state.ocpFeatures) stepViewer.setFaceFeatures(state.ocpFeatures);
 
         state.selectedEditTemplateId = template.templateId;
+        state.workflowPhase = 'editing';
+        updateSmartActionButton();
         renderEditTemplateGrid();
         showToast(`Template "${template.name}" loaded in Edit mode`, 'success');
     } catch (error) {
         DOM.editError().textContent = `Template load failed: ${error.message}`;
         showToast(`Template load failed: ${error.message}`, 'error');
+    } finally {
+        hideLoading();
+    }
+}
+
+// ========================================
+// Drag and Drop - Template Cards to 3D Viewer
+// ========================================
+
+function handleTemplateDragStart(event) {
+    const card = event.currentTarget;
+    const templateId = card.dataset.templateId;
+
+    // Find template in either prompt or edit templates
+    let template = state.editTemplates.find(t => t.templateId === templateId);
+    if (!template) {
+        template = state.promptTemplates.find(t => t.templateId === templateId);
+    }
+
+    // Validate template is ready and has STEP file
+    if (!template || !template.stepUrl) {
+        event.preventDefault();
+        showToast('This template is not ready for drag-and-drop', 'warning');
+        return;
+    }
+
+    // Store template data in dataTransfer
+    event.dataTransfer.effectAllowed = 'copy';
+    event.dataTransfer.setData('application/x-synthocad-template', JSON.stringify({
+        templateId: template.templateId,
+        name: template.name,
+        stepUrl: template.stepUrl,
+        categoryText: template.categoryText,
+    }));
+
+    // Visual feedback
+    card.classList.add('dragging');
+}
+
+function handleTemplateDragEnd(event) {
+    const card = event.currentTarget;
+    card.classList.remove('dragging');
+}
+
+function handleViewerDragOver(event) {
+    const types = event.dataTransfer?.types;
+    const hasTemplateType = !!types && (
+        (typeof types.includes === 'function' && types.includes('application/x-synthocad-template')) ||
+        (typeof types.contains === 'function' && types.contains('application/x-synthocad-template')) ||
+        Array.from(types).includes('application/x-synthocad-template')
+    );
+
+    // Only handle template drops (not file drops from OS)
+    if (!hasTemplateType) {
+        return;
+    }
+
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+
+    const container = event.currentTarget;
+    container.classList.add('template-drop-zone-active');
+}
+
+function handleViewerDragLeave(event) {
+    const container = event.currentTarget;
+
+    // Keep highlight while moving over children; clear only when actually leaving container.
+    if (!container.contains(event.relatedTarget)) {
+        container.classList.remove('template-drop-zone-active');
+    }
+}
+
+async function handleViewerDrop(event) {
+    const types = event.dataTransfer?.types;
+    const hasTemplateType = !!types && (
+        (typeof types.includes === 'function' && types.includes('application/x-synthocad-template')) ||
+        (typeof types.contains === 'function' && types.contains('application/x-synthocad-template')) ||
+        Array.from(types).includes('application/x-synthocad-template')
+    );
+
+    // Only handle template drops
+    if (!hasTemplateType) {
+        return;
+    }
+
+    event.preventDefault();
+
+    const container = event.currentTarget;
+    container.classList.remove('template-drop-zone-active');
+
+    // Prevent drops during active operations
+    if (state.generating || !DOM.loadingOverlay().classList.contains('hidden')) {
+        showToast('Please wait for current operation to complete', 'warning');
+        return;
+    }
+
+    try {
+        const templateData = JSON.parse(
+            event.dataTransfer.getData('application/x-synthocad-template')
+        );
+
+        await loadTemplateIntoViewer(templateData);
+    } catch (error) {
+        console.error('[drag-drop] Failed to load dropped template:', error);
+        showToast(`Failed to load template: ${error.message}`, 'error');
+    }
+}
+
+async function loadTemplateIntoViewer(templateData) {
+    const { templateId, name, stepUrl, categoryText } = templateData;
+
+    // Validate required data
+    if (!stepUrl) {
+        throw new Error('Template does not have a STEP file available');
+    }
+
+    setSidepanelView('workflow');
+    syncEditDockVisibility();
+
+    // Construct full URL
+    const BASE = 'http://localhost:5000';
+    const fullStepUrl = stepUrl.startsWith('http') ? stepUrl : `${BASE}${stepUrl}`;
+    const fileName = `${templateId.split('/').pop()}.step`;
+
+    showLoading(`Loading template "${name}"...`);
+
+    try {
+        // Load STEP file into state for editing
+        const loaded = await _autoLoadStepForEditing(fullStepUrl, fileName);
+        if (!loaded) {
+            throw new Error('Unable to fetch template STEP file');
+        }
+
+        // Switch to 3D Viewer tab
+        switchTab('viewer3d');
+
+        // Load into 3D viewer
+        await stepViewer.loadStepUrl(fullStepUrl);
+
+        // Add to history
+        addToHistoryFromUrl(fileName, fullStepUrl);
+
+        // Load parameters and geometric features
+        await loadParameters();
+        if (state.ocpFeatures) {
+            stepViewer.setFaceFeatures(state.ocpFeatures);
+        }
+
+        // Update UI to reflect loaded template
+        state.selectedEditTemplateId = templateId;
+        state.workflowPhase = 'editing';
+        updateSmartActionButton();
+        renderEditTemplateGrid();
+
+        showToast(`Template "${name}" loaded successfully`, 'success');
     } finally {
         hideLoading();
     }
@@ -1388,6 +1856,8 @@ async function handleGenerate() {
             // so the user can switch to Edit tab and edit immediately.
             _autoLoadStepForEditing(stepUrl, stepFile);
 
+            state.workflowPhase = 'generated';
+            updateSmartActionButton();
             showToast('Model generated successfully', 'success');
         } catch (error) {
             showError(error.message);
@@ -1432,6 +1902,8 @@ async function handleBrepGenerate() {
 
         const stepFileName = result.final_step_file ? result.final_step_file.substring(result.final_step_file.lastIndexOf('\\') + 1) : fileName;
         _autoLoadStepForEditing(fullStepUrl, stepFileName);
+        state.workflowPhase = 'generated';
+        updateSmartActionButton();
 
         // Populate timeline if we have the sequence details
         const timelineListId = 'brep-timeline-list';
@@ -1458,6 +1930,20 @@ async function handleBrepGenerate() {
         setGenerating(false);
         hideLoading();
     }
+}
+
+function openBrepEditWorkflow() {
+    if (!state.previewFile && !state.currentModel) {
+        showToast('Generate or load a model first, then edit it.', 'warning');
+        return;
+    }
+
+    switchTab('viewer3d');
+    state.editDockExpanded = true;
+    syncEditDockVisibility();
+
+    const editInput = DOM.editPromptInput();
+    if (editInput) editInput.focus();
 }
 
 
@@ -1664,14 +2150,15 @@ function handleVisualize() {
 
 function selectStepFile(file) {
     state.previewFile = file;
-    DOM.dropZoneText().textContent = file.name;
-    DOM.dropZone().classList.add('has-file');
-    DOM.previewBtn().disabled = false;
-    DOM.view3dBtn().disabled = false;
-    DOM.previewError().textContent = '';
+    _setSelectedFileUI(file);
+    if (DOM.previewBtn()) DOM.previewBtn().disabled = false;
+    if (DOM.view3dBtn()) DOM.view3dBtn().disabled = false;
+    if (DOM.previewError()) DOM.previewError().textContent = '';
     state.editDockExpanded = true;
+    state.workflowPhase = 'editing';
     // Show edit dock when Edit mode is active
     syncEditDockVisibility();
+    updateSmartActionButton();
     // Auto-populate the Parameters panel as soon as a file is chosen
     loadParameters().catch(() => {});
 }
@@ -1688,13 +2175,13 @@ async function _autoLoadStepForEditing(stepUrl, filename) {
         const blob = await resp.blob();
         const file = new File([blob], filename, { type: 'application/octet-stream' });
         state.previewFile = file;
-        // Update the upload drop-zone so the Edit tab reflects the active file
-        DOM.dropZoneText().textContent = filename;
-        DOM.dropZone().classList.add('has-file');
-        DOM.previewBtn().disabled = false;
-        DOM.view3dBtn().disabled = false;
+        _setSelectedFileUI(file);
+        if (DOM.previewBtn()) DOM.previewBtn().disabled = false;
+        if (DOM.view3dBtn()) DOM.view3dBtn().disabled = false;
         state.editDockExpanded = true;
+        state.workflowPhase = 'editing';
         syncEditDockVisibility();
+        updateSmartActionButton();
         return true;
     } catch (_) {
         return false;
@@ -1702,12 +2189,14 @@ async function _autoLoadStepForEditing(stepUrl, filename) {
 }
 
 async function handlePreview() {
+    const previewError = DOM.previewError();
+
     if (!state.previewFile) {
-        DOM.previewError().textContent = 'Please select a .step file first.';
+        if (previewError) previewError.textContent = 'Please select a .step file first.';
         return;
     }
 
-    DOM.previewError().textContent = '';
+    if (previewError) previewError.textContent = '';
     showLoading('Analyzing & rendering 7 views…');
 
     try {
@@ -1732,7 +2221,7 @@ async function handlePreview() {
         addToHistoryEntry('preview', { name: state.previewFile.name, source: 'preview' });
 
     } catch (error) {
-        DOM.previewError().textContent = `Preview failed: ${error.message}`;
+        if (previewError) previewError.textContent = `Preview failed: ${error.message}`;
         showToast(`Preview error: ${error.message}`, 'error');
     } finally {
         hideLoading();
@@ -1962,6 +2451,8 @@ async function handleEditStep() {
             // edit operates on the latest version without a manual re-upload.
             _autoLoadStepForEditing(stepUrl, stepFilename);
 
+            state.workflowPhase = 'editing';
+            updateSmartActionButton();
             showToast(isTemplateCmd ? 'Template placement applied — model updated' : 'STEP edited — model updated', 'success');
         } else {
             showToast('Edit complete (no step_url returned)', 'warning');
@@ -2005,8 +2496,14 @@ function clearError() { DOM.errorMessage().textContent = ''; }
 
 function setGenerating(isGenerating) {
     const btn = DOM.generateBtn();
+    if (!btn) return;
     btn.disabled = isGenerating;
-    btn.textContent = isGenerating ? 'Generating...' : 'Generate';
+
+    if (isGenerating) {
+        btn.textContent = 'Generating...';
+    } else {
+        updateSmartActionButton();
+    }
 }
 
 function showLoading(message) {
@@ -2018,7 +2515,18 @@ function updateLoading(message) { DOM.loadingMessage().textContent = message; }
 function hideLoading() { DOM.loadingOverlay().classList.add('hidden'); }
 
 function showToast(message, type = 'info') {
-    const container = DOM.toastContainer();
+    const viewer = document.getElementById('step3d-container');
+    let container = DOM.toastContainer();
+    if (!container) {
+        const host = viewer || document.body;
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container';
+        host.appendChild(container);
+    } else if (viewer && container.parentElement !== viewer) {
+        viewer.appendChild(container);
+    }
+
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.textContent = message;

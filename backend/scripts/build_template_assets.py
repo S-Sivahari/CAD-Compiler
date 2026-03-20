@@ -3,7 +3,8 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.append(str(Path(__file__).parent.parent))
+# Ensure local backend modules take precedence over similarly named third-party packages.
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from services.template_asset_builder import build_template_assets
 
@@ -17,7 +18,7 @@ def main() -> int:
 
     args = parser.parse_args()
 
-    result = build_template_assets(
+    result = build_template_assets(  
         force=args.force,
         category_prefix=args.category_prefix,
         template_ids=args.template_id,

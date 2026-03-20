@@ -218,8 +218,8 @@ def render(step_path: str, output_path: Optional[str] = None) -> str:
         cairosvg.svg2png(url=str(svg_path), write_to=str(output_path), scale=2.0)
         os.remove(svg_path)
         return str(output_path)
-    except ImportError:
-        logger.warning("cairosvg not installed. Returning SVG path.")
+    except Exception as e:
+        logger.warning(f"PNG conversion unavailable ({e}). Returning SVG path.")
         return str(svg_path)
 
 

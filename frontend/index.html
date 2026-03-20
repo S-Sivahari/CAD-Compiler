@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SynthoCAD</title>
-    <link rel="stylesheet" href="css/style.css?v=21">
+    <link rel="stylesheet" href="css/style.css?v=25">
 
     <!-- Three.js r128 + OrbitControls via CDN (r128 is the last version with stable global THREE.OrbitControls) -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
@@ -19,8 +19,8 @@
         <!-- Header -->
         <header class="header">
             <div class="header-brand">
-                <h1 class="header-title">SYNTHOCAD</h1>
-                <p class="header-subtitle">AI-Powered Parametric CAD Generation Platform</p>
+                <h1 class="header-title">SynthoCAD</h1>
+                <p class="header-subtitle">Parametric CAD generation and editing workspace</p>
             </div>
         </header>
 
@@ -28,97 +28,78 @@
         <main class="main">
             <!-- Unified Side Panel -->
             <aside class="left-column">
-                <div class="sidepanel-tabs" role="tablist" aria-label="Side panel sections">
-                    <button id="sidepanel-workflow-btn" class="sidepanel-tab active" type="button">Workflow</button>
-                    <button id="sidepanel-params-btn" class="sidepanel-tab" type="button">Parameters</button>
-                </div>
-
                 <div id="sidepanel-workflow" class="sidepanel-section">
 
-                    <!-- Mode Tabs (always visible at top) -->
+                    <!-- Mode Tabs (Workflow + B-Rep Gen) -->
                     <div class="left-mode-tabs">
                         <div class="mode-tabs">
-                            <button id="mode-prompt-btn" class="mode-tab active">Prompt</button>
-                            <button id="mode-edit-btn" class="mode-tab">Edit</button>
+                            <button id="mode-workflow-btn" class="mode-tab active">Workflow</button>
                             <button id="mode-brep-btn" class="mode-tab">B-Rep Gen</button>
                         </div>
                     </div>
 
-                    <!-- ── Prompt Mode ─────────────────────────────── -->
-                    <div id="mode-section-prompt" class="mode-section">
+                    <!-- ── Unified Workflow Section ─────────────────────────────── -->
+                    <div id="mode-section-workflow" class="mode-section">
 
-                    <!-- Section A: Prompt Input -->
-                    <section class="input-section">
-                        <div class="prompt-wrapper">
-                            <textarea id="prompt-input" class="prompt-textarea"
-                                placeholder="Create a cylinder diameter 20mm height 50mm with center hole 5mm"
-                                rows="3"></textarea>
-                        </div>
-                        <div class="prompt-btn-row">
-                            <button id="generate-btn" class="generate-btn">Generate</button>
-                        </div>
-                        <div id="error-message" class="error-message"></div>
-                    </section>
-
-                    <!-- Section B: Template Toolkit (Prompt) -->
-                    <section class="edit-template-section prompt-template-section">
-                        <div class="edit-template-header">
-                            <label class="section-label">TEMPLATE TOOLKIT</label>
-                            <span id="prompt-template-summary" class="edit-template-summary">Loading templates…</span>
-                        </div>
-                        <div class="edit-template-layout">
-                            <div id="prompt-template-tree" class="edit-template-tree">
-                                <p class="edit-template-empty">Loading categories…</p>
+                        <!-- Top Row: Prompt + Upload Side-by-Side -->
+                        <section class="unified-top-section">
+                            <div class="prompt-upload-row">
+                                <div class="prompt-wrapper">
+                                    <textarea id="prompt-input" class="prompt-textarea"
+                                        placeholder="Create a cylinder diameter 20mm height 50mm with center hole 5mm"
+                                        rows="3"></textarea>
+                                </div>
+                                <div class="upload-controls">
+                                    <button id="upload-step-btn" class="upload-step-btn"
+                                        title="Upload existing STEP file">
+                                        <svg class="upload-icon" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                                        </svg>
+                                        Upload
+                                    </button>
+                                    <input type="file" id="step-file-input" accept=".step,.stp" hidden>
+                                    <div id="file-info-display" class="file-info-display hidden">
+                                        <span class="file-name" id="uploaded-file-name"></span>
+                                        <button class="file-remove-btn" id="remove-file-btn"
+                                            title="Remove file">×</button>
+                                    </div>
+                                    <div class="upload-btn-row">
+                                        <button id="preview-btn" class="preview-btn" disabled>7-View Preview</button>
+                                        <button id="view3d-btn" class="view3d-btn" disabled>Render 3D</button>
+                                    </div>
+                                </div>
                             </div>
-                            <div id="prompt-template-grid" class="edit-template-grid">
-                                <p class="edit-template-empty">Loading templates…</p>
+                            <div id="preview-error" class="error-message"></div>
+                            <div id="error-message" class="error-message"></div>
+                        </section>
+
+                        <!-- Prebuilt Models Toolkit -->
+                        <section class="template-toolkit-section">
+                            <div class="template-mode-single">
+                                <span class="template-mode-pill">Prebuilt Models</span>
+                                <span id="template-summary" class="template-summary">Loading...</span>
                             </div>
-                        </div>
-                    </section>
 
-                    </div><!-- /mode-section-prompt -->
-
-                    <!-- ── Edit Mode ───────────────────────────────── -->
-                    <div id="mode-section-edit" class="mode-section hidden">
-
-                    <!-- Section C: Upload STEP -->
-                    <section class="upload-section upload-section-edit">
-                        <label class="section-label">UPLOAD STEP</label>
-                        <div id="drop-zone" class="drop-zone">
-                            <input type="file" id="step-file-input" accept=".step,.stp" class="drop-zone-input">
-                            <div class="drop-zone-content">
-                                <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="1.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                                </svg>
-                                <span id="drop-zone-text">Drop .step file or click to browse</span>
+                            <div class="template-layout">
+                                <div id="template-tree" class="template-tree">
+                                    <p class="template-empty">Loading categories…</p>
+                                </div>
+                                <div id="template-grid" class="template-grid">
+                                    <p class="template-empty">Loading templates…</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="upload-btn-row">
-                            <button id="preview-btn" class="preview-btn" disabled>7-View Preview</button>
-                            <button id="view3d-btn" class="view3d-btn" disabled>View 3D</button>
-                        </div>
-                        <div id="preview-error" class="error-message"></div>
-                    </section>
+                        </section>
 
-                    <!-- Section B2: Template Toolkit (Edit) -->
-                    <section class="edit-template-section">
-                        <div class="edit-template-header">
-                            <label class="section-label">TEMPLATE TOOLKIT</label>
-                            <span id="edit-template-summary" class="edit-template-summary">Loading templates…</span>
-                        </div>
-                        <div class="edit-template-layout">
-                            <div id="edit-template-tree" class="edit-template-tree">
-                                <p class="edit-template-empty">Loading categories…</p>
-                            </div>
-                            <div id="edit-template-grid" class="edit-template-grid">
-                                <p class="edit-template-empty">Loading templates…</p>
-                            </div>
-                        </div>
-                    </section>
+                        <!-- Smart Action Button -->
+                        <section class="action-button-section">
+                            <button id="smart-action-btn" class="smart-action-btn">
+                                Generate Model
+                            </button>
+                        </section>
 
-                    </div><!-- /mode-section-edit -->
+                    </div><!-- /mode-section-workflow -->
 
                     <!-- ── B-Rep Gen Mode ───────────────────────────────── -->
                     <div id="mode-section-brep" class="mode-section hidden">
@@ -129,6 +110,7 @@
                             </div>
                             <div class="prompt-btn-row">
                                 <button id="brep-generate-btn" class="generate-btn">Construct B-Rep</button>
+                                <button id="brep-edit-btn" class="generate-btn brep-edit-btn" type="button" disabled>Edit in Viewer</button>
                             </div>
                             <div id="brep-error-message" class="error-message"></div>
                         </section>
@@ -145,52 +127,6 @@
                         </section>
                     </div><!-- /mode-section-brep -->
                 </div><!-- /sidepanel-workflow -->
-
-                <div id="sidepanel-params" class="sidepanel-section hidden">
-                    <div class="right-params-header">
-                        <label class="section-label">PARAMETERS</label>
-                    </div>
-
-                    <!-- ── Face Groups Panel ───────────────────────────────── -->
-                    <div class="groups-panel" id="groups-panel">
-                        <div class="groups-panel-header">
-                            <label class="section-label">FACE GROUPS</label>
-                            <button id="group-mode-btn" class="group-mode-btn" onclick="toggleGroupMode()" title="Enter selection mode to create groups">
-                                ⊕ Select
-                            </button>
-                        </div>
-
-                        <!-- Selection-mode toolbar (revealed when active) -->
-                        <div id="group-mode-bar" class="group-mode-bar hidden">
-                            <div class="group-sel-row">
-                                <span class="group-sel-info">
-                                    <span id="group-sel-count">0</span> face(s) selected
-                                </span>
-                                <button class="group-sel-clear" onclick="clearFaceSelection()" title="Clear selection">✕ Clear</button>
-                            </div>
-                            <div class="group-create-row">
-                                <input id="group-name-input" class="group-name-input" type="text"
-                                    placeholder="e.g. holes, bosses, shafts…" maxlength="30"
-                                    onkeydown="if(event.key==='Enter') createGroupFromSelection()">
-                                <button class="group-create-btn" onclick="createGroupFromSelection()">Save</button>
-                            </div>
-                        </div>
-
-                        <!-- Existing groups list -->
-                        <div id="groups-list" class="groups-list">
-                            <p class="groups-empty-msg" id="groups-empty-msg">
-                                No groups yet — click <strong>⊕ Select</strong>, pick faces&nbsp;in the panel below, then save a group.
-                            </p>
-                        </div>
-                    </div><!-- /groups-panel -->
-
-                    <div class="right-params-body">
-                        <div id="parameters-form" class="parameters-form">
-                            <p class="params-placeholder">Generate a model to edit parameters</p>
-                        </div>
-                        <button id="regenerate-btn" class="regenerate-btn hidden">Regenerate Model</button>
-                    </div>
-                </div><!-- /sidepanel-params -->
 
             </aside>
 
@@ -209,37 +145,101 @@
                 <div class="tab-panels">
                     <!-- 3D Viewer -->
                     <div class="tab-panel active" id="panel-viewer3d">
-                        <div id="step3d-container">
-                            <canvas id="step3d-canvas"></canvas>
-                            <!-- Status overlay -->
-                            <div id="step3d-status">Upload a STEP file and click "Render 3D" to view</div>
-                            <!-- Loading spinner overlay -->
-                            <div id="step3d-loading" class="step3d-loading hidden">
-                                <div class="step3d-spinner"></div>
-                                <span id="step3d-loading-text">Loading…</span>
+                        <div class="viewer3d-layout">
+                            <div class="viewer3d-main">
+                                <div id="step3d-container">
+                                    <canvas id="step3d-canvas"></canvas>
+                                    <!-- Status overlay -->
+                                    <div id="step3d-status">Upload a STEP file and click "Render 3D" to view</div>
+                                    <!-- Loading spinner overlay -->
+                                    <div id="step3d-loading" class="step3d-loading hidden">
+                                        <div class="step3d-spinner"></div>
+                                        <span id="step3d-loading-text">Loading…</span>
+                                    </div>
+                                    <!-- Viewer toolbar -->
+                                    <div class="step3d-toolbar">
+                                        <button class="step3d-btn" id="step3d-btn-reset" onclick="stepViewer.resetView()"
+                                            title="Fit to view">⊡ Fit</button>
+                                        <button class="step3d-btn" id="step3d-btn-wire" onclick="stepViewer.toggleWireframe()"
+                                            title="Toggle wireframe">⬡ Wire</button>
+                                        <button class="step3d-btn" id="step3d-btn-pick" onclick="togglePointPickMode()"
+                                            title="Pick a point on the model surface">⊕ Point</button>
+                                    </div>
+                                    <!-- Face-click tooltip -->
+                                    <div id="step3d-face-tip" class="step3d-face-tip" style="display:none;"></div>
+                                    <div id="toast-container" class="toast-container"></div>
+                                    <!-- Point-name input bar (appears after clicking in point-pick mode) -->
+                                    <div id="point-name-bar" class="point-name-bar hidden">
+                                        <span class="point-name-bar-coords" id="point-name-coords"></span>
+                                        <input id="point-name-input" class="point-name-bar-input"
+                                               placeholder="Name this point…"
+                                               onkeydown="if(event.key==='Enter')saveNamedPoint()" />
+                                        <button class="point-name-bar-save" onclick="saveNamedPoint()">Save</button>
+                                        <button class="point-name-bar-cancel" onclick="_hidePointNameBar()">&#x2715;</button>
+                                    </div>
+                                </div>
+                                <button id="visualize-btn" class="visualize-btn hidden">Visualize Model</button>
                             </div>
-                            <!-- Viewer toolbar -->
-                            <div class="step3d-toolbar">
-                                <button class="step3d-btn" id="step3d-btn-reset" onclick="stepViewer.resetView()"
-                                    title="Fit to view">⊡ Fit</button>
-                                <button class="step3d-btn" id="step3d-btn-wire" onclick="stepViewer.toggleWireframe()"
-                                    title="Toggle wireframe">⬡ Wire</button>
-                                <button class="step3d-btn" id="step3d-btn-pick" onclick="togglePointPickMode()"
-                                    title="Pick a point on the model surface">⊕ Point</button>
-                            </div>
-                            <!-- Face-click tooltip -->
-                            <div id="step3d-face-tip" class="step3d-face-tip" style="display:none;"></div>
-                            <!-- Point-name input bar (appears after clicking in point-pick mode) -->
-                            <div id="point-name-bar" class="point-name-bar hidden">
-                                <span class="point-name-bar-coords" id="point-name-coords"></span>
-                                <input id="point-name-input" class="point-name-bar-input"
-                                       placeholder="Name this point…"
-                                       onkeydown="if(event.key==='Enter')saveNamedPoint()" />
-                                <button class="point-name-bar-save" onclick="saveNamedPoint()">Save</button>
-                                <button class="point-name-bar-cancel" onclick="_hidePointNameBar()">&#x2715;</button>
-                            </div>
+
+                            <aside id="sidepanel-params" class="viewer-params-column">
+                                <div class="right-params-header">
+                                    <label class="section-label">PARAMETERS</label>
+                                </div>
+
+                                <!-- ── Face Groups Panel ───────────────────────────────── -->
+                                <div class="groups-panel" id="groups-panel">
+                                    <div class="groups-panel-header">
+                                        <label class="section-label">FACE GROUPS</label>
+                                        <button id="group-mode-btn" class="group-mode-btn" onclick="toggleGroupMode()" title="Enter selection mode to create groups">
+                                            ⊕ Select
+                                        </button>
+                                    </div>
+
+                                    <!-- Selection-mode toolbar (revealed when active) -->
+                                    <div id="group-mode-bar" class="group-mode-bar hidden">
+                                        <div class="group-sel-row">
+                                            <span class="group-sel-info">
+                                                <span id="group-sel-count">0</span> face(s) selected
+                                            </span>
+                                            <button class="group-sel-clear" onclick="clearFaceSelection()" title="Clear selection">✕ Clear</button>
+                                        </div>
+                                        <div class="group-create-row">
+                                            <input id="group-name-input" class="group-name-input" type="text"
+                                                placeholder="e.g. holes, bosses, shafts…" maxlength="30"
+                                                onkeydown="if(event.key==='Enter') createGroupFromSelection()">
+                                            <button class="group-create-btn" onclick="createGroupFromSelection()">Save</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Existing groups list -->
+                                    <div id="groups-list" class="groups-list">
+                                        <p class="groups-empty-msg" id="groups-empty-msg">
+                                            No groups yet — click <strong>⊕ Select</strong>, pick faces&nbsp;in the panel below, then save a group.
+                                        </p>
+                                    </div>
+                                </div><!-- /groups-panel -->
+
+                                <div class="named-points-panel">
+                                    <div class="groups-panel-header">
+                                        <label class="section-label">NAMED POINTS</label>
+                                    </div>
+                                    <div class="named-points-section">
+                                        <div class="named-points-header">
+                                            <span class="named-points-hint">Use ⊕ Point in viewer, then click a point below to insert into the edit prompt</span>
+                                        </div>
+                                        <div id="named-points-empty" class="named-points-empty">No points saved yet — enable Point-Pick in the 3D viewer</div>
+                                        <div id="named-points-list" class="named-points-list"></div>
+                                    </div>
+                                </div>
+
+                                <div class="right-params-body">
+                                    <div id="parameters-form" class="parameters-form">
+                                        <p class="params-placeholder">Generate a model to edit parameters</p>
+                                    </div>
+                                    <button id="regenerate-btn" class="regenerate-btn hidden">Regenerate Model</button>
+                                </div>
+                            </aside>
                         </div>
-                        <button id="visualize-btn" class="visualize-btn hidden">Visualize Model</button>
                     </div>
 
                     <!-- Preview -->
@@ -298,7 +298,6 @@
                         <div class="edit-dock-top-row">
                             <label class="section-label" style="margin:0">EDIT STEP</label>
                             <div class="edit-dock-quick-actions">
-                                <button id="edit-dock-group-btn" class="edit-dock-action" onclick="openGroupSelectionWorkflow()" title="Open group selection in Parameters">Group Select</button>
                                 <button id="edit-dock-point-btn" class="edit-dock-action" onclick="togglePointPickMode()" title="Pick a point from the 3D model">Point Pick</button>
                             </div>
                         </div>
@@ -308,10 +307,11 @@
 
                         <div class="edit-dock-bottom-row">
                             <div class="llm-toggle-row compact">
-                                <span class="llm-toggle-label">AI</span>
-                                <div class="mode-tabs llm-provider-tabs compact">
-                                    <button id="provider-gemini-btn" class="mode-tab active" onclick="setLLMProvider('gemini')">Gemini</button>
-                                    <button id="provider-qwen-btn" class="mode-tab" onclick="setLLMProvider('ollama')">Qwen</button>
+                                <div class="llm-provider-select-wrap">
+                                    <select id="llm-provider-select" class="llm-provider-select" aria-label="Select model provider" onchange="setLLMProvider(this.value)">
+                                        <option value="gemini">Gemini</option>
+                                        <option value="ollama">Qwen (OS LLM)</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="prompt-btn-row compact">
@@ -320,17 +320,6 @@
                         </div>
 
                         <div id="edit-error" class="error-message"></div>
-
-                        <details class="named-points-details">
-                            <summary class="named-points-summary">Named Points</summary>
-                            <div class="named-points-section">
-                                <div class="named-points-header">
-                                    <span class="named-points-hint">Use ⊕ Point in viewer, then click a point below to insert into prompt</span>
-                                </div>
-                                <div id="named-points-empty" class="named-points-empty">No points saved yet — enable Point-Pick in the 3D viewer</div>
-                                <div id="named-points-list" class="named-points-list"></div>
-                            </div>
-                        </details>
                     </div>
                 </div>
             </section>
@@ -344,9 +333,6 @@
                 <p id="loading-message">Processing...</p>
             </div>
         </div>
-
-        <!-- Toast Container -->
-        <div id="toast-container" class="toast-container"></div>
 
         <!-- History Sidebar (slide-in drawer) -->
         <div id="history-overlay" class="history-overlay" onclick="closeHistorySidebar()"></div>
@@ -369,9 +355,9 @@
 
     </div><!-- /.app -->
 
-    <script src="js/api.js?v=21"></script>
-    <script src="js/step-viewer.js?v=21"></script>
-    <script src="js/app.js?v=21"></script>
+    <script src="js/api.js?v=25"></script>
+    <script src="js/step-viewer.js?v=25"></script>
+    <script src="js/app.js?v=25"></script>
 </body>
 
 </html>

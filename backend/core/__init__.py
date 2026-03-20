@@ -1,0 +1,1 @@
+"""SynthoCAD Core Package"""
